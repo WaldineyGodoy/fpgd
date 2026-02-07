@@ -107,7 +107,7 @@ const RegistrationForm = () => {
         setWarningMsg('');
 
         if (!formData.razao_social) {
-            setErrorMsg('Por favor, busque o CNPJ para preencher os dados da empresa.');
+            setErrorMsg('Por favor, informe a Razão Social da empresa.');
             return;
         }
 
@@ -184,8 +184,9 @@ const RegistrationForm = () => {
                             type="text"
                             name="razao_social"
                             value={formData.razao_social}
-                            readOnly
-                            className="w-full p-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-500 cursor-not-allowed focus:outline-none"
+                            onChange={handleChange}
+                            placeholder="Digite a Razão Social se não preenchido automáticamente"
+                            className="w-full p-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:ring-green-500 focus:border-transparent focus:outline-none transition-all"
                         />
                     </div>
                     <div className="space-y-1">
