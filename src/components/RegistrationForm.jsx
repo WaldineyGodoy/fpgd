@@ -7,6 +7,9 @@ import { IMaskInput } from 'react-imask';
 
 const RegistrationForm = () => {
     const location = useLocation();
+    const [initialCnpj, setInitialCnpj] = useState('');
+
+    // ... existing state ...
     const [formData, setFormData] = useState({
         cnpj: '',
         razao_social: '',
@@ -33,6 +36,9 @@ const RegistrationForm = () => {
     useEffect(() => {
         if (location.state?.message) {
             setWarningMsg(location.state.message);
+        }
+        if (location.state?.initialCnpj) {
+            setInitialCnpj(location.state.initialCnpj);
         }
     }, [location.state]);
 
@@ -163,7 +169,7 @@ const RegistrationForm = () => {
                     </div>
                 )}
 
-                <BuscaCNPJ onCompanyFound={handleCompanyFound} />
+                <BuscaCNPJ onCompanyFound={handleCompanyFound} initialValue={initialCnpj} />
 
                 {errorMsg && errorMsg.includes('Empresa já inscrita') && (
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-center font-bold">
@@ -238,8 +244,6 @@ const RegistrationForm = () => {
                             placeholder="Digite seu nome completo"
                         />
                     </div>
-
-                    {/* Participacao Manifestacao Removed */}
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
