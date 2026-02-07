@@ -20,7 +20,7 @@ const RegistrationForm = () => {
         email: '',
         telefone: '',
         contato_nome: '',
-        participa_manifestacao: '',
+        // participa_manifestacao removed
         afiliacao_associacao: ''
     });
 
@@ -29,18 +29,10 @@ const RegistrationForm = () => {
     const [errorMsg, setErrorMsg] = useState('');
     const [warningMsg, setWarningMsg] = useState('');
 
-    // Handle incoming state from Router (e.g. from AccessPage)
+    // Handle incoming state from Router
     useEffect(() => {
         if (location.state?.message) {
             setWarningMsg(location.state.message);
-            // Clear warning after 10 seconds? Or keep it? keeping it is better visibility.
-        }
-        if (location.state?.initialCnpj) {
-            // We technically need to search for it to fill data, 
-            // but for now just setting it might be enough if we modify BuscaCNPJ or just let user search.
-            // Actually, let's just pre-fill the state so BuscaCNPJ sees it? 
-            // BuscaCNPJ manages its own state. passing `initialValue` prop would be best.
-            // For simplicity, we just show the message.
         }
     }, [location.state]);
 
@@ -106,7 +98,7 @@ const RegistrationForm = () => {
         e.preventDefault();
         setLoading(true);
         setErrorMsg('');
-        setWarningMsg(''); // Clear warning on submit attempt
+        setWarningMsg('');
 
         if (!formData.razao_social) {
             setErrorMsg('Por favor, busque o CNPJ para preencher os dados da empresa.');
@@ -155,7 +147,7 @@ const RegistrationForm = () => {
 
     const closeModal = () => {
         setShowModal(false);
-        window.location.href = '/'; // Go back to home/access page?
+        window.location.href = '/';
     };
 
     return (
@@ -165,7 +157,6 @@ const RegistrationForm = () => {
                     Cadastro <span className="text-green-600">FPGD</span>
                 </h1>
 
-                {/* Custom Warning from Redirect */}
                 {warningMsg && (
                     <div className="p-4 mb-6 bg-orange-50 border border-orange-200 rounded-lg text-orange-800 text-center font-bold animate-pulse">
                         ⚠️ {warningMsg}
@@ -180,8 +171,6 @@ const RegistrationForm = () => {
                     </div>
                 )}
 
-                {/* ... Rest of form remains same ... */}
-                {/* Shortening file updates for brevity where possible, but here we need the full file for write_to_file */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Razão Social</label>
@@ -250,35 +239,7 @@ const RegistrationForm = () => {
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
-                            Você irá participar da manifestação dia 06/02?
-                        </label>
-                        <div className="flex gap-6">
-                            <label className="flex items-center space-x-3 cursor-pointer group">
-                                <input
-                                    type="radio"
-                                    name="participa_manifestacao"
-                                    value="Sim"
-                                    checked={formData.participa_manifestacao === 'Sim'}
-                                    onChange={handleChange}
-                                    className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500"
-                                />
-                                <span className="text-gray-700 group-hover:text-green-600 transition-colors">Sim</span>
-                            </label>
-                            <label className="flex items-center space-x-3 cursor-pointer group">
-                                <input
-                                    type="radio"
-                                    name="participa_manifestacao"
-                                    value="Não"
-                                    checked={formData.participa_manifestacao === 'Não'}
-                                    onChange={handleChange}
-                                    className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 focus:ring-green-500"
-                                />
-                                <span className="text-gray-700 group-hover:text-green-600 transition-colors">Não</span>
-                            </label>
-                        </div>
-                    </div>
+                    {/* Participacao Manifestacao Removed */}
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-3">
