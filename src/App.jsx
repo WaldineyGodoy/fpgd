@@ -4,6 +4,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import RegistrationForm from './components/RegistrationForm';
 import AccessPage from './pages/AccessPage';
 import SchedulingPage from './pages/SchedulingPage';
+import SuccessPage from './pages/SuccessPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/consulta_cadastro" element={<AccessPage />} />
           <Route path="/agendamento" element={<SchedulingPage />} />
           <Route path="/cadastro" element={<RegistrationForm />} />
+          <Route path="/success" element={<SuccessPage />} />
         </Routes>
       </div>
     </HashRouter>

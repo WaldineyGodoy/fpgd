@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BuscaCNPJ from './BuscaCNPJ';
 import { supabase } from '../supabaseClient';
 import { IMaskInput } from 'react-imask';
 
 const RegistrationForm = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [initialCnpj, setInitialCnpj] = useState('');
 
-    // ... existing state ...
     const [formData, setFormData] = useState({
         cnpj: '',
         razao_social: '',
@@ -153,7 +153,7 @@ const RegistrationForm = () => {
 
     const closeModal = () => {
         setShowModal(false);
-        window.location.href = '/';
+        navigate('/success');
     };
 
     return (
