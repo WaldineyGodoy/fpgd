@@ -41,16 +41,8 @@ const TicketDashboard: React.FC = () => {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-        return;
-      }
-      fetchTickets();
-    };
-    checkUser();
-  }, [navigate]);
+    fetchTickets();
+  }, []);
 
   const fetchTickets = async () => {
     setLoading(true);

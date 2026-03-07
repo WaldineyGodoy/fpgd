@@ -43,10 +43,7 @@ const TicketForm: React.FC = () => {
   useEffect(() => {
     const fetchCompany = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-        return;
-      }
+      if (!user) return;
 
       const { data } = await supabase
         .from('companies')
