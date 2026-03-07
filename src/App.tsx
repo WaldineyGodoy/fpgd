@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage';
 import TicketDashboard from './pages/TicketDashboard';
 import TicketForm from './pages/TicketForm';
 import TicketDetails from './pages/TicketDetails';
+import LandingPageDemo from './pages/LandingPageDemo';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -23,6 +24,12 @@ const AnimatedRoutes = () => {
         <Route path="/login" element={
           <PageWrapper>
             <LoginPage />
+          </PageWrapper>
+        } />
+
+        <Route path="/demo" element={
+          <PageWrapper>
+            <LandingPageDemo />
           </PageWrapper>
         } />
 
