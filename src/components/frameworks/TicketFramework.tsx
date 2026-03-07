@@ -127,7 +127,7 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
                 status_protocolo: formData.status_protocolo,
                 descricao_reclamacao: formData.descricao_reclamacao,
                 esta_de_acordo: formData.esta_de_acordo,
-                recurso: formData.esta_de_acordo ? formData.recurso : null,
+                recurso: !formData.esta_de_acordo ? formData.recurso : null,
                 nps_data: formData.nps
             }]);
 
