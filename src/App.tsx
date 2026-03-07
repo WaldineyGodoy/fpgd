@@ -3,6 +3,7 @@ import React from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import RegistrationForm from './components/RegistrationForm';
+import ClientRegistrationForm from './components/ClientRegistrationForm';
 import AccessPage from './pages/AccessPage';
 import SchedulingPage from './pages/SchedulingPage';
 import SuccessPage from './pages/SuccessPage';
@@ -48,6 +49,12 @@ const AnimatedRoutes = () => {
         <Route path="/cadastro" element={
           <PageWrapper>
             <RegistrationForm />
+          </PageWrapper>
+        } />
+
+        <Route path="/cadastro_cliente" element={
+          <PageWrapper>
+            <ClientRegistrationForm />
           </PageWrapper>
         } />
 
