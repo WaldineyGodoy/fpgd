@@ -16,8 +16,8 @@ const LandingPageDemo: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-12 text-center"
             >
-                <h1 className="text-5xl font-black text-gray-800 mb-2">Frameworks <span className="text-green-600">FPGD</span></h1>
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Demonstração de Integração em Landing Page</p>
+                <h1 className="text-5xl font-black text-gray-800 mb-2">Protocolos e Tickets de <span className="text-green-600">atendimento</span></h1>
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Sistema de Gestão de Pleitos FPGD</p>
             </motion.div>
 
             <AnimatePresence mode="wait">

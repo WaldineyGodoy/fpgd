@@ -219,12 +219,34 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-black text-gray-400 uppercase ml-1">Mês de Ref. da conta</label>
-                                <input
-                                    type="month"
-                                    value={formData.mes_referencia}
-                                    onChange={e => setFormData({ ...formData, mes_referencia: e.target.value })}
-                                    className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700"
-                                />
+                                <div className="grid grid-cols-2 gap-2">
+                                    <select
+                                        value={formData.mes_referencia.split('-')[1] || ''}
+                                        onChange={e => {
+                                            const year = formData.mes_referencia.split('-')[0] || new Date().getFullYear().toString();
+                                            setFormData({ ...formData, mes_referencia: `${year}-${e.target.value}` });
+                                        }}
+                                        className="p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700 bg-white"
+                                    >
+                                        <option value="" disabled>Mês</option>
+                                        {['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'].map(m => (
+                                            <option key={m} value={m}>{new Date(2024, parseInt(m) - 1).toLocaleString('pt-BR', { month: 'long' })}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={formData.mes_referencia.split('-')[0] || ''}
+                                        onChange={e => {
+                                            const month = formData.mes_referencia.split('-')[1] || '01';
+                                            setFormData({ ...formData, mes_referencia: `${e.target.value}-${month}` });
+                                        }}
+                                        className="p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700 bg-white"
+                                    >
+                                        <option value="" disabled>Ano</option>
+                                        {[2023, 2024, 2025, 2026].map(y => (
+                                            <option key={y} value={y.toString()}>{y}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                             <div className="pt-2">
                                 <button
@@ -254,18 +276,59 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
 
                             {formData.tipo_uc === 'Geradora' ? (
                                 <div className="space-y-4">
-                                    <input type="text" placeholder="Código Cliente UG" value={formData.codigo_cliente_ug} onChange={e => setFormData({ ...formData, codigo_cliente_ug: e.target.value })} className="w-full p-4 rounded-2xl border-2 border-gray-50" />
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-black text-gray-400 uppercase ml-1">Código do Cliente Unidade Geradora</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Código da Unidade Geradora"
+                                            value={formData.codigo_cliente_ug}
+                                            onChange={e => setFormData({ ...formData, codigo_cliente_ug: e.target.value })}
+                                            className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700"
+                                        />
+                                    </div>
                                     <div className="p-4 bg-gray-50 rounded-2xl">
                                         <p className="text-sm font-bold text-gray-700 mb-2">Há beneficiárias que recebem créditos?</p>
                                         <div className="flex gap-4">
                                             <button onClick={() => setFormData({ ...formData, tem_beneficiarias: true })} className={`px-6 py-2 rounded-xl font-bold ${formData.tem_beneficiarias === true ? 'bg-green-600 text-white' : 'bg-white text-gray-400 border'}`}>Sim</button>
-                                            <button onClick={() => { setFormData({ ...formData, tem_beneficiarias: false, codigo_cliente_uc: [] }); nextStep(); }} className={`px-6 py-2 rounded-xl font-bold ${formData.tem_beneficiarias === false ? 'bg-red-600 text-white' : 'bg-white text-gray-400 border'}`}>Não</button>
+                                            <button
+                                                onClick={() => {
+                                                    if (!formData.codigo_cliente_ug) {
+                                                        alert('Preencha o Código da Unidade Geradora primeiro.');
+                                                        return;
+                                                    }
+                                                    setFormData({ ...formData, tem_beneficiarias: false, codigo_cliente_uc: [] });
+                                                    nextStep();
+                                                }}
+                                                className={`px-6 py-2 rounded-xl font-bold ${formData.tem_beneficiarias === false ? 'bg-red-600 text-white' : 'bg-white text-gray-400 border'}`}
+                                            >
+                                                Não
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <input type="text" placeholder="Código Cliente Beneficiária" value={newUc} onChange={e => setNewUc(e.target.value)} onBlur={() => { if (newUc) setFormData({ ...formData, codigo_cliente_uc: [newUc] }) }} className="w-full p-4 rounded-2xl border-2 border-gray-50" />
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-black text-gray-400 uppercase ml-1">Código Cliente Beneficiária</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Código da Unidade Beneficiária"
+                                            value={newUc}
+                                            onChange={e => setNewUc(e.target.value)}
+                                            onBlur={() => { if (newUc) setFormData({ ...formData, codigo_cliente_uc: [newUc] }) }}
+                                            className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-black text-gray-400 uppercase ml-1">Código do Cliente Unidade Geradora</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Código da Unidade Geradora Associada"
+                                            value={formData.codigo_cliente_ug}
+                                            onChange={e => setFormData({ ...formData, codigo_cliente_ug: e.target.value })}
+                                            className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700"
+                                        />
+                                    </div>
                                     <div className="p-4 bg-gray-50 rounded-2xl">
                                         <p className="text-sm font-bold text-gray-700 mb-2">Há mais beneficiárias?</p>
                                         <div className="flex gap-4">
@@ -273,7 +336,6 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
                                             <button onClick={() => setFormData({ ...formData, tem_mais_beneficiarias: false })} className={`px-6 py-3 rounded-xl font-bold ${formData.tem_mais_beneficiarias === false ? 'bg-red-600 text-white' : 'bg-white text-gray-400 border'}`}>Não</button>
                                         </div>
                                     </div>
-                                    <input type="text" placeholder="Código Cliente UG Associada" value={formData.codigo_cliente_ug} onChange={e => setFormData({ ...formData, codigo_cliente_ug: e.target.value })} className="w-full p-4 rounded-2xl border-2 border-gray-50" />
                                 </div>
                             )}
 
