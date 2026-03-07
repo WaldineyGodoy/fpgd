@@ -95,10 +95,14 @@ const LoginFramework: React.FC<LoginFrameworkProps> = ({ onSuccess, onRegisterRe
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: email,
                 password: password,
+                options: {
+                    emailRedirectTo: window.location.origin + window.location.pathname
+                }
             });
 
             if (authError || !authData.user) throw authError || new Error('Signup failed');
 
+            // Update company with user ID
             const { error: updateError } = await supabase
                 .from('companies')
                 .update({
@@ -109,9 +113,14 @@ const LoginFramework: React.FC<LoginFrameworkProps> = ({ onSuccess, onRegisterRe
 
             if (updateError) throw updateError;
 
-            onSuccess(authData.user);
-        } catch (err) {
-            setError('Erro ao criar conta.');
+            if (authData.session) {
+                onSuccess(authData.user);
+            } else {
+                setError('Um email de confirmação foi enviado. Por favor, verifique sua caixa de entrada para ativar sua conta.');
+                // Optionally reset step to cnpj or stay on signup with the message
+            }
+        } catch (err: any) {
+            setError(err.message || 'Erro ao criar conta.');
         } finally {
             setLoading(false);
         }

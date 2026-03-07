@@ -207,20 +207,34 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
                                 <label className="text-xs font-black text-gray-400 uppercase ml-1">Integrador Responsável</label>
                                 <p className="p-4 bg-gray-50 rounded-2xl font-bold text-gray-600 border border-gray-100">{formData.integrador_nome}</p>
                             </div>
-                            <input
-                                type="text"
-                                placeholder="Nome Completo do Cliente"
-                                value={formData.cliente}
-                                onChange={e => setFormData({ ...formData, cliente: e.target.value })}
-                                className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none"
-                            />
-                            <input
-                                type="month"
-                                value={formData.mes_referencia}
-                                onChange={e => setFormData({ ...formData, mes_referencia: e.target.value })}
-                                className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold"
-                            />
-                            <button onClick={nextStep} disabled={!formData.cliente || !formData.mes_referencia} className="w-full py-5 bg-green-600 text-white font-black rounded-2xl shadow-xl">Avançar ➜</button>
+                            <div className="space-y-1">
+                                <label className="text-xs font-black text-gray-400 uppercase ml-1">Nome do Cliente</label>
+                                <input
+                                    type="text"
+                                    placeholder="Nome Completo do Cliente"
+                                    value={formData.cliente}
+                                    onChange={e => setFormData({ ...formData, cliente: e.target.value })}
+                                    className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700"
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs font-black text-gray-400 uppercase ml-1">Mês de Ref. da conta</label>
+                                <input
+                                    type="month"
+                                    value={formData.mes_referencia}
+                                    onChange={e => setFormData({ ...formData, mes_referencia: e.target.value })}
+                                    className="w-full p-4 rounded-2xl border-2 border-gray-50 focus:border-green-500 outline-none font-bold text-gray-700"
+                                />
+                            </div>
+                            <div className="pt-2">
+                                <button
+                                    onClick={nextStep}
+                                    disabled={!formData.cliente || !formData.mes_referencia}
+                                    className="w-full py-5 bg-green-600 text-white font-black rounded-2xl shadow-xl hover:bg-green-700 transition-all disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
+                                >
+                                    {!formData.cliente || !formData.mes_referencia ? 'Preencha os campos acima' : 'Avançar ➜'}
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 )}
@@ -279,7 +293,13 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
 
                             <div className="flex gap-3 pt-4">
                                 <button onClick={prevStep} className="flex-1 py-4 text-gray-400 font-bold">Voltar</button>
-                                <button onClick={nextStep} className="flex-[2] py-4 bg-green-600 text-white font-black rounded-2xl">Continuar ➜</button>
+                                <button
+                                    onClick={nextStep}
+                                    disabled={!formData.codigo_cliente_ug}
+                                    className="flex-[2] py-4 bg-green-600 text-white font-black rounded-2xl shadow-lg disabled:opacity-30"
+                                >
+                                    Continuar ➜
+                                </button>
                             </div>
                         </div>
                     </motion.div>
@@ -315,7 +335,13 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
                         <textarea placeholder="Relate o ocorrido..." rows={3} value={formData.descricao_reclamacao} onChange={e => setFormData({ ...formData, descricao_reclamacao: e.target.value })} className="w-full p-4 rounded-2xl border-2 border-gray-50 resize-none font-medium" />
                         <div className="flex gap-3 pt-4">
                             <button onClick={prevStep} className="flex-1 py-4 text-gray-400 font-bold">Voltar</button>
-                            <button onClick={nextStep} className="flex-[2] py-4 bg-green-600 text-white font-black rounded-2xl">Continuar ➜</button>
+                            <button
+                                onClick={nextStep}
+                                disabled={!formData.numero_protocolo || !formData.data_abertura}
+                                className="flex-[2] py-4 bg-green-600 text-white font-black rounded-2xl shadow-lg disabled:opacity-30"
+                            >
+                                Continuar ➜
+                            </button>
                         </div>
                     </motion.div>
                 )}

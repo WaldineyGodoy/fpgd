@@ -92,10 +92,14 @@ const LoginPage: React.FC = () => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: email,
         password: password,
+        options: {
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
       });
 
       if (authError || !authData.user) throw authError || new Error('Signup failed');
 
+      // Update company with user ID
       const { error: updateError } = await supabase
         .from('companies')
         .update({
@@ -106,9 +110,14 @@ const LoginPage: React.FC = () => {
 
       if (updateError) throw updateError;
 
-      navigate('/tickets');
-    } catch (err) {
-      setError('Erro ao criar conta. Tente novamente.');
+      if (authData.session) {
+        navigate('/tickets');
+      } else {
+        setError('Um email de confirmação foi enviado. Por favor, verifique sua caixa de entrada para ativar sua conta e depois faça o login.');
+        setStep('cnpj'); // Redirect back to start to let them login after confirming
+      }
+    } catch (err: any) {
+      setError(err.message || 'Erro ao criar conta. Tente novamente.');
     } finally {
       setLoading(false);
     }
