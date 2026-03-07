@@ -34,7 +34,7 @@ const TicketForm: React.FC = () => {
     tipo_chamado: 'Compensação',
     numero_protocolo: '',
     data_abertura: '',
-    status_protocolo: 'Não aberto',
+    status_protocolo: 'Em Aberto',
     descricao_reclamacao: '',
     esta_de_acordo: false,
     recurso: 'Abrir novo protocolo'
@@ -222,10 +222,9 @@ const TicketForm: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Status Atual</label>
               <select name="status_protocolo" value={formData.status_protocolo} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white">
-                <option>Não aberto</option>
-                <option>Em analise</option>
-                <option>Fechado Procedente</option>
-                <option>Fechado Improcente</option>
+                <option value="Em Aberto">Em Aberto</option>
+                <option value="Respondido">Respondido</option>
+                <option value="Resolvido">Resolvido</option>
               </select>
             </div>
             <div className="space-y-2">

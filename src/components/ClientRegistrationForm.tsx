@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import BuscaCNPJ from './BuscaCNPJ';
+import BuscaIntegrador from './BuscaIntegrador';
 import { IMaskInput } from 'react-imask';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -24,6 +25,7 @@ interface FormData {
     paineis_potencia: number;
     inversor_quantidade: number;
     inversor_potencia: number;
+    integrador_id?: string;
 }
 
 const ClientRegistrationForm: React.FC = () => {
@@ -47,6 +49,7 @@ const ClientRegistrationForm: React.FC = () => {
         paineis_potencia: 0,
         inversor_quantidade: 0,
         inversor_potencia: 0,
+        integrador_id: '',
     });
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -165,6 +168,13 @@ const ClientRegistrationForm: React.FC = () => {
                     <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
                         Identificação
                     </h2>
+                    
+                    <div className="space-y-2 mb-6">
+                        <label className="text-sm font-black text-gray-700 ml-1">Vendedor / Integrador Responsável</label>
+                        <BuscaIntegrador onSelect={(int) => setFormData(prev => ({ ...prev, integrador_id: int?.id }))} />
+                        <p className="text-[10px] text-gray-400 font-bold uppercase ml-1">Pesquise pela empresa que realizou sua instalação</p>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <label className="text-sm font-black text-gray-700 ml-1">CNPJ da Empresa</label>
