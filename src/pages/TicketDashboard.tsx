@@ -391,7 +391,3 @@ const TicketDashboard: React.FC = () => {
 };
 
 export default TicketDashboard;
-  );
-};
-
-export default TicketDashboard;
