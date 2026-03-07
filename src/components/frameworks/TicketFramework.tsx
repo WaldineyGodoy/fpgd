@@ -5,16 +5,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { IMaskInput } from 'react-imask';
 
 interface NPSData {
-    agencias?: number;
-    whatsapp?: number;
-    telefone?: number;
-    portal_gd?: number;
-    homologacao?: number;
-    lista_rateio?: number;
-    aumento_carga?: number;
-    equipe_campo_extensao?: number;
-    equipe_campo_vistoria?: number;
-    atendimento_agencia_fisica?: number;
+    agencias?: number | null;
+    whatsapp?: number | null;
+    telefone?: number | null;
+    portal_gd?: number | null;
+    homologacao?: number | null;
+    lista_rateio?: number | null;
+    aumento_carga?: number | null;
+    equipe_campo_extensao?: number | null;
+    equipe_campo_vistoria?: number | null;
+    atendimento_agencia_fisica?: number | null;
 }
 
 interface FormData {
@@ -104,7 +104,7 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
     const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
     const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
-    const updateNPS = (key: keyof NPSData, value: number) => {
+    const updateNPS = (key: keyof NPSData, value: number | null) => {
         setFormData(prev => ({
             ...prev,
             nps: { ...prev.nps, [key]: value }
@@ -140,14 +140,24 @@ const TicketFramework: React.FC<{ onComplete?: () => void }> = ({ onComplete }) 
         }
     };
 
-    const StarRating = ({ value, onChange, label }: { value?: number, onChange: (v: number) => void, label: string }) => (
+    const StarRating = ({ value, onChange, label }: { value?: number | null, onChange: (v: number | null) => void, label: string }) => (
         <div className="space-y-2">
-            <p className="text-sm font-bold text-gray-700">{label}</p>
-            <div className="flex gap-2">
+            <div className="flex justify-between items-center">
+                <p className="text-sm font-bold text-gray-700">{label}</p>
+                <button
+                    type="button"
+                    onClick={() => onChange(value === null ? undefined as any : null)}
+                    className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter transition-all ${value === null ? 'bg-orange-100 text-orange-600 border border-orange-200' : 'bg-gray-50 text-gray-400 hover:text-gray-600 border border-gray-100'}`}
+                >
+                    Não Utilizei
+                </button>
+            </div>
+            <div className={`flex gap-2 transition-all ${value === null ? 'opacity-30 grayscale pointer-events-none' : ''}`}>
                 {[1, 2, 3, 4, 5].map(star => (
                     <button
                         key={star}
                         type="button"
+                        disabled={value === null}
                         onClick={() => onChange(star)}
                         className={`w-10 h-10 rounded-lg font-black transition-all ${value === star ? 'bg-green-600 text-white scale-110 shadow-lg shadow-green-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
                     >
