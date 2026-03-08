@@ -41,9 +41,10 @@ const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 
 interface TicketDashboardProps {
   view?: 'dashboard' | 'list';
+  isPublic?: boolean;
 }
 
-const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' }) => {
+const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', isPublic = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [tickets, setTickets] = useState<TicketData[]>([]);
@@ -83,7 +84,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' })
     setLoading(true);
     try {
       const { data: { user: supabaseUser } } = await supabase.auth.getUser();
-      if (!supabaseUser) return;
+      // Allow fetching even if no user, because we have public SELECT policy
 
       let query = supabase
         .from('tickets')
@@ -91,11 +92,13 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' })
         .order('created_at', { ascending: false });
 
       // Apply RBAC Filtering (Removed to make dashboard global as requested)
-      const { data: userComp } = await supabase
-        .from('companies')
-        .select('id, user_type, integrador_id')
-        .eq('auth_user_id', supabaseUser.id)
-        .maybeSingle();
+      if (supabaseUser) {
+        const { data: userComp } = await supabase
+          .from('companies')
+          .select('id, user_type, integrador_id')
+          .eq('auth_user_id', supabaseUser.id)
+          .maybeSingle();
+      }
       
       // The query will now fetch all tickets regardless of user context.
 
@@ -217,7 +220,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' })
               onClick={() => navigate('/tickets/novo')}
               className="flex-1 bg-green-600 text-white px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-100 ring-4 ring-green-50 transition-all hover:bg-green-700"
             >
-              <Plus className="w-5 h-5" /> Abrir Novo Ticket
+              <Plus className="w-5 h-5" /> {isPublic ? 'Faça uma reclamação' : 'Abrir Novo Ticket'}
             </motion.button>
           </div>
         </div>
@@ -462,7 +465,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' })
           )}
 
           {/* Meus Tickets Section (Image 1 Reference) */}
-            {user && (
+            {user && !isPublic && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

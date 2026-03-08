@@ -50,6 +50,12 @@ const AnimatedRoutes = () => {
             <AccessPage />
           </PageWrapper>
         } />
+        
+        <Route path="/satisfacao" element={
+          <PageWrapper>
+            <TicketDashboard isPublic={true} />
+          </PageWrapper>
+        } />
 
         <Route path="/agendamento" element={
           <PageWrapper>
