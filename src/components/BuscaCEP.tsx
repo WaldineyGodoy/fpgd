@@ -6,10 +6,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 interface AddressData {
     cep: string;
-    logradouro: string;
-    bairro: string;
+    logradouro?: string;
+    bairro?: string;
     city: string;
     state: string;
+    ibge?: string;
     service?: string;
 }
 
@@ -34,8 +35,20 @@ const BuscaCEP: React.FC<BuscaCEPProps> = ({ onAddressFound, initialValue = '' }
         setError(null);
 
         try {
-            const response = await axios.get(`https://brasilapi.com.br/api/cep/v1/${cleanCep}`);
-            onAddressFound(response.data);
+            const response = await axios.get(`https://viacep.com.br/ws/${cleanCep}/json/`);
+            if (response.data.erro) {
+                setError('CEP não encontrado ou erro na busca.');
+                onAddressFound(null);
+                return;
+            }
+            onAddressFound({
+                cep: response.data.cep,
+                logradouro: response.data.logradouro,
+                bairro: response.data.bairro,
+                city: response.data.localidade,
+                state: response.data.uf,
+                ibge: response.data.ibge
+            });
         } catch (err: any) {
             setError('CEP não encontrado ou erro na busca.');
             onAddressFound(null);

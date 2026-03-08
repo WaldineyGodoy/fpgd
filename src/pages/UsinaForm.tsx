@@ -172,10 +172,14 @@ const UsinaForm = () => {
 
   const handleCepData = (data: any) => {
     if (data) {
-      setFormData(prev => ({ 
-        ...prev, 
-        endereco: `${data.logradouro || ''}, ${data.bairro || ''} - ${data.city || data.localidade || ''}/${data.state || data.uf || ''}`.replace(/^[,\s]+|[,\s]+$/g, '').replace(/,\s*-/g, ' -')
-      }));
+      if (data.logradouro) {
+        setFormData(prev => ({ 
+          ...prev, 
+          endereco: `${data.logradouro}${data.bairro ? ', ' + data.bairro : ''} - ${data.city || ''}/${data.state || ''}`
+        }));
+      } else {
+        setFormData(prev => ({ ...prev, endereco: '' }));
+      }
       if (data.ibge) {
         setCepIbge(data.ibge);
       }
