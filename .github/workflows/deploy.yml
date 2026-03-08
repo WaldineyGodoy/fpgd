@@ -34,4 +34,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: /public_html/
+          server-dir: /domains/fpgd.site/public_html/
+          dangerous-clean-slate: false # Garante que nada será apagado no servidor
