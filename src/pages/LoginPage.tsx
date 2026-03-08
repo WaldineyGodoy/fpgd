@@ -59,7 +59,11 @@ const LoginPage: React.FC = () => {
       setShowSuccessModal(true);
       setError('');
     } catch (err: any) {
-      setError(err.message);
+      if (err.message === 'email rate limit exceeded') {
+        setError('Muitas solicitações seguidas. Por favor, aguarde 1 minuto e tente novamente.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
