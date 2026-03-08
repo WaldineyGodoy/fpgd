@@ -49,16 +49,36 @@ const TicketForm: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('companies')
         .select('*')
         .eq('auth_user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setCompany(data);
         if (data.integrador_id) {
           setSelectedIntegratorId(data.integrador_id);
+        }
+      } else if (user.email) {
+        // Fallback: search by email to link existing unlinked records
+        const { data: emailData } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('email', user.email)
+          .maybeSingle();
+
+        if (emailData) {
+          // Auto-link for future sessions
+          await supabase
+            .from('companies')
+            .update({ auth_user_id: user.id })
+            .eq('id', emailData.id);
+          
+          setCompany({ ...emailData, auth_user_id: user.id });
+          if (emailData.integrador_id) {
+            setSelectedIntegratorId(emailData.integrador_id);
+          }
         }
       }
     };
@@ -102,7 +122,11 @@ const TicketForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!company) return;
+    
+    if (!company) {
+      alert('Não foi possível identificar sua empresa. Verifique sua conexão ou faça login novamente.');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -125,9 +149,9 @@ const TicketForm: React.FC = () => {
 
       if (error) throw error;
       navigate('/tickets');
-    } catch (err) {
-      console.error(err);
-      alert('Erro ao salvar ticket.');
+    } catch (err: any) {
+      console.error('Erro detalhado:', err);
+      alert(`Erro ao salvar ticket: ${err.message || 'Erro desconhecido'}`);
     } finally {
       setLoading(false);
     }
