@@ -1,8 +1,10 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { supabase } from '../supabaseClient';
 import BuscaCNPJ from './BuscaCNPJ';
+import BuscaCEP from './BuscaCEP';
 import BuscaIntegrador from './BuscaIntegrador';
 import { IMaskInput } from 'react-imask';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,7 +32,7 @@ interface FormData {
 
 const ClientRegistrationForm: React.FC = () => {
     const navigate = useNavigate();
-
+    const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<FormData>({
         cnpj: '',
         razao_social: '',
@@ -54,7 +56,6 @@ const ClientRegistrationForm: React.FC = () => {
 
     const [loading, setLoading] = useState<boolean>(false);
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [cnpjChecked, setCnpjChecked] = useState<boolean>(false);
     const [cnpjError, setCnpjError] = useState<string | null>(null);
 
     const handleCompanyFound = (data: any | null) => {
@@ -64,32 +65,41 @@ const ClientRegistrationForm: React.FC = () => {
                 cnpj: data.cnpj,
                 razao_social: data.razao_social,
                 nome_fantasia: data.nome_fantasia || data.razao_social,
-                logradouro: data.logradouro,
-                numero: data.numero,
-                bairro: data.bairro,
-                municipio: data.municipio,
-                uf: data.uf,
-                cep: data.cep,
+                logradouro: data.logradouro || prev.logradouro,
+                bairro: data.bairro || prev.bairro,
+                municipio: data.municipio || prev.municipio,
+                uf: data.uf || prev.uf,
+                cep: data.cep || prev.cep,
             }));
             checkExistingCnpj(data.cnpj);
-        } else {
-            setCnpjChecked(false);
+        }
+    };
+
+    const handleAddressFound = (data: any | null) => {
+        if (data) {
+            setFormData(prev => ({
+                ...prev,
+                logradouro: data.logradouro,
+                bairro: data.bairro || '',
+                municipio: data.city || data.municipio,
+                uf: data.state || data.uf,
+                cep: data.cep
+            }));
         }
     };
 
     const checkExistingCnpj = async (cnpj: string) => {
+        const cleanCnpj = cnpj.replace(/\D/g, '');
         const { data } = await supabase
             .from('companies')
             .select('cnpj')
-            .eq('cnpj', cnpj)
+            .eq('cnpj', cleanCnpj)
             .single();
 
         if (data) {
-            setCnpjError('Este CNPJ já está cadastrado em nossa base.');
-            setCnpjChecked(false);
+            setCnpjError('Este documento já está cadastrado.');
         } else {
             setCnpjError(null);
-            setCnpjChecked(true);
         }
     };
 
@@ -106,7 +116,6 @@ const ClientRegistrationForm: React.FC = () => {
         setLoading(true);
 
         try {
-            // 1. Create Login at Supabase Auth
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password!,
@@ -121,12 +130,14 @@ const ClientRegistrationForm: React.FC = () => {
             if (authError) throw authError;
             if (!authData.user) throw new Error("Erro ao criar usuário.");
 
-            // 2. Save Company Data linked to Auth User
             const { password, ...companyData } = formData;
+            const cleanCnpj = formData.cnpj.replace(/\D/g, '');
+            
             const { error: dbError } = await supabase
                 .from('companies')
                 .insert([{
                     ...companyData,
+                    cnpj: cleanCnpj,
                     auth_user_id: authData.user.id
                 }]);
 
@@ -139,9 +150,12 @@ const ClientRegistrationForm: React.FC = () => {
         }
     };
 
-    const closeModal = () => {
-        setShowModal(false);
-        navigate('/login');
+    const isStep1Valid = () => {
+        return formData.email && formData.telefone && (formData.password?.length || 0) >= 6 && formData.cnpj && formData.razao_social;
+    };
+
+    const isStep2Valid = () => {
+        return formData.cep && formData.logradouro && formData.municipio && formData.uf;
     };
 
     return (
@@ -150,103 +164,183 @@ const ClientRegistrationForm: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-4xl p-8 bg-white/95 backdrop-blur-sm rounded-[2.5rem] shadow-2xl border border-white/20"
         >
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start mb-8">
                 <div>
                     <h1 className="text-4xl font-black text-gray-800">Cadastro <span className="text-green-600">Cliente</span></h1>
-                    <p className="text-gray-400 font-bold border-b border-gray-100 pb-6 uppercase tracking-widest text-xs">Gestão e acompanhamento</p>
+                    <p className="text-gray-400 font-bold border-b border-gray-100 pb-2 uppercase tracking-widest text-xs">Passo {step} de 3</p>
                 </div>
-                <button 
-                  onClick={() => navigate('/login')}
-                  className="px-4 py-2 text-xs font-black text-gray-400 hover:text-green-600 uppercase transition-all"
-                >
-                  Voltar ao Login
-                </button>
+                <div className="flex gap-2">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className={`h-2 w-8 rounded-full transition-all ${step >= i ? 'bg-green-600' : 'bg-gray-100'}`} />
+                    ))}
+                </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-                <section className="space-y-6">
-                    <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                        Identificação
-                    </h2>
-                    
-                    <div className="space-y-2 mb-6">
-                        <label className="text-sm font-black text-gray-700 ml-1">Vendedor / Integrador Responsável</label>
-                        <BuscaIntegrador onSelect={(int) => setFormData(prev => ({ ...prev, integrador_id: int?.id }))} />
-                        <p className="text-[10px] text-gray-400 font-bold uppercase ml-1">Pesquise pela empresa que realizou sua instalação</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-black text-gray-700 ml-1">CNPJ da Empresa</label>
-                            <BuscaCNPJ onCompanyFound={handleCompanyFound} />
-                            <AnimatePresence>
-                                {cnpjError && (
-                                    <motion.p
-                                        initial={{ opacity: 0, scale: 0.9 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="text-red-500 text-xs font-bold mt-1"
-                                    >
-                                        {cnpjError}
-                                    </motion.p>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-black text-gray-700 ml-1">Razão Social</label>
-                            <input
-                                type="text"
-                                name="razao_social"
-                                value={formData.razao_social}
-                                onChange={handleChange}
-                                className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium"
-                                required
-                            />
-                        </div>
-                    </div>
-                </section>
-
-                <AnimatePresence>
-                    {cnpjChecked && (
+                <AnimatePresence mode="wait">
+                    {step === 1 && (
                         <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="space-y-8 overflow-hidden"
+                            key="step1"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-8"
                         >
                             <section className="space-y-6">
-                                <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Localização</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="space-y-2 md:col-span-1">
-                                        <label className="text-sm font-black text-gray-700 ml-1">CEP</label>
+                                <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Acesso & Identificação</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-black text-gray-700 ml-1">E-mail Principal (Login)</label>
+                                        <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" placeholder="seu@email.com" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-black text-gray-700 ml-1">Telefone</label>
                                         <IMaskInput
-                                            mask="00000-000"
-                                            value={formData.cep}
-                                            onAccept={(value: string) => setFormData(prev => ({ ...prev, cep: value }))}
+                                            mask="(00) 00000-0000"
+                                            value={formData.telefone}
+                                            onAccept={(value: string) => setFormData(prev => ({ ...prev, telefone: value }))}
+                                            required
                                             className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
-                                        <label className="text-sm font-black text-gray-700 ml-1">Logradouro</label>
-                                        <input type="text" name="logradouro" value={formData.logradouro} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+                                        <label className="text-sm font-black text-gray-700 ml-1">Senha (Mín. 6 caracteres)</label>
+                                        <input type="password" name="password" value={formData.password} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-black text-gray-700 ml-1">Número</label>
-                                        <input type="text" name="numero" value={formData.numero} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+                                        <label className="text-sm font-black text-gray-700 ml-1">CPF/CNPJ</label>
+                                        <IMaskInput
+                                            mask={[
+                                                { mask: '000.000.000-00' },
+                                                { mask: '00.000.000/0000-00' }
+                                            ]}
+                                            value={formData.cnpj}
+                                            onAccept={(value: string) => {
+                                                setFormData(prev => ({ ...prev, cnpj: value }));
+                                                const clean = value.replace(/\D/g, '');
+                                                if (clean.length === 14) {
+                                                    // Auto-search CNPJ
+                                                    const searchCnpj = async () => {
+                                                        try {
+                                                            const resp = await axios.get(`https://brasilapi.com.br/api/cnpj/v1/${clean}`);
+                                                            handleCompanyFound(resp.data);
+                                                        } catch (e) {
+                                                            console.error('Erro ao buscar CNPJ', e);
+                                                        }
+                                                    };
+                                                    searchCnpj();
+                                                }
+                                            }}
+                                            onBlur={() => checkExistingCnpj(formData.cnpj)}
+                                            className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold"
+                                        />
+                                        {cnpjError && <p className="text-red-500 text-[10px] font-bold uppercase ml-1">{cnpjError}</p>}
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-black text-gray-700 ml-1">Cidade</label>
-                                        <input type="text" name="municipio" value={formData.municipio} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-black text-gray-700 ml-1">UF</label>
-                                        <input type="text" name="uf" value={formData.uf} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+                                        <label className="text-sm font-black text-gray-700 ml-1">Nome/Razão Social</label>
+                                        <input type="text" name="razao_social" value={formData.razao_social} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium" required />
                                     </div>
                                 </div>
                             </section>
 
                             <section className="space-y-6">
+                                <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Integrador Responsável</h2>
+                                <BuscaIntegrador initialValue={formData.integrador_id} onSelect={(int) => setFormData(prev => ({ ...prev, integrador_id: int?.id }))} />
+                                <div className="flex flex-col md:flex-row gap-4 mt-2">
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        type="button"
+                                        className="flex-1 p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-600 uppercase hover:bg-green-50 hover:border-green-200 transition-all"
+                                    >
+                                        🔗 Vincular ao Ticket
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({ ...prev, integrador_id: '' }))}
+                                        className="flex-1 p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-600 uppercase hover:bg-gray-100 transition-all"
+                                    >
+                                        ✕ Não tenho empresa
+                                    </motion.button>
+                                </div>
+                            </section>
+
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                type="button"
+                                onClick={() => setStep(2)}
+                                disabled={!isStep1Valid()}
+                                className="w-full py-6 bg-green-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-green-100 border-b-8 border-green-800 disabled:opacity-50 transition-all uppercase tracking-widest"
+                            >
+                                AVANÇAR ✦
+                            </motion.button>
+                        </motion.div>
+                    )}
+
+                    {step === 2 && (
+                        <motion.div
+                            key="step2"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-8"
+                        >
+                            <section className="space-y-6">
+                                <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Localização</h2>
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-black text-gray-700 ml-1">CEP</label>
+                                        <BuscaCEP initialValue={formData.cep} onAddressFound={handleAddressFound} />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2 md:col-span-2">
+                                            <label className="text-sm font-black text-gray-700 ml-1">Logradouro</label>
+                                            <input type="text" name="logradouro" value={formData.logradouro} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-black text-gray-700 ml-1">Número</label>
+                                            <input type="text" name="numero" value={formData.numero} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-black text-gray-700 ml-1">Cidade</label>
+                                            <input type="text" name="municipio" value={formData.municipio} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-black text-gray-700 ml-1">UF</label>
+                                            <input type="text" name="uf" value={formData.uf} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <div className="flex gap-4">
+                                <button type="button" onClick={() => setStep(1)} className="flex-1 py-6 bg-gray-100 text-gray-400 font-black rounded-2xl transition-all uppercase">Voltar</button>
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    onClick={() => setStep(3)}
+                                    disabled={!isStep2Valid()}
+                                    className="flex-[2] py-6 bg-green-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-green-100 border-b-8 border-green-800 disabled:opacity-50 transition-all uppercase"
+                                >
+                                    AVANÇAR ✦
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {step === 3 && (
+                        <motion.div
+                            key="step3"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-8"
+                        >
+                            <section className="space-y-6">
                                 <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Dados do Sistema</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-sm font-black text-gray-700 ml-1">Qtd. Paineis</label>
                                         <input type="number" name="paineis_quantidade" value={formData.paineis_quantidade} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
@@ -266,59 +360,20 @@ const ClientRegistrationForm: React.FC = () => {
                                 </div>
                             </section>
 
-                            <section className="space-y-6">
-                                <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Contato & Segurança</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-black text-gray-700 ml-1">E-mail Principal (Login)</label>
-                                        <input type="email" name="email" value={formData.email} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" placeholder="seu@email.com" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-black text-gray-700 ml-1">Telefone</label>
-                                        <IMaskInput
-                                            mask="(00) 00000-0000"
-                                            value={formData.telefone}
-                                            onAccept={(value: string) => setFormData(prev => ({ ...prev, telefone: value }))}
-                                            required
-                                            className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all"
-                                        />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <label className="text-sm font-black text-gray-700 ml-1">Crie sua Senha</label>
-                                        <input 
-                                            type="password" 
-                                            name="password" 
-                                            value={formData.password} 
-                                            onChange={handleChange} 
-                                            required 
-                                            className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" 
-                                            placeholder="Mínimo 6 caracteres"
-                                        />
-                                    </div>
-                                </div>
-                            </section>
-
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                type="submit"
-                                disabled={loading || (formData.password?.length || 0) < 6}
-                                className="w-full py-6 bg-green-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-green-100 border-b-8 border-green-800 disabled:opacity-50 transition-all uppercase tracking-widest"
-                            >
-                                {loading ? 'PROCESSANDO...' : 'FINALIZAR CADASTRO CLIENTE ✦'}
-                            </motion.button>
-                            {(formData.password?.length || 0) < 6 && (
-                                <p className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-tighter">A senha deve conter no mínimo 6 caracteres</p>
-                            )}
+                            <div className="flex gap-4">
+                                <button type="button" onClick={() => setStep(2)} className="flex-1 py-6 bg-gray-100 text-gray-400 font-black rounded-2xl transition-all uppercase">Voltar</button>
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    type="submit"
+                                    disabled={loading}
+                                    className="flex-[2] py-6 bg-green-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-green-100 border-b-8 border-green-800 disabled:opacity-50 transition-all uppercase"
+                                >
+                                    {loading ? 'PROCESSANDO...' : 'FINALIZAR CADASTRO ✦'}
+                                </motion.button>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
-
-                {!cnpjChecked && (
-                    <div className="p-8 bg-gray-50 rounded-[2rem] border-2 border-dashed border-gray-200 text-center">
-                        <p className="text-gray-400 font-bold italic">Aguardando identificação do CNPJ para liberar os demais campos...</p>
-                    </div>
-                )}
             </form>
 
             <AnimatePresence>
@@ -336,10 +391,10 @@ const ClientRegistrationForm: React.FC = () => {
                         >
                             <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 shadow-sm">⚡</div>
                             <h3 className="text-3xl font-black text-gray-800 mb-2">Seja Bem-vindo!</h3>
-                            <p className="text-gray-500 font-bold mb-8 italic">Seu perfil de cliente foi criado. Agora você pode acompanhar seus tickets e sistema.</p>
+                            <p className="text-gray-500 font-bold mb-8 italic">Seu perfil de cliente foi criado com sucesso.</p>
                             <motion.button
                                 whileHover={{ scale: 1.05 }}
-                                onClick={closeModal}
+                                onClick={() => navigate('/login')}
                                 className="w-full py-4 bg-green-600 text-white font-black rounded-2xl shadow-xl shadow-green-100 uppercase"
                             >
                                 FAZER LOGIN
