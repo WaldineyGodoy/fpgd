@@ -51,7 +51,7 @@ const AnimatedRoutes = () => {
           </PageWrapper>
         } />
         
-        <Route path="/satisfacao" element={
+        <Route path="/reclame" element={
           <PageWrapper>
             <TicketDashboard isPublic={true} />
           </PageWrapper>
