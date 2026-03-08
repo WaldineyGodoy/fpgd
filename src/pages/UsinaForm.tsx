@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Zap, Settings, MapPin, Hash, Loader2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BuscaCEP from '../components/BuscaCEP';
+import BuscaIntegrador from '../components/BuscaIntegrador';
 
 const UsinaForm = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const UsinaForm = () => {
     nome: '',
     cpf_cnpj: '',
     endereco: '',
+    numero: '',
+    complemento: '',
     potencia_usina: '',
     qtd_paineis: '',
     potencia_paineis: '',
@@ -28,6 +31,7 @@ const UsinaForm = () => {
     ug: '',
     ucs: '',
     geracao_media_anual: '',
+    integrador_id: null as string | null,
   });
 
   useEffect(() => {
@@ -62,6 +66,8 @@ const UsinaForm = () => {
             nome: data.nome || '',
             cpf_cnpj: data.cpf_cnpj || '',
             endereco: data.endereco || '',
+            numero: data.numero || '',
+            complemento: data.complemento || '',
             potencia_usina: data.potencia_usina?.toString() || '',
             qtd_paineis: data.qtd_paineis?.toString() || '',
             potencia_paineis: data.potencia_paineis?.toString() || '',
@@ -70,6 +76,7 @@ const UsinaForm = () => {
             ug: data.ug || '',
             ucs: data.ucs ? data.ucs.join(', ') : '',
             geracao_media_anual: data.geracao_media_anual?.toString() || '',
+            integrador_id: data.integrador_id || null,
           });
         }
         setInitialFetch(false);
@@ -139,6 +146,9 @@ const UsinaForm = () => {
         nome: formData.nome,
         cpf_cnpj: formData.cpf_cnpj,
         endereco: formData.endereco,
+        numero: formData.numero,
+        complemento: formData.complemento,
+        integrador_id: formData.integrador_id,
         potencia_usina: formData.potencia_usina ? parseFloat(formData.potencia_usina) : null,
         qtd_paineis: formData.qtd_paineis ? parseInt(formData.qtd_paineis, 10) : null,
         potencia_paineis: formData.potencia_paineis ? parseFloat(formData.potencia_paineis) : null,
@@ -259,6 +269,14 @@ const UsinaForm = () => {
               />
             </div>
           </div>
+          <div className="mt-6 space-y-3 pt-4 border-t border-gray-50">
+            <label className="block text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
+            <BuscaIntegrador 
+              initialValue={isEditing && formData.integrador_id ? formData.integrador_id : ''} 
+              onSelect={(int) => setFormData(prev => ({ ...prev, integrador_id: int?.id || null }))} 
+            />
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">AO SELECIONAR, ESTE INTEGRADOR SERÁ VINCULADO AO SEU CADASTRO.</p>
+          </div>
         </section>
 
         {/* Sessão: Localização */}
@@ -266,7 +284,7 @@ const UsinaForm = () => {
           <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
             <MapPin className="w-5 h-5 text-blue-500" /> Localização e Unidades
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
              <div className="md:col-span-2">
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Buscar CEP</label>
               <BuscaCEP onAddressFound={handleCepData} />
@@ -282,7 +300,31 @@ const UsinaForm = () => {
               />
             </div>
           </div>
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {formData.endereco && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-in fade-in slide-in-from-top-4 duration-500">
+               <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Número da Casa</label>
+                <input 
+                  name="numero"
+                  value={formData.numero}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                  placeholder="Ex: 123"
+                />
+              </div>
+               <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Complemento</label>
+                <input 
+                  name="complemento"
+                  value={formData.complemento}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                  placeholder="Ex: Apto 101, Lote 5"
+                />
+              </div>
+            </div>
+          )}
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-4 border-t border-gray-50">
              <div>
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Unidade Geradora (UG)</label>
               <input 
