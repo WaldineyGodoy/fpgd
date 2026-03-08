@@ -15,6 +15,7 @@ import LandingPageDemo from './pages/LandingPageDemo';
 import AppLayout from './components/AppLayout';
 import KanbanBoard from './components/KanbanBoard';
 import AdminPage from './pages/AdminPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -102,6 +103,12 @@ const AnimatedRoutes = () => {
           <AppLayout>
             <TicketDetails />
           </AppLayout>
+        } />
+
+        <Route path="/reset-password" element={
+          <PageWrapper>
+            <ResetPasswordPage />
+          </PageWrapper>
         } />
       </Routes>
     </AnimatePresence>
