@@ -43,6 +43,11 @@ const TicketForm: React.FC = () => {
     title: '',
     message: ''
   });
+  const [usinaContact, setUsinaContact] = useState({
+    nome_cliente: '',
+    email_contato: '',
+    telefone_contato: ''
+  });
 
   const [formData, setFormData] = useState<FormData>({
     cliente: '',
@@ -251,6 +256,17 @@ const TicketForm: React.FC = () => {
                         setSelectedIntegratorId(usina.integrador_id);
                         setSelectedIntegratorName(usina.integrador?.nome_fantasia || usina.integrador?.razao_social || 'N/A');
                       }
+                      setUsinaContact({
+                        nome_cliente: usina.nome_cliente || '',
+                        email_contato: usina.email_contato || '',
+                        telefone_contato: usina.telefone_contato || ''
+                      });
+                    } else {
+                      setUsinaContact({
+                        nome_cliente: '',
+                        email_contato: '',
+                        telefone_contato: ''
+                      });
                     }
                   }} 
                 />
@@ -299,6 +315,28 @@ const TicketForm: React.FC = () => {
               <label className="text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
               <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
                 {selectedIntegratorName || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-black text-gray-700 ml-1">Nome do Cliente (Proprietário)</label>
+              <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-bold text-blue-900">
+                {usinaContact.nome_cliente || <span className="text-blue-300 font-medium italic">N/A</span>}
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-black text-gray-700 ml-1">Email de Contato</label>
+                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-bold text-blue-900 text-sm truncate">
+                  {usinaContact.email_contato || <span className="text-blue-300 font-medium italic">N/A</span>}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-black text-gray-700 ml-1">WhatsApp</label>
+                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-bold text-blue-900">
+                  {usinaContact.telefone_contato || <span className="text-blue-300 font-medium italic">N/A</span>}
+                </div>
               </div>
             </div>
           </div>

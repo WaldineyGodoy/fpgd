@@ -34,6 +34,9 @@ const UsinaForm = () => {
     geracao_media_anual: '',
     tipo_uc: 'Geradora' as 'Geradora' | 'Beneficiaria',
     integrador_id: null as string | null,
+    nome_cliente: '',
+    email_contato: '',
+    telefone_contato: '',
   });
 
   useEffect(() => {
@@ -80,6 +83,9 @@ const UsinaForm = () => {
             geracao_media_anual: data.geracao_media_anual?.toString() || '',
             tipo_uc: data.tipo_uc || 'Geradora',
             integrador_id: data.integrador_id || null,
+            nome_cliente: data.nome_cliente || '',
+            email_contato: data.email_contato || '',
+            telefone_contato: data.telefone_contato || '',
           });
         }
         setInitialFetch(false);
@@ -161,6 +167,9 @@ const UsinaForm = () => {
         ucs: formData.ucs ? formData.ucs.split(',').map(s => s.trim()).filter(Boolean) : [],
         geracao_media_anual: formData.geracao_media_anual ? parseFloat(formData.geracao_media_anual) : null,
         tipo_uc: formData.ug && formData.ug.trim() !== '' ? 'Geradora' : 'Beneficiaria',
+        nome_cliente: formData.nome_cliente,
+        email_contato: formData.email_contato,
+        telefone_contato: formData.telefone_contato,
       };
 
       if (isEditing && id) {
@@ -268,6 +277,42 @@ const UsinaForm = () => {
                 initialValue={formData.cpf_cnpj}
                 onChange={(val) => setFormData(prev => ({ ...prev, cpf_cnpj: val }))}
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Nome do Cliente</label>
+              <input 
+                name="nome_cliente"
+                value={formData.nome_cliente}
+                onChange={handleChange}
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
+                placeholder="Ex: João Silva"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">E-mail</label>
+                <input 
+                  name="email_contato"
+                  type="email"
+                  value={formData.email_contato}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
+                  placeholder="cliente@email.com"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Telefone (Whatsapp)</label>
+                <input 
+                  name="telefone_contato"
+                  value={formData.telefone_contato}
+                  onChange={handleChange}
+                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
             </div>
           </div>
           <div className="mt-6 space-y-3 pt-4 border-t border-gray-50">

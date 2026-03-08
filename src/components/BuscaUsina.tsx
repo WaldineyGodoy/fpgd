@@ -12,6 +12,9 @@ interface UsinaData {
     ucs: string[];
     tipo_uc: 'Geradora' | 'Beneficiaria' | null;
     integrador_id: string | null;
+    nome_cliente: string | null;
+    email_contato: string | null;
+    telefone_contato: string | null;
     companies: {
         email: string | null;
         telefone: string | null;
@@ -63,6 +66,9 @@ const BuscaUsina: React.FC<BuscaUsinaProps> = ({ onSelect, initialValue = '' }) 
                     ucs,
                     tipo_uc,
                     integrador_id,
+                    nome_cliente,
+                    email_contato,
+                    telefone_contato,
                     companies!usinas_company_id_fkey (
                         email,
                         telefone
