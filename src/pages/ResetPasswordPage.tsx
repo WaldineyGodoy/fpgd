@@ -15,15 +15,36 @@ const ResetPasswordPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    // Check if we have an active session (from the recovery link)
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        // If no session, it might be an invalid or expired link
-        // But we allow the user to try, Supabase will return error on update if invalid
+    const handleSession = async () => {
+      // With HashRouter, the URL looks like /#/reset-password#access_token=...
+      // We need to parse the second part of the hash
+      const hash = window.location.hash;
+      if (hash.includes('access_token=')) {
+        const params = new URLSearchParams(hash.split('#')[2]); // Get the part after the second #
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          
+          if (error) {
+            console.error('Error setting session:', error.message);
+            setError('O link de recuperação parece inválido ou expirou.');
+          }
+        }
+      } else {
+        // Check if there is already a session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          setError('Sessão não encontrada. Por favor, solicite um novo link de recuperação.');
+        }
       }
     };
-    checkSession();
+    
+    handleSession();
   }, []);
 
   const handleReset = async (e: React.FormEvent) => {
