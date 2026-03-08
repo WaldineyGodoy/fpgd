@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -39,8 +39,13 @@ interface TicketData {
 
 const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-const TicketDashboard: React.FC = () => {
+interface TicketDashboardProps {
+  view?: 'dashboard' | 'list';
+}
+
+const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
@@ -198,16 +203,16 @@ const TicketDashboard: React.FC = () => {
           <div>
             <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
               <div className="p-3 bg-green-100 rounded-2xl">
-                {location.pathname === '/tickets' ? <LayoutDashboard className="w-8 h-8 text-green-600" /> : <Ticket className="w-8 h-8 text-green-600" />}
+                {view === 'dashboard' ? <LayoutDashboard className="w-8 h-8 text-green-600" /> : <Ticket className="w-8 h-8 text-green-600" />}
               </div>
-              {location.pathname === '/tickets' ? (
+              {view === 'dashboard' ? (
                 <>Termometro <span className="text-green-600">satisfação Cosern</span></>
               ) : (
                 <>Lista de <span className="text-green-600">Tickets</span></>
               )}
             </h1>
             <p className="text-slate-400 font-bold text-sm mt-1 uppercase tracking-widest pl-14">
-              {location.pathname === '/tickets' ? 'Protocolos e Qualidade fpgd' : 'Todos os registros do sistema'}
+              {view === 'dashboard' ? 'Protocolos e Qualidade fpgd' : 'Todos os registros do sistema'}
             </p>
           </div>
 
@@ -231,7 +236,7 @@ const TicketDashboard: React.FC = () => {
         ) : (
           <div className="space-y-6">
 
-            {location.pathname === '/tickets' && (
+            {view === 'dashboard' && (
               <>
                 {/* 1. NPS Cards */}
             <div className="space-y-4">

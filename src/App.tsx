@@ -70,13 +70,13 @@ const AnimatedRoutes = () => {
         {/* Tickets Area */}
         <Route path="/tickets" element={
           <AppLayout>
-            <TicketDashboard />
+            <TicketDashboard view="dashboard" />
           </AppLayout>
         } />
 
         <Route path="/tickets/lista" element={
           <AppLayout>
-            <TicketDashboard />
+            <TicketDashboard view="list" />
           </AppLayout>
         } />
 
