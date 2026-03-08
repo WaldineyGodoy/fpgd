@@ -1,5 +1,4 @@
-
-name: Deploy to GitHub Pages
+name: Deploy to Hostinger
 
 on:
   push:
@@ -34,5 +33,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: /domains/fpgd.site/public_html/
+          server-dir: ./ # Geralmente a conexão FTP já cai na pasta certa ou iniciamos da raiz da conta
           dangerous-clean-slate: false # Garante que nada será apagado no servidor
