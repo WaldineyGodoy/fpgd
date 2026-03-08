@@ -13,7 +13,8 @@ import {
   Shield,
   LayoutDashboard,
   Kanban,
-  Plus
+  Plus,
+  Sun
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
@@ -46,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { id: 'home', label: 'Dashboard', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'tickets', label: 'Lista de Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'kanban', label: 'Quadro Kanban', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'usinas', label: 'Minhas Usinas', icon: Sun, path: '/usinas', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'] },
   ];
 

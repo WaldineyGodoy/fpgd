@@ -16,6 +16,9 @@ import AppLayout from './components/AppLayout';
 import KanbanBoard from './components/KanbanBoard';
 import AdminPage from './pages/AdminPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import UsinasList from './pages/UsinasList';
+import UsinaForm from './pages/UsinaForm';
+import UsinaDetails from './pages/UsinaDetails';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -109,6 +112,31 @@ const AnimatedRoutes = () => {
           <PageWrapper>
             <ResetPasswordPage />
           </PageWrapper>
+        } />
+
+        {/* Usinas Area */}
+        <Route path="/usinas" element={
+          <AppLayout>
+            <UsinasList />
+          </AppLayout>
+        } />
+
+        <Route path="/usinas/nova" element={
+          <AppLayout>
+            <UsinaForm />
+          </AppLayout>
+        } />
+
+        <Route path="/usinas/:id/editar" element={
+          <AppLayout>
+            <UsinaForm />
+          </AppLayout>
+        } />
+
+        <Route path="/usinas/:id/detalhes" element={
+          <AppLayout>
+            <UsinaDetails />
+          </AppLayout>
         } />
       </Routes>
     </AnimatePresence>
