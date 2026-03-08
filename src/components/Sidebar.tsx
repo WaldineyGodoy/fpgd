@@ -44,9 +44,9 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   }, []);
 
   const menuItems = [
-    { id: 'home', label: 'Dashboard', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'tickets', label: 'Lista de Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'kanban', label: 'Quadro Kanban', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'home', label: 'Satisfação do cliente', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'tickets', label: 'Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'kanban', label: 'Status dos Tickets', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'usinas', label: 'Minhas Usinas', icon: Sun, path: '/usinas', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'] },
   ];
