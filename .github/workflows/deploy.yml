@@ -35,3 +35,5 @@ jobs:
           local-dir: ./dist/
           server-dir: /
           dangerous-clean-slate: false # Garante que nada será apagado no servidor
+          timeout: 300000 # 5 minutes timeout para evitar quedas no hostinger
+          port: 21
