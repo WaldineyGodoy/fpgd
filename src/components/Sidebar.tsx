@@ -12,7 +12,8 @@ import {
   UserCircle,
   Shield,
   LayoutDashboard,
-  Kanban
+  Kanban,
+  Plus
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
@@ -43,8 +44,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
 
   const menuItems = [
     { id: 'home', label: 'Dashboard', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'tickets', label: 'Meus Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'kanban', label: 'Kanban Board', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'tickets', label: 'Lista de Tickets', icon: Ticket, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'kanban', label: 'Quadro Kanban', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'] },
   ];
 
@@ -85,22 +86,43 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
         {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
       </button>
 
+      {/* Create Ticket Button */}
+      <div className="px-4 py-4">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate('/tickets/novo')}
+          className={`w-full bg-green-600 text-white rounded-2xl font-black flex items-center gap-4 shadow-lg shadow-green-100 ring-4 ring-green-50 transition-all hover:bg-green-700 ${isCollapsed ? 'p-4 justify-center' : 'p-4'}`}
+        >
+          <Plus size={22} />
+          {!isCollapsed && <span className="text-sm">Novo Ticket</span>}
+        </motion.button>
+      </div>
+
       {/* Menu Items */}
-      <nav className="flex-1 px-4 py-8 space-y-2">
+      <nav className="flex-1 px-4 py-4 space-y-2">
         {filteredItems.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = item.id === 'home' 
+            ? location.pathname === '/tickets' 
+            : location.pathname.startsWith(item.path) && (item.path !== '/tickets' || location.pathname === '/tickets');
+          
+          // Actually, let's keep it simple: exact match for /tickets as Dashboard, everything else as startsWith
+          const isReallyActive = item.path === '/tickets' 
+            ? location.pathname === '/tickets' 
+            : location.pathname.startsWith(item.path);
+          
           const Icon = item.icon;
           return (
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
               className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group ${
-                isActive 
+                isReallyActive 
                   ? 'bg-green-50 text-green-600 shadow-sm shadow-green-50' 
                   : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
               }`}
             >
-              <div className={`${isActive ? 'text-green-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
+              <div className={`${isReallyActive ? 'text-green-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
                 <Icon size={22} />
               </div>
               {!isCollapsed && (

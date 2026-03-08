@@ -95,9 +95,22 @@ const KanbanBoard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-black text-slate-800">Fluxo de <span className="text-green-600">Atendimento</span></h2>
-        <p className="text-sm text-slate-400 font-bold uppercase tracking-widest mt-1">Gestão Visual por Status</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h2 className="text-3xl font-black text-slate-800 tracking-tight italic">Meus <span className="text-green-600">Tickets</span></h2>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Gestão Visual em Quadro</p>
+        </div>
+        
+        <div className="flex gap-3 w-full md:w-auto">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/tickets/novo')}
+            className="flex-1 bg-green-600 text-white px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-100 ring-4 ring-green-50 transition-all hover:bg-green-700"
+          >
+            <Plus className="w-5 h-5" /> Abrir Novo Ticket
+          </motion.button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-250px)]">

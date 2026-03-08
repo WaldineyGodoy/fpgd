@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion } from 'framer-motion';
+import { ChevronLeft } from 'lucide-react';
 
 interface Ticket {
   id: string;
@@ -89,14 +90,22 @@ const TicketDetails: React.FC = () => {
     >
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 pb-8 border-b border-gray-100/50">
         <div>
-          <motion.h1
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            className="text-4xl font-black text-gray-800"
-          >
-            Detalhes do <span className="text-green-600">Ticket</span>
-          </motion.h1>
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate(-1)}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+            >
+              <ChevronLeft size={24} />
+            </button>
+            <motion.h1
+              initial={{ x: -20, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="text-4xl font-black text-gray-800"
+            >
+              Detalhes do <span className="text-green-600">Ticket</span>
+            </motion.h1>
+          </div>
+          <div className="flex items-center gap-2 mt-2 ml-12">
             <span className="px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-100">Ticket #{ticket.numero_ticket || ticket.id.slice(0, 4)}</span>
             <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-lg text-xs font-black uppercase tracking-widest">Protocolo</span>
             <p className="text-sm font-bold text-gray-400">{ticket.numero_protocolo}</p>
