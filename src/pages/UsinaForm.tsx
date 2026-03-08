@@ -5,6 +5,7 @@ import { ArrowLeft, Save, Zap, Settings, MapPin, Hash, Loader2, X } from 'lucide
 import { motion } from 'framer-motion';
 import BuscaCEP from '../components/BuscaCEP';
 import BuscaIntegrador from '../components/BuscaIntegrador';
+import InputCpfCnpj from '../components/InputCpfCnpj';
 
 const UsinaForm = () => {
   const navigate = useNavigate();
@@ -262,13 +263,10 @@ const UsinaForm = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">CPF/CNPJ do Titular</label>
-              <input 
-                name="cpf_cnpj"
-                value={formData.cpf_cnpj}
-                onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
-                placeholder="000.000.000-00"
+              <InputCpfCnpj 
+                label="CPF/CNPJ do Titular"
+                initialValue={formData.cpf_cnpj}
+                onChange={(val) => setFormData(prev => ({ ...prev, cpf_cnpj: val }))}
               />
             </div>
           </div>
