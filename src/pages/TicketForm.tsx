@@ -247,7 +247,7 @@ const TicketForm: React.FC = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Status Atual</label>
+              <label className="text-sm font-black text-gray-700 ml-1">Status do Protocolo</label>
               <select name="status_protocolo" value={formData.status_protocolo} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white">
                 <option value="Em Aberto">Em Aberto</option>
                 <option value="Respondido">Respondido</option>
@@ -271,27 +271,55 @@ const TicketForm: React.FC = () => {
             <textarea name="descricao_reclamacao" value={formData.descricao_reclamacao} onChange={handleChange} rows={5} className="w-full p-4 rounded-3xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium resize-none shadow-inner" placeholder="Explique aqui os detalhes da reclamação..." />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-            <motion.label
-              whileHover={{ backgroundColor: '#f0fdf4' }}
-              className="flex items-center gap-4 p-5 rounded-3xl border-2 border-gray-100 cursor-pointer transition-colors select-none"
-            >
-              <input type="checkbox" name="esta_de_acordo" checked={formData.esta_de_acordo} onChange={handleChange} className="w-8 h-8 rounded-xl border-2 border-gray-200 text-green-600 focus:ring-green-500 transition-all" />
-              <div className="flex flex-col">
-                <span className="text-sm font-black text-gray-800 leading-none">Concordância</span>
-                <span className="text-xs text-gray-400 font-bold mt-1">Está de acordo com o resultado?</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div className="space-y-3">
+              <label className="text-sm font-black text-gray-700 ml-1">Concordância com o resultado?</label>
+              <div className="flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, esta_de_acordo: true, recurso: 'Sem recurso' }))}
+                  className={`flex-1 py-4 rounded-2xl font-black transition-all border-b-4 ${formData.esta_de_acordo 
+                    ? 'bg-green-600 text-white border-green-800 shadow-lg shadow-green-100' 
+                    : 'bg-white text-gray-400 border-gray-100 hover:border-green-200'}`}
+                >
+                  SIM
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, esta_de_acordo: false }))}
+                  className={`flex-1 py-4 rounded-2xl font-black transition-all border-b-4 ${!formData.esta_de_acordo 
+                    ? 'bg-red-600 text-white border-red-800 shadow-lg shadow-red-100' 
+                    : 'bg-white text-gray-400 border-gray-100 hover:border-red-200'}`}
+                >
+                  NÃO
+                </button>
               </div>
-            </motion.label>
-            <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Recurso Pretendido</label>
-              <select name="recurso" value={formData.recurso} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white">
-                <option>Abrir novo protocolo</option>
-                <option>Ouvidoria</option>
-                <option>Aneel</option>
-                <option>Judicializar</option>
-                <option>Todas as opções</option>
-              </select>
             </div>
+
+            <AnimatePresence>
+              {!formData.esta_de_acordo && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  className="space-y-2"
+                >
+                  <label className="text-sm font-black text-gray-700 ml-1">Recurso Pretendido</label>
+                  <select 
+                    name="recurso" 
+                    value={formData.recurso === 'Sem recurso' ? 'Abrir novo protocolo' : formData.recurso} 
+                    onChange={handleChange} 
+                    className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white"
+                  >
+                    <option>Abrir novo protocolo</option>
+                    <option>Ouvidoria</option>
+                    <option>Aneel</option>
+                    <option>Judicializar</option>
+                    <option>Todas as opções</option>
+                  </select>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </section>
 
