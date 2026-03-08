@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import BuscaIntegrador from '../components/BuscaIntegrador';
 import MonthPicker from '../components/MonthPicker';
+import Notification, { NotificationType } from '../components/Notification';
 
 interface FormData {
   cliente: string;
@@ -28,6 +29,17 @@ const TicketForm: React.FC = () => {
   const [company, setCompany] = useState<any>(null);
   const [newUc, setNewUc] = useState<string>('');
   const [selectedIntegratorId, setSelectedIntegratorId] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: NotificationType;
+    title: string;
+    message: string;
+  }>({
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
 
   const [formData, setFormData] = useState<FormData>({
     cliente: '',
@@ -49,6 +61,7 @@ const TicketForm: React.FC = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      console.log('Fetching company for user:', user.id, user.email);
       const { data, error } = await supabase
         .from('companies')
         .select('*')
@@ -56,11 +69,13 @@ const TicketForm: React.FC = () => {
         .maybeSingle();
 
       if (data) {
+        console.log('Company found by auth_user_id:', data.id);
         setCompany(data);
         if (data.integrador_id) {
           setSelectedIntegratorId(data.integrador_id);
         }
       } else if (user.email) {
+        console.log('Auth link not found, searching by email:', user.email);
         // Fallback: search by email to link existing unlinked records
         const { data: emailData } = await supabase
           .from('companies')
@@ -69,17 +84,24 @@ const TicketForm: React.FC = () => {
           .maybeSingle();
 
         if (emailData) {
+          console.log('Company found by email, auto-linking:', emailData.id);
           // Auto-link for future sessions
-          await supabase
+          const { error: linkError } = await supabase
             .from('companies')
             .update({ auth_user_id: user.id })
             .eq('id', emailData.id);
+          
+          if (linkError) console.error('Error auto-linking:', linkError);
           
           setCompany({ ...emailData, auth_user_id: user.id });
           if (emailData.integrador_id) {
             setSelectedIntegratorId(emailData.integrador_id);
           }
+        } else {
+          console.warn('No company record found for email:', user.email);
         }
+      } else {
+        console.error('No email available in user object');
       }
     };
 
@@ -119,12 +141,16 @@ const TicketForm: React.FC = () => {
     const dateStr = now.toLocaleDateString('pt-BR').replace(/\//g, '');
     return `${random}${dateStr}`;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!company) {
-      alert('Não foi possível identificar sua empresa. Verifique sua conexão ou faça login novamente.');
+      setNotification({
+        show: true,
+        type: 'error',
+        title: 'Empresa não Identificada',
+        message: 'Não foi possível vincular seu usuário a uma empresa. Por favor, tente fazer login novamente ou entre em contato com o suporte.'
+      });
       return;
     }
 
@@ -148,10 +174,23 @@ const TicketForm: React.FC = () => {
       }]);
 
       if (error) throw error;
-      navigate('/tickets');
+      
+      setNotification({
+        show: true,
+        type: 'success',
+        title: 'Ticket Registrado!',
+        message: 'Sua solicitação foi salva com sucesso e já está disponível no seu dashboard.'
+      });
+      
+      setTimeout(() => navigate('/tickets'), 2000);
     } catch (err: any) {
       console.error('Erro detalhado:', err);
-      alert(`Erro ao salvar ticket: ${err.message || 'Erro desconhecido'}`);
+      setNotification({
+        show: true,
+        type: 'error',
+        title: 'Erro no Registro',
+        message: err.message || 'Ocorreu um problema ao salvar seu ticket. Tente novamente em instantes.'
+      });
     } finally {
       setLoading(false);
     }
@@ -372,6 +411,11 @@ const TicketForm: React.FC = () => {
           {loading ? 'Processando Chamado...' : 'REGISTRAR TICKET ✦'}
         </motion.button>
       </form>
+
+      <Notification 
+        {...notification}
+        onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+      />
     </motion.div>
   );
 };
