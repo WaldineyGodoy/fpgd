@@ -15,6 +15,7 @@ import {
 
 interface Ticket {
   id: string;
+  numero_ticket: string | null;
   cliente: string;
   numero_protocolo: string | null;
   mes_referencia: string;
@@ -476,7 +477,7 @@ const TicketDashboard: React.FC = () => {
                       {userTickets.map((t) => (
                         <tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
                           <td className="py-4 px-4">
-                            <span className="text-xs font-black text-slate-400">D-{t.id.slice(0, 4)}</span>
+                            <span className="text-xs font-black text-slate-400">#{t.numero_ticket || t.id.slice(0, 4)}</span>
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex flex-col">

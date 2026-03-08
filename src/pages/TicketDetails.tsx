@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 
 interface Ticket {
   id: string;
+  numero_ticket: string | null;
   numero_protocolo: string | null;
   cliente: string;
   mes_referencia: string;
@@ -96,6 +97,7 @@ const TicketDetails: React.FC = () => {
             Detalhes do <span className="text-green-600">Ticket</span>
           </motion.h1>
           <div className="flex items-center gap-2 mt-2">
+            <span className="px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-100">Ticket #{ticket.numero_ticket || ticket.id.slice(0, 4)}</span>
             <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-lg text-xs font-black uppercase tracking-widest">Protocolo</span>
             <p className="text-sm font-bold text-gray-400">{ticket.numero_protocolo}</p>
           </div>

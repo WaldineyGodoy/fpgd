@@ -93,6 +93,13 @@ const TicketForm: React.FC = () => {
     }));
   };
 
+  const generateTicketNumber = () => {
+    const random = Math.floor(100000 + Math.random() * 900000).toString();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('pt-BR').replace(/\//g, '');
+    return `${random}${dateStr}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!company) return;
@@ -110,7 +117,9 @@ const TicketForm: React.FC = () => {
       // 2. Create the ticket
       const { error } = await supabase.from('tickets').insert([{
         ...formData,
+        mes_referencia: formData.mes_referencia + '-01',
         status: 'Em Aberto',
+        numero_ticket: generateTicketNumber(),
         company_id: company.id
       }]);
 
