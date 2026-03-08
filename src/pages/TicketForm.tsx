@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import BuscaIntegrador from '../components/BuscaIntegrador';
+import BuscaUsina from '../components/BuscaUsina';
 import MonthPicker from '../components/MonthPicker';
 import Notification, { NotificationType } from '../components/Notification';
+import { PlusCircle } from 'lucide-react';
 
 interface FormData {
   cliente: string;
@@ -229,21 +231,68 @@ const TicketForm: React.FC = () => {
             <span className="h-1 w-8 bg-green-600 rounded-full"></span>
             Identificação do Cliente
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+          
+          <div className="space-y-4">
+            <div className="flex flex-col md:flex-row md:items-end gap-6">
+              <div className="flex-1 space-y-2">
+                <label className="text-sm font-black text-gray-700 ml-1">Selecionar Cliente / Usina</label>
+                <BuscaUsina 
+                  onSelect={(usina) => {
+                    if (usina) {
+                      setFormData(prev => ({
+                        ...prev,
+                        cliente: usina.nome,
+                        codigo_cliente_ug: usina.ug || '',
+                        codigo_cliente_uc: usina.ucs || []
+                      }));
+                      if (usina.integrador_id) {
+                        setSelectedIntegratorId(usina.integrador_id);
+                      }
+                    }
+                  }} 
+                />
+              </div>
+              <div className="w-full md:w-64 space-y-2">
+                <label className="text-sm font-black text-gray-700 ml-1">Mês de Referência</label>
+                <MonthPicker 
+                  value={formData.mes_referencia} 
+                  onChange={(val) => setFormData(prev => ({ ...prev, mes_referencia: val }))} 
+                />
+              </div>
+            </div>
+            
+            <motion.button
+              whileHover={{ x: 5 }}
+              type="button"
+              onClick={() => navigate('/usinas')}
+              className="text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-2 ml-1"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Não encontrou o cliente? Cadastre aqui.
+            </motion.button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-4 border-t border-gray-50">
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Nome Completo</label>
-              <input type="text" name="cliente" value={formData.cliente} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Mês de Referência</label>
-              <MonthPicker 
-                value={formData.mes_referencia} 
-                onChange={(val) => setFormData(prev => ({ ...prev, mes_referencia: val }))} 
+              <input 
+                type="text" 
+                name="cliente" 
+                value={formData.cliente} 
+                onChange={handleChange} 
+                required 
+                className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium bg-gray-50/50" 
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Código Cliente UG</label>
-              <input type="text" name="codigo_cliente_ug" value={formData.codigo_cliente_ug} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" />
+              <input 
+                type="text" 
+                name="codigo_cliente_ug" 
+                value={formData.codigo_cliente_ug} 
+                onChange={handleChange} 
+                className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all bg-gray-50/50" 
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Tipo de UG</label>
@@ -252,16 +301,19 @@ const TicketForm: React.FC = () => {
                 <option value="Beneficiaria">Beneficiaria</option>
               </select>
             </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
+              <BuscaIntegrador 
+                initialValue={selectedIntegratorId || ''} 
+                onSelect={(int) => setSelectedIntegratorId(int?.id || null)} 
+              />
+            </div>
           </div>
           
-          <div className="space-y-3 pt-4 border-t border-gray-50">
-            <label className="text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
-            <BuscaIntegrador 
-              initialValue={company?.integrador_id || ''} 
-              onSelect={(int) => setSelectedIntegratorId(int?.id || null)} 
-            />
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">Ao selecionar, este integrador será vinculado permanentemente ao seu cadastro.</p>
-          </div>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">
+            Dados preenchidos automaticamente ao selecionar o cliente acima.
+          </p>
         </section>
 
         <section className="space-y-4 p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
