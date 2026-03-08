@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 import BuscaCNPJ from './BuscaCNPJ';
 import { IMaskInput } from 'react-imask';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface FormData {
     cnpj: string;
@@ -47,6 +48,7 @@ const RegistrationForm: React.FC = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [cnpjChecked, setCnpjChecked] = useState<boolean>(false);
     const [cnpjError, setCnpjError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const handleCompanyFound = (data: any | null) => {
         if (data) {
@@ -244,15 +246,24 @@ const RegistrationForm: React.FC = () => {
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
                                         <label className="text-sm font-black text-gray-700 ml-1">Crie sua Senha</label>
-                                        <input 
-                                            type="password" 
-                                            name="password" 
-                                            value={formData.password} 
-                                            onChange={handleChange} 
-                                            required 
-                                            className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all" 
-                                            placeholder="Mínimo 6 caracteres"
-                                        />
+                                        <div className="relative">
+                                            <input 
+                                                type={showPassword ? 'text' : 'password'} 
+                                                name="password" 
+                                                value={formData.password} 
+                                                onChange={handleChange} 
+                                                required 
+                                                className="w-full p-4 pr-12 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium" 
+                                                placeholder="Mínimo 6 caracteres"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-600 transition-colors"
+                                            >
+                                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </section>

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Lock, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const ResetPasswordPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ const ResetPasswordPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     // Check if we have an active session (from the recovery link)
@@ -122,14 +123,20 @@ const ResetPasswordPage: React.FC = () => {
                   <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Nova Senha</label>
                   <div className="relative">
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full p-5 rounded-2xl border-2 border-slate-100 focus:border-green-500 outline-none transition-all font-bold text-slate-700 bg-slate-50/30"
+                      className="w-full p-5 pr-14 rounded-2xl border-2 border-slate-100 focus:border-green-500 outline-none transition-all font-bold text-slate-700 bg-slate-50/30"
                       required
                     />
-                    <ShieldCheck className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-green-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
                 </div>
 
@@ -137,14 +144,20 @@ const ResetPasswordPage: React.FC = () => {
                   <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Confirmar Senha</label>
                   <div className="relative">
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full p-5 rounded-2xl border-2 border-slate-100 focus:border-green-500 outline-none transition-all font-bold text-slate-700 bg-slate-50/30"
+                      className="w-full p-5 pr-14 rounded-2xl border-2 border-slate-100 focus:border-green-500 outline-none transition-all font-bold text-slate-700 bg-slate-50/30"
                       required
                     />
-                    <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-green-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                   </div>
                 </div>
               </div>

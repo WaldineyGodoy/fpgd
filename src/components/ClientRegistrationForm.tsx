@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 import DimensionamentoSolar from './DimensionamentoSolar';
 import { IMaskInput } from 'react-imask';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface FormData {
     cnpj: string;
@@ -30,6 +31,7 @@ const ClientRegistrationForm: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
     const [cnpjError, setCnpjError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const checkExistingCnpj = async (cnpj: string) => {
         const cleanCnpj = cnpj.replace(/\D/g, '');
@@ -160,15 +162,24 @@ const ClientRegistrationForm: React.FC = () => {
                     </div>
                     <div className="space-y-3 md:col-span-2">
                         <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Crie sua Senha</label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            value={formData.password} 
-                            onChange={handleChange} 
-                            required 
-                            className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
-                            placeholder="••••••••"
-                        />
+                        <div className="relative">
+                            <input 
+                                type={showPassword ? 'text' : 'password'} 
+                                name="password" 
+                                value={formData.password} 
+                                onChange={handleChange} 
+                                required 
+                                className="w-full p-5 pr-14 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                                placeholder="••••••••"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-green-600 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                     </div>
                     <div className="space-y-3">
                         <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">CPF ou CNPJ</label>
