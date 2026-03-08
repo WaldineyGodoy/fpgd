@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import BuscaIntegrador from '../components/BuscaIntegrador';
 
 interface FormData {
   cliente: string;
@@ -24,6 +25,7 @@ const TicketForm: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [company, setCompany] = useState<any>(null);
   const [newUc, setNewUc] = useState<string>('');
+  const [selectedIntegratorId, setSelectedIntegratorId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     cliente: '',
@@ -53,6 +55,9 @@ const TicketForm: React.FC = () => {
 
       if (data) {
         setCompany(data);
+        if (data.integrador_id) {
+          setSelectedIntegratorId(data.integrador_id);
+        }
       }
     };
 
@@ -92,6 +97,15 @@ const TicketForm: React.FC = () => {
 
     setLoading(true);
     try {
+      // 1. Check if we need to update the company's integrator_id
+      if (selectedIntegratorId && selectedIntegratorId !== company.integrador_id) {
+        await supabase
+          .from('companies')
+          .update({ integrador_id: selectedIntegratorId })
+          .eq('id', company.id);
+      }
+
+      // 2. Create the ticket
       const { error } = await supabase.from('tickets').insert([{
         ...formData,
         company_id: company.id
@@ -157,6 +171,15 @@ const TicketForm: React.FC = () => {
                 <option value="Beneficiaria">Beneficiaria</option>
               </select>
             </div>
+          </div>
+          
+          <div className="space-y-3 pt-4 border-t border-gray-50">
+            <label className="text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
+            <BuscaIntegrador 
+              initialValue={company?.integrador_id || ''} 
+              onSelect={(int) => setSelectedIntegratorId(int?.id || null)} 
+            />
+            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">Ao selecionar, este integrador será vinculado permanentemente ao seu cadastro.</p>
           </div>
         </section>
 
