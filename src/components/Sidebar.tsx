@@ -42,10 +42,10 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   }, []);
 
   const menuItems = [
-    { id: 'home', label: 'Dashboard', icon: <LayoutDashboard />, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'tickets', label: 'Meus Tickets', icon: <Ticket />, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'kanban', label: 'Kanban Board', icon: <Kanban />, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'admin', label: 'Administração', icon: <Shield />, path: '/admin', roles: ['superadmin'] },
+    { id: 'home', label: 'Dashboard', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'tickets', label: 'Meus Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'kanban', label: 'Kanban Board', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'] },
   ];
 
   const filteredItems = menuItems.filter(item => item.roles.includes(userRole));
@@ -89,6 +89,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       <nav className="flex-1 px-4 py-8 space-y-2">
         {filteredItems.map((item) => {
           const isActive = location.pathname === item.path;
+          const Icon = item.icon;
           return (
             <button
               key={item.id}
@@ -100,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
               }`}
             >
               <div className={`${isActive ? 'text-green-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
-                {React.cloneElement(item.icon as React.ReactElement, { size: 22 })}
+                <Icon size={22} />
               </div>
               {!isCollapsed && (
                 <span className="font-bold text-sm tracking-tight">{item.label}</span>
