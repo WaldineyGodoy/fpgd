@@ -14,6 +14,7 @@ const UsinaForm = () => {
   const [initialFetch, setInitialFetch] = useState(isEditing);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [ucInput, setUcInput] = useState('');
+  const [cepIbge, setCepIbge] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -77,6 +78,57 @@ const UsinaForm = () => {
     init();
   }, [id, isEditing]);
 
+  // Lista pré-definida de potências (igual DimensionamentoSolar)
+  const listaPaineis = React.useMemo(() => {
+    const list = [];
+    for (let i = 400; i <= 800; i += 5) list.push(i);
+    return list;
+  }, []);
+
+  // UseEffect 1: Auto Cálculo de Potência Usina (kWp)
+  useEffect(() => {
+    const qtd = parseInt(formData.qtd_paineis) || 0;
+    const pot = parseFloat(formData.potencia_paineis) || 0;
+    if (qtd > 0 && pot > 0) {
+      const kwp = (qtd * pot) / 1000;
+      setFormData(prev => ({ ...prev, potencia_usina: kwp.toFixed(2) }));
+    }
+  }, [formData.qtd_paineis, formData.potencia_paineis]);
+
+  // UseEffect 2: Auto Cálculo de Geração Média baseada no IBGE
+  useEffect(() => {
+    const fetchIrradiance = async () => {
+      const kwp = parseFloat(formData.potencia_usina) || 0;
+      if (!cepIbge || kwp <= 0) return;
+
+      try {
+        const { data: result, error } = await supabase
+          .from('irradiancia')
+          .select('*')
+          .eq('"cod.ibge"', cepIbge)
+          .single();
+        
+        if (error || !result) throw error;
+
+        // Soma dos 12 meses
+        const keys = ['jan.khw', 'fev.khw', 'mar.kwh', 'abr.kwh', 'mai.kwh', 'jun.kwh', 'jul.kwh', 'ago.kwh', 'set.kwh', 'out.kwh', 'nov.kwh', 'dez.khw'];
+        let totalYearly = 0;
+        keys.forEach(k => {
+           totalYearly += (parseFloat(result[k]) || 0);
+        });
+
+        // Fórmula: (Soma da Irradiância Anual) * KWp
+        const generatedYearly = kwp * totalYearly;
+        setFormData(prev => ({ ...prev, geracao_media_anual: generatedYearly.toFixed(2) }));
+
+      } catch (err) {
+        console.error('Erro ao buscar irradiância para cálculo automático', err);
+      }
+    };
+
+    fetchIrradiance();
+  }, [cepIbge, formData.potencia_usina]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyId) return alert('Autenticação inválida ou empresa não encontrada.');
@@ -124,6 +176,9 @@ const UsinaForm = () => {
         ...prev, 
         endereco: `${data.logradouro || ''}, ${data.bairro || ''} - ${data.city || data.localidade || ''}/${data.state || data.uf || ''}`.replace(/^[,\s]+|[,\s]+$/g, '').replace(/,\s*-/g, ' -')
       }));
+      if (data.ibge) {
+        setCepIbge(data.ibge);
+      }
     }
   };
 
@@ -281,10 +336,11 @@ const UsinaForm = () => {
                   name="potencia_usina"
                   value={formData.potencia_usina}
                   onChange={handleChange}
-                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                  readOnly
+                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/50 cursor-not-allowed" 
                   placeholder="0.00"
                 />
-                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-amber-500" />
               </div>
             </div>
              <div>
@@ -304,9 +360,9 @@ const UsinaForm = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
              <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Painéis</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Painéis (Und)</label>
               <input 
                 type="number"
                 name="qtd_paineis"
@@ -318,15 +374,18 @@ const UsinaForm = () => {
             </div>
             <div>
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência Painel (W)</label>
-              <input 
-                type="number"
-                step="0.1"
-                name="potencia_paineis"
-                value={formData.potencia_paineis}
-                onChange={handleChange}
-                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
-                placeholder="0.0"
-              />
+              <div className="relative">
+                <select 
+                  name="potencia_paineis"
+                  value={formData.potencia_paineis}
+                  onChange={handleChange as any}
+                  className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30 appearance-none cursor-pointer" 
+                >
+                  <option value="">Selecione...</option>
+                  {listaPaineis.map(p => <option key={p} value={p}>{p}W</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">▼</div>
+              </div>
             </div>
             <div>
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Inversores</label>
