@@ -251,7 +251,18 @@ const ClientRegistrationForm: React.FC = () => {
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                         type="button"
-                                        className="flex-1 p-4 bg-gray-50 border-2 border-gray-100 rounded-2xl text-xs font-black text-gray-600 uppercase hover:bg-green-50 hover:border-green-200 transition-all"
+                                        onClick={() => {
+                                            if (formData.integrador_id) {
+                                                alert('Integrador vinculado com sucesso!');
+                                            } else {
+                                                alert('Por favor, selecione um integrador na busca primeiro.');
+                                            }
+                                        }}
+                                        className={`flex-1 p-4 border-2 rounded-2xl text-xs font-black uppercase transition-all ${
+                                            formData.integrador_id 
+                                            ? 'bg-green-50 border-green-600 text-green-700' 
+                                            : 'bg-gray-50 border-gray-100 text-gray-600 hover:bg-green-50 hover:border-green-200'
+                                        }`}
                                     >
                                         🔗 Vincular ao Ticket
                                     </motion.button>

@@ -23,6 +23,17 @@ const BuscaIntegrador: React.FC<BuscaIntegradorProps> = ({ onSelect, initialValu
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     useEffect(() => {
+        // Only reset if empty to allow clearing from parent
+        if (initialValue === '') {
+            setSearchTerm('');
+            setSelectedId(null);
+        } else if (initialValue && initialValue !== selectedId) {
+            // If we have an ID but not matching, we'd need more info to set the name
+            // But for now, just clearing is the priority for the "Não tenho empresa" button
+        }
+    }, [initialValue]);
+
+    useEffect(() => {
         const timer = setTimeout(() => {
             if (searchTerm.length > 2 && !selectedId) {
                 searchIntegrators();
