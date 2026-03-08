@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Zap, Settings, MapPin, Hash, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Zap, Settings, MapPin, Hash, Loader2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import BuscaCEP from '../components/BuscaCEP';
 
 const UsinaForm = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const UsinaForm = () => {
   const [loading, setLoading] = useState(false);
   const [initialFetch, setInitialFetch] = useState(isEditing);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [ucInput, setUcInput] = useState('');
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -116,6 +118,32 @@ const UsinaForm = () => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const handleCepData = (data: any) => {
+    if (data) {
+      setFormData(prev => ({ 
+        ...prev, 
+        endereco: `${data.logradouro || ''}, ${data.bairro || ''} - ${data.city || data.localidade || ''}/${data.state || data.uf || ''}`.replace(/^[,\s]+|[,\s]+$/g, '').replace(/,\s*-/g, ' -')
+      }));
+    }
+  };
+
+  const addUc = () => {
+    if (!ucInput.trim()) return;
+    setFormData(prev => ({
+      ...prev,
+      ucs: prev.ucs ? `${prev.ucs}, ${ucInput.trim()}` : ucInput.trim()
+    }));
+    setUcInput('');
+  };
+
+  const removeUc = (indexToRemove: number) => {
+    setFormData(prev => {
+      const ucsArray = prev.ucs ? prev.ucs.split(',').map(s => s.trim()).filter(Boolean) : [];
+      ucsArray.splice(indexToRemove, 1);
+      return { ...prev, ucs: ucsArray.join(', ') };
+    });
+  };
+
   if (initialFetch) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -179,8 +207,12 @@ const UsinaForm = () => {
           <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
             <MapPin className="w-5 h-5 text-blue-500" /> Localização e Unidades
           </h2>
-          <div className="grid grid-cols-1 gap-6">
-             <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <div className="md:col-span-2">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Buscar CEP</label>
+              <BuscaCEP onAddressFound={handleCepData} />
+            </div>
+             <div className="md:col-span-2">
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Endereço de Instalação</label>
               <input 
                 name="endereco"
@@ -204,13 +236,32 @@ const UsinaForm = () => {
             </div>
             <div>
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Unidades Consumidoras (UCs)</label>
-              <input 
-                name="ucs"
-                value={formData.ucs}
-                onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
-                placeholder="Separe por vírgulas (Ex: 1234, 5678)"
-              />
+              <div className="flex gap-2 p-1">
+                <input 
+                  value={ucInput}
+                  onChange={(e) => setUcInput(e.target.value)}
+                  className="flex-1 bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                  placeholder="Ex: 12345678"
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addUc())}
+                />
+                <button 
+                  type="button"
+                  onClick={addUc}
+                  className="bg-blue-600 text-white px-6 rounded-2xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all text-sm"
+                >
+                  Adicionar
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {formData.ucs.split(',').filter(Boolean).map((uc, i) => (
+                  <span key={i} className="px-3 py-1.5 bg-blue-50 text-blue-700 font-bold text-xs rounded-lg flex items-center gap-2 border border-blue-100 shadow-sm">
+                    {uc.trim()}
+                    <button type="button" onClick={() => removeUc(i)} className="text-red-400 hover:text-red-600 transition-colors p-0.5 rounded outline-none focus:ring-2 focus:ring-red-100">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -220,9 +271,9 @@ const UsinaForm = () => {
           <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
             <Zap className="w-5 h-5 text-amber-500" /> Dados Técnicos (Potência)
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência Usina (kWp)</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência da Usina (kWp)</label>
               <div className="relative">
                 <input 
                   type="number"
@@ -230,9 +281,10 @@ const UsinaForm = () => {
                   name="potencia_usina"
                   value={formData.potencia_usina}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-amber-50 outline-none" 
+                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                  placeholder="0.00"
                 />
-                <Hash className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
              <div>
@@ -244,14 +296,15 @@ const UsinaForm = () => {
                   name="geracao_media_anual"
                   value={formData.geracao_media_anual}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 pl-12 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-amber-50 outline-none" 
+                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                  placeholder="0.00"
                 />
-                <Hash className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
              <div>
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Painéis</label>
               <input 
@@ -259,7 +312,8 @@ const UsinaForm = () => {
                 name="qtd_paineis"
                 value={formData.qtd_paineis}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600" 
+                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                placeholder="0"
               />
             </div>
             <div>
@@ -270,17 +324,19 @@ const UsinaForm = () => {
                 name="potencia_paineis"
                 value={formData.potencia_paineis}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600" 
+                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                placeholder="0.0"
               />
             </div>
             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd Inversores</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Inversores</label>
               <input 
                 type="number"
                 name="qtd_inversor"
                 value={formData.qtd_inversor}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600" 
+                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                placeholder="0"
               />
             </div>
             <div>
@@ -291,7 +347,8 @@ const UsinaForm = () => {
                 name="potencia_inversor"
                 value={formData.potencia_inversor}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600" 
+                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                placeholder="0.0"
               />
             </div>
           </div>
