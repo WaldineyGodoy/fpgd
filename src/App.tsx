@@ -74,6 +74,12 @@ const AnimatedRoutes = () => {
           </AppLayout>
         } />
 
+        <Route path="/tickets/lista" element={
+          <AppLayout>
+            <TicketDashboard />
+          </AppLayout>
+        } />
+
         <Route path="/tickets/kanban" element={
           <AppLayout>
             <KanbanBoard />

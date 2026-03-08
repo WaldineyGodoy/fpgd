@@ -44,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
 
   const menuItems = [
     { id: 'home', label: 'Dashboard', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'tickets', label: 'Lista de Tickets', icon: Ticket, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
+    { id: 'tickets', label: 'Lista de Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'kanban', label: 'Quadro Kanban', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
     { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'] },
   ];
@@ -102,15 +102,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       {/* Menu Items */}
       <nav className="flex-1 px-4 py-4 space-y-2">
         {filteredItems.map((item) => {
-          const isActive = item.id === 'home' 
-            ? location.pathname === '/tickets' 
-            : location.pathname.startsWith(item.path) && (item.path !== '/tickets' || location.pathname === '/tickets');
-          
-          // Actually, let's keep it simple: exact match for /tickets as Dashboard, everything else as startsWith
-          const isReallyActive = item.path === '/tickets' 
-            ? location.pathname === '/tickets' 
-            : location.pathname.startsWith(item.path);
-          
+          const isReallyActive = location.pathname === item.path;
           const Icon = item.icon;
           return (
             <button

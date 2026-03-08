@@ -10,10 +10,11 @@ import {
 import {
   Plus, LogOut, TrendingUp, Users, MessageSquare, Phone, Globe,
   ClipboardCheck, HardHat, Store, LayoutDashboard, ChevronRight,
-  Filter, Calendar, CheckCircle2, XCircle, AlertCircle, Clock
+  Filter, Calendar, CheckCircle2, XCircle, AlertCircle, Clock,
+  Ticket
 } from 'lucide-react';
 
-interface Ticket {
+interface TicketData {
   id: string;
   numero_ticket: string | null;
   cliente: string;
@@ -40,7 +41,7 @@ const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 
 const TicketDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [tickets, setTickets] = useState<TicketData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
   const [user, setUser] = useState<any>(null);
@@ -164,9 +165,9 @@ const TicketDashboard: React.FC = () => {
 
   // 6. User Specific Tickets (Meus Tickets)
   const userTickets = useMemo(() => {
-    if (!user) return [];
+    if (!user) return [] as TicketData[];
 
-    return tickets.filter(t => {
+    return tickets.filter((t: TicketData) => {
       const matchesSearch = t.cliente?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
         t.codigo_cliente_ug?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
         t.codigo_cliente_uc?.some(uc => uc.toLowerCase().includes(activeFilters.search.toLowerCase()));
@@ -197,11 +198,17 @@ const TicketDashboard: React.FC = () => {
           <div>
             <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
               <div className="p-3 bg-green-100 rounded-2xl">
-                <LayoutDashboard className="w-8 h-8 text-green-600" />
+                {location.pathname === '/tickets' ? <LayoutDashboard className="w-8 h-8 text-green-600" /> : <Ticket className="w-8 h-8 text-green-600" />}
               </div>
-              Termometro <span className="text-green-600">satisfação Cosern</span>
+              {location.pathname === '/tickets' ? (
+                <>Termometro <span className="text-green-600">satisfação Cosern</span></>
+              ) : (
+                <>Lista de <span className="text-green-600">Tickets</span></>
+              )}
             </h1>
-            <p className="text-slate-400 font-bold text-sm mt-1 uppercase tracking-widest pl-14">Protocolos e Qualidade fpgd</p>
+            <p className="text-slate-400 font-bold text-sm mt-1 uppercase tracking-widest pl-14">
+              {location.pathname === '/tickets' ? 'Protocolos e Qualidade fpgd' : 'Todos os registros do sistema'}
+            </p>
           </div>
 
           <div className="flex gap-3 w-full md:w-auto">
@@ -224,7 +231,9 @@ const TicketDashboard: React.FC = () => {
         ) : (
           <div className="space-y-6">
 
-            {/* 1. NPS Cards */}
+            {location.pathname === '/tickets' && (
+              <>
+                {/* 1. NPS Cards */}
             <div className="space-y-4">
               <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-green-600" />
@@ -432,10 +441,11 @@ const TicketDashboard: React.FC = () => {
                   Ver Todos Registros <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
+              </div> {/* Closes Grid */}
+            </>
+          )}
 
-            </div>
-
-            {/* Meus Tickets Section (Image 1 Reference) */}
+          {/* Meus Tickets Section (Image 1 Reference) */}
             {user && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -554,24 +564,21 @@ const TicketDashboard: React.FC = () => {
                 </div>
               </motion.div>
             )}
+            <footer className="text-center pb-12">
+              <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Conselho Gestor de Qualidade FPGD</p>
+              <div className="flex justify-center gap-4 text-slate-300">
+                <TrendingUp className="w-4 h-4 opacity-30" />
+                <ClipboardCheck className="w-4 h-4 opacity-30" />
+                <Users className="w-4 h-4 opacity-30" />
+              </div>
+            </footer>
           </div>
         )}
-
-        <footer className="text-center pb-12">
-          <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Conselho Gestor de Qualidade FPGD</p>
-          <div className="flex justify-center gap-4 text-slate-300">
-            <TrendingUp className="w-4 h-4 opacity-30" />
-            <ClipboardCheck className="w-4 h-4 opacity-30" />
-            <Users className="w-4 h-4 opacity-30" />
-          </div>
-        </footer>
-
+        <style>{`
+          .scrollbar-hide::-webkit-scrollbar { display: none; }
+          .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        `}</style>
       </div>
-
-      <style>{`
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 };
