@@ -20,6 +20,7 @@ interface Ticket {
   mes_referencia: string;
   tipo_chamado: string;
   status_protocolo: string;
+  status: string;
   data_abertura: string;
   esta_de_acordo: boolean;
   recurso: string | null;
@@ -45,6 +46,7 @@ const TicketDashboard: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState({
     search: '',
     status: 'All',
+    protocolStatus: 'All',
     tipo: 'All'
   });
 
@@ -134,10 +136,11 @@ const TicketDashboard: React.FC = () => {
       const matchesSearch = t.cliente?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
         t.codigo_cliente_ug?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
         t.codigo_cliente_uc?.some(uc => uc.toLowerCase().includes(activeFilters.search.toLowerCase()));
-      const matchesStatus = activeFilters.status === 'All' || t.status_protocolo === activeFilters.status;
+      const matchesStatus = activeFilters.status === 'All' || t.status === activeFilters.status;
+      const matchesProtocolStatus = activeFilters.protocolStatus === 'All' || t.status_protocolo === activeFilters.protocolStatus;
       const matchesTipo = activeFilters.tipo === 'All' || t.tipo_chamado === activeFilters.tipo;
 
-      return matchesSearch && matchesStatus && matchesTipo;
+      return matchesSearch && matchesStatus && matchesProtocolStatus && matchesTipo;
     });
   }, [tickets, user, activeFilters]);
 
@@ -437,11 +440,21 @@ const TicketDashboard: React.FC = () => {
                       onChange={e => setActiveFilters({ ...activeFilters, status: e.target.value })}
                       className="px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-green-500/20 outline-none"
                     >
-                      <option value="All">Todos Status</option>
-                      <option>Em analise</option>
-                      <option>Não aberto</option>
+                      <option value="All">Ticket: Todos</option>
+                      <option>Em Aberto</option>
+                      <option>Respondido</option>
+                      <option>Resolvido</option>
+                    </select>
+                    <select
+                      value={activeFilters.protocolStatus}
+                      onChange={e => setActiveFilters({ ...activeFilters, protocolStatus: e.target.value })}
+                      className="px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-green-500/20 outline-none"
+                    >
+                      <option value="All">Protocolo: Todos</option>
+                      <option>Sem Protocolo</option>
+                      <option>Em Analise</option>
+                      <option>Fechado Improcedente</option>
                       <option>Fechado Procedente</option>
-                      <option>Fechado Improcente</option>
                     </select>
                   </div>
                 </div>
@@ -452,7 +465,8 @@ const TicketDashboard: React.FC = () => {
                       <tr className="border-b border-slate-50">
                         <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Ticket ID</th>
                         <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Assunto / Cliente</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Status</th>
+                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Status Ticket</th>
+                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Status Protocolo</th>
                         <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">UG / UC</th>
                         <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Última Atualização</th>
                         <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase text-right">Ação</th>
@@ -470,13 +484,21 @@ const TicketDashboard: React.FC = () => {
                               <span className="text-[10px] font-bold text-slate-400">{t.cliente}</span>
                             </div>
                           </td>
+                           <td className="py-4 px-4">
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${t.status === 'Em Aberto' ? 'bg-orange-50 text-orange-600' :
+                              t.status === 'Respondido' ? 'bg-green-50 text-green-600' :
+                                'bg-slate-100 text-slate-400'
+                              }`}>
+                              {t.status || 'Em Aberto'}
+                            </span>
+                          </td>
                           <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${t.status_protocolo === 'Em analise' ? 'bg-blue-50 text-blue-600' :
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${t.status_protocolo === 'Em Analise' ? 'bg-blue-50 text-blue-600' :
                               t.status_protocolo === 'Fechado Procedente' ? 'bg-green-50 text-green-600' :
-                                t.status_protocolo === 'Fechado Improcente' ? 'bg-red-50 text-red-600' :
+                                t.status_protocolo === 'Fechado Improcedente' ? 'bg-red-50 text-red-600' :
                                   'bg-slate-100 text-slate-400'
                               }`}>
-                              {t.status_protocolo || 'Não aberto'}
+                              {t.status_protocolo || 'Sem Protocolo'}
                             </span>
                           </td>
                           <td className="py-4 px-4">

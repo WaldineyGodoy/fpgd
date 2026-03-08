@@ -14,6 +14,7 @@ interface Ticket {
   tipo_uc: string;
   tipo_chamado: string;
   status_protocolo: string;
+  status: string;
   data_abertura: string;
   descricao_reclamacao: string | null;
   esta_de_acordo: boolean;
@@ -167,9 +168,18 @@ const TicketDetails: React.FC = () => {
             <div className="absolute top-0 right-0 p-4 opacity-10 text-8xl font-black">✦</div>
             <h3 className="text-xs font-black text-green-200 uppercase tracking-[0.2em] mb-4">Status da Solicitação</h3>
             <div className="space-y-4">
-              <span className="inline-block px-5 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-lg font-black">
-                {ticket.status_protocolo.toUpperCase()}
-              </span>
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-black text-green-100 uppercase tracking-widest">Ticket</span>
+                <span className="inline-block px-5 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-lg font-black w-fit">
+                  {ticket.status.toUpperCase()}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-black text-green-100 uppercase tracking-widest">Protocolo</span>
+                <span className="inline-block px-5 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-lg font-black w-fit">
+                  {ticket.status_protocolo.toUpperCase()}
+                </span>
+              </div>
               <p className="text-xs font-bold text-green-100 mt-2">
                 Aberto em: <span className="text-white">{new Date(ticket.data_abertura).toLocaleDateString('pt-BR')}</span>
               </p>

@@ -8,6 +8,7 @@ import MonthPicker from '../components/MonthPicker';
 
 interface FormData {
   cliente: string;
+  status?: string;
   mes_referencia: string;
   codigo_cliente_ug: string;
   codigo_cliente_uc: string[];
@@ -37,7 +38,7 @@ const TicketForm: React.FC = () => {
     tipo_chamado: 'Compensação',
     numero_protocolo: '',
     data_abertura: '',
-    status_protocolo: 'Em Aberto',
+    status_protocolo: 'Sem Protocolo',
     descricao_reclamacao: '',
     esta_de_acordo: false,
     recurso: 'Abrir novo protocolo'
@@ -109,6 +110,7 @@ const TicketForm: React.FC = () => {
       // 2. Create the ticket
       const { error } = await supabase.from('tickets').insert([{
         ...formData,
+        status: 'Em Aberto',
         company_id: company.id
       }]);
 
@@ -133,9 +135,12 @@ const TicketForm: React.FC = () => {
           <motion.h1
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="text-4xl font-black text-gray-800"
+            className="text-4xl font-black text-gray-800 flex items-center gap-4"
           >
             Novo <span className="text-green-600">Ticket</span>
+            <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100 shadow-sm">
+              Status: Em Aberto
+            </span>
           </motion.h1>
           <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-widest">
             {company?.nome_fantasia || 'IDENTIFICANDO...'} • {company?.cnpj}
@@ -249,9 +254,10 @@ const TicketForm: React.FC = () => {
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Status do Protocolo</label>
               <select name="status_protocolo" value={formData.status_protocolo} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white">
-                <option value="Em Aberto">Em Aberto</option>
-                <option value="Respondido">Respondido</option>
-                <option value="Resolvido">Resolvido</option>
+                <option value="Sem Protocolo">Sem Protocolo</option>
+                <option value="Em Analise">Em Analise</option>
+                <option value="Fechado Improcedente">Fechado Improcedente</option>
+                <option value="Fechado Procedente">Fechado Procedente</option>
               </select>
             </div>
             <div className="space-y-2">
