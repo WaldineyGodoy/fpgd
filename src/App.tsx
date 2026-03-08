@@ -12,6 +12,9 @@ import TicketDashboard from './pages/TicketDashboard';
 import TicketForm from './pages/TicketForm';
 import TicketDetails from './pages/TicketDetails';
 import LandingPageDemo from './pages/LandingPageDemo';
+import AppLayout from './components/AppLayout';
+import KanbanBoard from './components/KanbanBoard';
+import AdminPage from './pages/AdminPage';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -66,21 +69,33 @@ const AnimatedRoutes = () => {
 
         {/* Tickets Area */}
         <Route path="/tickets" element={
-          <PageWrapper>
+          <AppLayout>
             <TicketDashboard />
-          </PageWrapper>
+          </AppLayout>
+        } />
+
+        <Route path="/tickets/kanban" element={
+          <AppLayout>
+            <KanbanBoard />
+          </AppLayout>
         } />
 
         <Route path="/tickets/novo" element={
-          <PageWrapper>
+          <AppLayout>
             <TicketForm />
-          </PageWrapper>
+          </AppLayout>
+        } />
+
+        <Route path="/admin" element={
+          <AppLayout>
+            <AdminPage />
+          </AppLayout>
         } />
 
         <Route path="/tickets/:id" element={
-          <PageWrapper>
+          <AppLayout>
             <TicketDetails />
-          </PageWrapper>
+          </AppLayout>
         } />
       </Routes>
     </AnimatePresence>

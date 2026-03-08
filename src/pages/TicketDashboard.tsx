@@ -44,6 +44,8 @@ const TicketDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
   const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string>('cliente');
+  const [companyId, setCompanyId] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState({
     search: '',
     status: 'All',
@@ -54,19 +56,50 @@ const TicketDashboard: React.FC = () => {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user: supabaseUser } } = await supabase.auth.getUser();
-      setUser(supabaseUser);
+      if (supabaseUser) {
+        setUser(supabaseUser);
+        const { data: company } = await supabase
+          .from('companies')
+          .select('id, user_type')
+          .eq('auth_user_id', supabaseUser.id)
+          .maybeSingle();
+        
+        if (company) {
+          setUserRole(company.user_type);
+          setCompanyId(company.id);
+        }
+      }
     };
     checkUser();
     fetchTickets();
   }, []);
-
   const fetchTickets = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: { user: supabaseUser } } = await supabase.auth.getUser();
+      if (!supabaseUser) return;
+
+      let query = supabase
         .from('tickets')
-        .select('*, companies(nome_fantasia, cnpj)')
+        .select('*, companies(nome_fantasia, cnpj, integrador_id)')
         .order('created_at', { ascending: false });
+
+      // Apply RBAC Filtering
+      const { data: userComp } = await supabase
+        .from('companies')
+        .select('id, user_type, integrador_id')
+        .eq('auth_user_id', supabaseUser.id)
+        .maybeSingle();
+
+      if (userComp) {
+        if (userComp.user_type === 'cliente') {
+          query = query.eq('company_id', userComp.id);
+        } else if (userComp.user_type === 'integrador') {
+          query = query.or(`company_id.eq.${userComp.id},companies.integrador_id.eq.${userComp.id}`);
+        }
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       if (data) setTickets(data as any);
@@ -172,25 +205,7 @@ const TicketDashboard: React.FC = () => {
           </div>
 
           <div className="flex gap-3 w-full md:w-auto">
-            {user && (
-              <>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => navigate('/tickets/novo')}
-                  className="flex-1 bg-green-600 text-white px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-100 ring-4 ring-green-50 transition-all hover:bg-green-700"
-                >
-                  <Plus className="w-5 h-5" /> Abrir Novo Ticket
-                </motion.button>
-                <button
-                  onClick={() => { supabase.auth.signOut().then(() => { setUser(null); navigate('/login'); }) }}
-                  className="p-4 bg-white text-slate-400 hover:text-red-500 rounded-2xl border border-slate-100 transition-all shadow-sm"
-                  title="Sair"
-                >
-                  <LogOut className="w-6 h-6" />
-                </button>
-              </>
-            )}
+            {/* Action buttons moved to Sidebar or adjusted */}
           </div>
         </div>
 
