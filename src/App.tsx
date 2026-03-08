@@ -27,7 +27,11 @@ const AnimatedRoutes = () => {
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Redirect root to login for the new system */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={
+          <PageWrapper>
+            <LandingPageDemo />
+          </PageWrapper>
+        } />
 
         <Route path="/login" element={
           <PageWrapper>
