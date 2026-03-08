@@ -11,7 +11,7 @@ import {
   Plus, LogOut, TrendingUp, Users, MessageSquare, Phone, Globe,
   ClipboardCheck, HardHat, Store, LayoutDashboard, ChevronRight,
   Filter, Calendar, CheckCircle2, XCircle, AlertCircle, Clock,
-  Ticket
+  Ticket, Smile, Meh, Frown
 } from 'lucide-react';
 
 interface TicketData {
@@ -90,20 +90,14 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' })
         .select('*, companies(nome_fantasia, cnpj, integrador_id)')
         .order('created_at', { ascending: false });
 
-      // Apply RBAC Filtering
+      // Apply RBAC Filtering (Removed to make dashboard global as requested)
       const { data: userComp } = await supabase
         .from('companies')
         .select('id, user_type, integrador_id')
         .eq('auth_user_id', supabaseUser.id)
         .maybeSingle();
-
-      if (userComp) {
-        if (userComp.user_type === 'cliente') {
-          query = query.eq('company_id', userComp.id);
-        } else if (userComp.user_type === 'integrador') {
-          query = query.or(`company_id.eq.${userComp.id},companies.integrador_id.eq.${userComp.id}`);
-        }
-      }
+      
+      // The query will now fetch all tickets regardless of user context.
 
       const { data, error } = await query;
 
@@ -245,30 +239,47 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard' })
                 Satisfação por canal de atendimento <span className="text-slate-400 font-bold text-xs uppercase tracking-widest ml-2">de 1 a 5</span>
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {npsStats.map((stat, i) => (
+                {npsStats.map((stat, i) => {
+                  const numAvg = stat.avg === 'N/A' ? 0 : Number(stat.avg);
+                  let iconColor = 'text-slate-300';
+                  let bgColor = 'bg-slate-300';
+                  let Emote = Meh;
+                  
+                  if (numAvg >= 4.5) { iconColor = 'text-green-500'; bgColor = 'bg-green-500'; Emote = Smile; }
+                  else if (numAvg >= 3.5) { iconColor = 'text-lime-500'; bgColor = 'bg-lime-500'; Emote = Smile; }
+                  else if (numAvg >= 2.5) { iconColor = 'text-yellow-400'; bgColor = 'bg-yellow-400'; Emote = Meh; }
+                  else if (numAvg >= 1.5) { iconColor = 'text-orange-500'; bgColor = 'bg-orange-500'; Emote = Frown; }
+                  else if (numAvg > 0) { iconColor = 'text-red-500'; bgColor = 'bg-red-500'; Emote = Frown; }
+
+                  return (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
                     key={stat.key}
-                    className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm group hover:border-green-200 transition-all"
+                    className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm group hover:border-green-200 transition-all flex flex-col justify-between"
                   >
                     <div className="flex items-center gap-2 text-slate-400 mb-3 font-black text-[10px] uppercase">
                       {stat.icon} {stat.label}
                     </div>
-                    <div className="text-3xl font-black text-slate-800 flex items-baseline gap-1">
-                      {stat.avg}
-                      <span className="text-[10px] text-slate-300">/ 5.0</span>
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="text-3xl font-black text-slate-800 flex items-baseline gap-1">
+                        {stat.avg}
+                        <span className="text-[10px] text-slate-300">/ 5.0</span>
+                      </div>
+                      {stat.avg !== 'N/A' && (
+                        <Emote className={`w-8 h-8 ${iconColor} drop-shadow-sm`} strokeWidth={2.5} />
+                      )}
                     </div>
-                    <div className="w-full bg-slate-50 h-1 rounded-full mt-4 overflow-hidden">
+                    <div className="w-full bg-slate-50 h-1.5 rounded-full mt-4 overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${(Number(stat.avg) / 5) * 100}%` }}
-                        className="h-full bg-green-500"
+                        animate={{ width: `${(numAvg / 5) * 100}%` }}
+                        className={`h-full ${bgColor}`}
                       />
                     </div>
                   </motion.div>
-                ))}
+                )})}
               </div>
             </div>
 
