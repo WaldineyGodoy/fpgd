@@ -33,5 +33,5 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./dist/
-          server-dir: ./ # Geralmente a conexão FTP já cai na pasta certa ou iniciamos da raiz da conta
+          server-dir: /
           dangerous-clean-slate: false # Garante que nada será apagado no servidor
