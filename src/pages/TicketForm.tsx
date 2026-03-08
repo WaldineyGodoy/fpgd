@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import BuscaIntegrador from '../components/BuscaIntegrador';
+import MonthPicker from '../components/MonthPicker';
 
 interface FormData {
   cliente: string;
@@ -29,7 +30,7 @@ const TicketForm: React.FC = () => {
 
   const [formData, setFormData] = useState<FormData>({
     cliente: '',
-    mes_referencia: '',
+    mes_referencia: new Date().toISOString().slice(0, 7),
     codigo_cliente_ug: '',
     codigo_cliente_uc: [],
     tipo_uc: 'Geradora',
@@ -158,7 +159,10 @@ const TicketForm: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Mês de Referência</label>
-              <input type="month" name="mes_referencia" value={formData.mes_referencia} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600" />
+              <MonthPicker 
+                value={formData.mes_referencia} 
+                onChange={(val) => setFormData(prev => ({ ...prev, mes_referencia: val }))} 
+              />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Código Cliente UG</label>
