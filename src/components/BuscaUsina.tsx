@@ -10,10 +10,15 @@ interface UsinaData {
     cpf_cnpj: string;
     ug: string;
     ucs: string[];
+    tipo_uc: 'Geradora' | 'Beneficiaria' | null;
     integrador_id: string | null;
     companies: {
         email: string | null;
         telefone: string | null;
+    } | null;
+    integrador: {
+        nome_fantasia: string | null;
+        razao_social: string | null;
     } | null;
 }
 
@@ -56,10 +61,15 @@ const BuscaUsina: React.FC<BuscaUsinaProps> = ({ onSelect, initialValue = '' }) 
                     cpf_cnpj,
                     ug,
                     ucs,
+                    tipo_uc,
                     integrador_id,
                     companies!usinas_company_id_fkey (
                         email,
                         telefone
+                    ),
+                    integrador:companies!usinas_integrador_id_fkey (
+                        nome_fantasia,
+                        razao_social
                     )
                 `)
                 .or(`nome.ilike.%${searchTerm}%,cpf_cnpj.ilike.%${searchTerm}%,ug.ilike.%${searchTerm}%`)

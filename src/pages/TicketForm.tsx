@@ -31,6 +31,7 @@ const TicketForm: React.FC = () => {
   const [company, setCompany] = useState<any>(null);
   const [newUc, setNewUc] = useState<string>('');
   const [selectedIntegratorId, setSelectedIntegratorId] = useState<string | null>(null);
+  const [selectedIntegratorName, setSelectedIntegratorName] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     show: boolean;
     type: NotificationType;
@@ -243,10 +244,12 @@ const TicketForm: React.FC = () => {
                         ...prev,
                         cliente: usina.nome,
                         codigo_cliente_ug: usina.ug || '',
-                        codigo_cliente_uc: usina.ucs || []
+                        codigo_cliente_uc: usina.ucs || [],
+                        tipo_uc: usina.tipo_uc || 'Geradora'
                       }));
                       if (usina.integrador_id) {
                         setSelectedIntegratorId(usina.integrador_id);
+                        setSelectedIntegratorName(usina.integrador?.nome_fantasia || usina.integrador?.razao_social || 'N/A');
                       }
                     }
                   }} 
@@ -275,87 +278,59 @@ const TicketForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-4 border-t border-gray-50">
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Nome Completo</label>
-              <input 
-                type="text" 
-                name="cliente" 
-                value={formData.cliente} 
-                onChange={handleChange} 
-                required 
-                className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium bg-gray-50/50" 
-              />
+              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
+                {formData.cliente || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              </div>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Código Cliente UG</label>
-              <input 
-                type="text" 
-                name="codigo_cliente_ug" 
-                value={formData.codigo_cliente_ug} 
-                onChange={handleChange} 
-                className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all bg-gray-50/50" 
-              />
+              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
+                {formData.codigo_cliente_ug || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              </div>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Tipo de UG</label>
-              <select name="tipo_uc" value={formData.tipo_uc} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white">
-                <option value="Geradora">Geradora</option>
-                <option value="Beneficiaria">Beneficiaria</option>
-              </select>
+              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
+                {formData.tipo_uc || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              </div>
             </div>
             
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
-              <BuscaIntegrador 
-                initialValue={selectedIntegratorId || ''} 
-                onSelect={(int) => setSelectedIntegratorId(int?.id || null)} 
-              />
+              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
+                {selectedIntegratorName || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              </div>
             </div>
           </div>
           
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">
-            Dados preenchidos automaticamente ao selecionar o cliente acima.
+            Dados vinculados automaticamente à usina selecionada.
           </p>
         </section>
 
         <section className="space-y-4 p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
           <label className="text-sm font-black text-gray-700 flex items-center gap-2">
             Multi-Beneficiárias (UCs)
-            <span className="text-[10px] bg-gray-200 text-gray-500 px-2 py-0.5 rounded-full uppercase tracking-tighter">Opcional</span>
           </label>
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={newUc}
-              onChange={(e) => setNewUc(e.target.value)}
-              placeholder="Digite o código da UC..."
-              className="flex-1 p-4 rounded-2xl border-2 border-white focus:border-green-500 outline-none transition-all shadow-sm bg-white"
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addUc())}
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={addUc}
-              className="px-8 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 shadow-lg shadow-green-100 border-b-4 border-green-800"
-            >
-              Add
-            </motion.button>
-          </div>
-          <motion.div layout className="flex flex-wrap gap-2 pt-2">
-            <AnimatePresence>
-              {formData.codigo_cliente_uc.map(uc => (
-                <motion.span
-                  key={uc}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="px-4 py-2 bg-white border border-green-200 text-green-700 rounded-xl font-bold shadow-sm flex items-center gap-3"
-                >
-                  {uc}
-                  <button type="button" onClick={() => removeUc(uc)} className="text-red-400 hover:text-red-600 font-black">×</button>
-                </motion.span>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          {formData.codigo_cliente_uc.length > 0 ? (
+            <motion.div layout className="flex flex-wrap gap-2 pt-2">
+              <AnimatePresence>
+                {formData.codigo_cliente_uc.map(uc => (
+                  <motion.span
+                    key={uc}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="px-4 py-2 bg-white border border-green-200 text-green-700 rounded-xl font-bold shadow-sm flex items-center gap-3"
+                  >
+                    {uc}
+                  </motion.span>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            <p className="text-sm text-gray-400 font-bold italic ml-1">Nenhuma unidade beneficiária cadastrada nesta usina.</p>
+          )}
         </section>
 
         <section className="space-y-6">

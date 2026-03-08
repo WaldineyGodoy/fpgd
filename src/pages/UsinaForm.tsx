@@ -31,6 +31,7 @@ const UsinaForm = () => {
     ug: '',
     ucs: '',
     geracao_media_anual: '',
+    tipo_uc: 'Geradora' as 'Geradora' | 'Beneficiaria',
     integrador_id: null as string | null,
   });
 
@@ -76,6 +77,7 @@ const UsinaForm = () => {
             ug: data.ug || '',
             ucs: data.ucs ? data.ucs.join(', ') : '',
             geracao_media_anual: data.geracao_media_anual?.toString() || '',
+            tipo_uc: data.tipo_uc || 'Geradora',
             integrador_id: data.integrador_id || null,
           });
         }
@@ -148,6 +150,7 @@ const UsinaForm = () => {
         endereco: formData.endereco,
         numero: formData.numero,
         complemento: formData.complemento,
+        tipo_uc: formData.tipo_uc,
         integrador_id: formData.integrador_id,
         potencia_usina: formData.potencia_usina ? parseFloat(formData.potencia_usina) : null,
         qtd_paineis: formData.qtd_paineis ? parseInt(formData.qtd_paineis, 10) : null,
@@ -176,7 +179,7 @@ const UsinaForm = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -267,6 +270,20 @@ const UsinaForm = () => {
                 className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
                 placeholder="000.000.000-00"
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Tipo de Unidade Consumidora</label>
+              <select
+                name="tipo_uc"
+                value={formData.tipo_uc}
+                onChange={handleChange}
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none"
+              >
+                <option value="Geradora">Geradora</option>
+                <option value="Beneficiaria">Beneficiaria</option>
+              </select>
             </div>
           </div>
           <div className="mt-6 space-y-3 pt-4 border-t border-gray-50">
