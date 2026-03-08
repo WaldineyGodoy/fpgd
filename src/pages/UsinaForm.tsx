@@ -272,6 +272,7 @@ const UsinaForm = () => {
           </div>
           <div className="mt-6 space-y-3 pt-4 border-t border-gray-50">
             <label className="block text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider ml-1 -mt-2">DEIXE EM BRANCO SE NÃO TIVER UM INTEGRADOR.</p>
             <BuscaIntegrador 
               initialValue={isEditing && formData.integrador_id ? formData.integrador_id : ''} 
               onSelect={(int) => setFormData(prev => ({ ...prev, integrador_id: int?.id || null }))} 
