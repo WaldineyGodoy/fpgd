@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { IMaskInput } from 'react-imask';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Send, CheckCircle2 } from 'lucide-react';
 
 interface Company {
   id: string;
@@ -23,6 +23,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [showSignupModal, setShowSignupModal] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +56,8 @@ const LoginPage: React.FC = () => {
         redirectTo: window.location.origin + window.location.pathname + '#/reset-password',
       });
       if (error) throw error;
-      alert('E-mail de recuperação enviado!');
+      setShowSuccessModal(true);
+      setError('');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -216,6 +218,44 @@ const LoginPage: React.FC = () => {
                   <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">🛠️</div>
                 </motion.button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Success Modal for Forgot Password */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-[60]"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 20 }}
+              className="bg-white p-10 rounded-[3rem] max-w-sm w-full shadow-2xl relative text-center"
+            >
+              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-50 ring-8 ring-green-50/50">
+                <Send className="w-10 h-10" />
+              </div>
+              
+              <h3 className="text-2xl font-black text-gray-800 mb-4">E-mail Enviado!</h3>
+              <p className="text-gray-500 font-bold text-sm leading-relaxed mb-8">
+                Instruções de recuperação foram enviadas para:<br/>
+                <span className="text-green-600 break-all font-black">{email}</span>
+              </p>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full py-4 bg-green-600 text-white font-black rounded-2xl shadow-xl shadow-green-100 hover:bg-green-700 transition-all flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 size={18} /> ENTENDI
+              </motion.button>
             </motion.div>
           </motion.div>
         )}
