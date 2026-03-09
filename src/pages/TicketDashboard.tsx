@@ -91,16 +91,34 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
         .select('*, companies(nome_fantasia, cnpj, integrador_id)')
         .order('created_at', { ascending: false });
 
-      // Apply RBAC Filtering (Removed to make dashboard global as requested)
+      // Apply RBAC Filtering
       if (supabaseUser) {
         const { data: userComp } = await supabase
           .from('companies')
           .select('id, user_type, integrador_id')
           .eq('auth_user_id', supabaseUser.id)
           .maybeSingle();
+        
+        if (userComp) {
+          if (userComp.user_type === 'cliente') {
+            query = query.eq('company_id', userComp.id);
+          } else if (userComp.user_type === 'integrador') {
+            const { data: linkedClients } = await supabase
+              .from('companies')
+              .select('id')
+              .eq('integrador_id', userComp.id);
+            
+            const clientIds = linkedClients?.map(c => c.id) || [];
+            if (clientIds.length > 0) {
+              query = query.or(`company_id.eq.${userComp.id},company_id.in.(${clientIds.join(',')})`);
+            } else {
+              query = query.eq('company_id', userComp.id);
+            }
+          } else if (userComp.user_type === 'mediador' || userComp.user_type === 'superadmin') {
+            // Keep global access
+          }
+        }
       }
-      
-      // The query will now fetch all tickets regardless of user context.
 
       const { data, error } = await query;
 

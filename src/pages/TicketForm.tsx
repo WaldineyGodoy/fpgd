@@ -209,28 +209,28 @@ const TicketForm: React.FC = () => {
       <div className="mb-8 border-b border-gray-100 pb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <motion.h1
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="text-4xl font-black text-gray-800 flex items-center gap-4"
+            className="text-4xl font-black text-slate-800 flex items-center gap-4 tracking-tighter uppercase"
           >
-            Novo <span className="text-green-600">Ticket</span>
-            <span className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100 shadow-sm">
+            Novo <span className="text-blue-600">Ticket</span>
+            <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-blue-100 shadow-sm">
               Status: Em Aberto
             </span>
           </motion.h1>
-          <p className="text-sm font-bold text-gray-400 mt-1 uppercase tracking-widest">
-            {company?.nome_fantasia || 'IDENTIFICANDO...'} • {company?.cnpj}
+          <p className="text-xs font-black text-slate-400 mt-2 uppercase tracking-[0.3em] pl-1">
+            {company?.nome_fantasia || 'IDENTIFICANDO...'} • <span className="text-slate-300 font-bold">{company?.cnpj}</span>
           </p>
         </div>
-        <button onClick={() => navigate('/tickets')} className="px-6 py-2 text-gray-400 hover:text-green-600 font-bold transition-all flex items-center gap-2">
-          <span>‹</span> Voltar para Listagem
+        <button onClick={() => navigate('/tickets')} className="px-6 py-3 text-slate-400 hover:text-blue-600 font-bold transition-all flex items-center gap-2 group">
+          <span className="text-xl group-hover:-translate-x-1 transition-transform">‹</span> Voltar para Listagem
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-10">
         <section className="space-y-6">
-          <h2 className="text-xs font-black text-green-600 uppercase tracking-[0.2em] flex items-center gap-2">
-            <span className="h-1 w-8 bg-green-600 rounded-full"></span>
+          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3">
+            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
             Identificação do Cliente
           </h2>
           
@@ -280,7 +280,7 @@ const TicketForm: React.FC = () => {
               whileHover={{ x: 5 }}
               type="button"
               onClick={() => navigate('/usinas')}
-              className="text-xs font-bold text-green-600 hover:text-green-700 flex items-center gap-2 ml-1"
+              className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-indigo-700 flex items-center gap-2 ml-1"
             >
               <PlusCircle className="w-4 h-4" />
               Não encontrou o cliente? Cadastre aqui.
@@ -289,55 +289,56 @@ const TicketForm: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-4 border-t border-gray-50">
             <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Nome Completo</label>
-              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
-                {formData.cliente || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome Completo</label>
+              <div className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-black text-slate-700 shadow-inner">
+                {formData.cliente || <span className="text-slate-300 font-medium italic">Selecione o cliente acima...</span>}
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Código Cliente UG</label>
-              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
-                {formData.codigo_cliente_ug || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Código Cliente UG</label>
+              <div className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-black text-slate-700 shadow-inner">
+                {formData.codigo_cliente_ug || <span className="text-slate-300 font-medium italic">Selecione o cliente acima...</span>}
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Tipo de UG</label>
-              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
-                {formData.tipo_uc || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo de UG</label>
+              <div className="w-full px-5 py-3 rounded-xl bg-blue-50 text-blue-600 font-black uppercase text-[10px] tracking-[0.2em] border border-blue-100 shadow-sm w-fit">
+                {formData.tipo_uc || 'SELECIONE...'}
               </div>
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
-              <div className="w-full p-4 rounded-2xl bg-gray-50 border-2 border-gray-100 font-bold text-gray-800">
-                {selectedIntegratorName || <span className="text-gray-300 font-medium italic">Selecione o cliente acima...</span>}
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Integrador / Vendedor Responsável</label>
+              <div className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-slate-100 font-black text-slate-700 shadow-inner">
+                {selectedIntegratorName || <span className="text-slate-300 font-medium italic">Selecione o cliente acima...</span>}
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-black text-gray-700 ml-1">Nome do Cliente (Proprietário)</label>
-              <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-bold text-blue-900">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome do Cliente (Proprietário)</label>
+              <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-black text-blue-900 shadow-sm uppercase text-[11px]">
                 {usinaContact.nome_cliente || <span className="text-blue-300 font-medium italic">N/A</span>}
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-black text-gray-700 ml-1">Email de Contato</label>
-                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-bold text-blue-900 text-sm truncate">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email de Contato</label>
+                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-black text-blue-900 text-[10px] truncate shadow-sm">
                   {usinaContact.email_contato || <span className="text-blue-300 font-medium italic">N/A</span>}
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-black text-gray-700 ml-1">WhatsApp</label>
-                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-bold text-blue-900">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">WhatsApp</label>
+                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-black text-blue-900 text-[10px] shadow-sm tracking-widest">
                   {usinaContact.telefone_contato || <span className="text-blue-300 font-medium italic">N/A</span>}
                 </div>
               </div>
             </div>
           </div>
           
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">
+          <p className="text-[9px] text-slate-300 font-black uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
             Dados vinculados automaticamente à usina selecionada.
           </p>
         </section>
@@ -368,8 +369,8 @@ const TicketForm: React.FC = () => {
         </section>
 
         <section className="space-y-6">
-          <h2 className="text-xs font-black text-green-600 uppercase tracking-[0.2em] flex items-center gap-2">
-            <span className="h-1 w-8 bg-green-600 rounded-full"></span>
+          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3">
+            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
             Dados do Atendimento
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -409,11 +410,11 @@ const TicketForm: React.FC = () => {
         </section>
 
         <motion.button
-          whileHover={{ scale: 1.02, backgroundColor: '#15803d' }}
+          whileHover={{ scale: 1.02, backgroundColor: '#2563eb' }}
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="w-full py-6 bg-green-600 text-white font-black text-xl rounded-3xl shadow-2xl shadow-green-200 transition-all duration-200 disabled:opacity-50 border-b-8 border-green-800"
+          className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xl rounded-[2rem] shadow-2xl shadow-blue-200 transition-all duration-200 disabled:opacity-50 border-b-8 border-blue-800 uppercase tracking-[0.2em]"
         >
           {loading ? 'Processando Chamado...' : 'REGISTRAR TICKET ✦'}
         </motion.button>

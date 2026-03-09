@@ -228,8 +228,9 @@ const UsinaForm = () => {
 
   if (initialFetch) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+      <div className="flex flex-col items-center justify-center p-20 gap-4">
+        <div className="w-12 h-12 border-4 border-blue-50 border-t-blue-600 rounded-full animate-spin shadow-lg shadow-blue-100" />
+        <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest animate-pulse">Carregando dados da usina...</p>
       </div>
     );
   }
@@ -244,11 +245,11 @@ const UsinaForm = () => {
           <ArrowLeft className="w-5 h-5 text-slate-500" />
         </button>
         <div>
-          <h1 className="text-2xl font-black text-slate-800">
-            {isEditing ? 'Editar Usina' : 'Nova Usina'}
+          <h1 className="text-2xl font-black text-slate-800 tracking-tighter uppercase">
+            {isEditing ? 'Editar' : 'Nova'} <span className="text-blue-600">Usina</span>
           </h1>
-          <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
-            Preencha as informações do sistema solar
+          <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">
+            Gestão de Ativos Solares fpgd
           </p>
         </div>
       </div>
@@ -256,8 +257,9 @@ const UsinaForm = () => {
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
         {/* Sessão: Informações Gerais */}
         <section>
-          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
-            <Settings className="w-5 h-5 text-green-600" /> Identificação
+          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3 mb-6">
+            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
+            Identificação
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <div>
@@ -267,8 +269,8 @@ const UsinaForm = () => {
                 name="nome"
                 value={formData.nome}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
-                placeholder="Ex Ex: Casa de Praia"
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-black text-slate-600 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-200 outline-none transition-all" 
+                placeholder="Ex: Casa de Praia"
               />
             </div>
             <div>
@@ -287,29 +289,28 @@ const UsinaForm = () => {
                 name="nome_cliente"
                 value={formData.nome_cliente}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-black text-slate-600 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-200 outline-none transition-all uppercase" 
                 placeholder="Ex: João Silva"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">E-mail</label>
                 <input 
                   name="email_contato"
                   type="email"
                   value={formData.email_contato}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-black text-slate-600 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-200 outline-none transition-all" 
                   placeholder="cliente@email.com"
                 />
               </div>
               <div>
-                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Telefone (Whatsapp)</label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Telefone (Whatsapp)</label>
                 <input 
                   name="telefone_contato"
                   value={formData.telefone_contato}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-green-50 outline-none" 
+                  className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-black text-slate-600 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-200 outline-none transition-all" 
                   placeholder="(00) 00000-0000"
                 />
               </div>
@@ -317,12 +318,12 @@ const UsinaForm = () => {
           </div>
           <div className="mt-6 space-y-3 pt-4 border-t border-gray-50">
             <label className="block text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider ml-1 -mt-2">DEIXE EM BRANCO SE NÃO TIVER UM INTEGRADOR.</p>
+            <p className="text-[10px] text-blue-500 font-black uppercase tracking-[0.2em] ml-1">DEIXE EM BRANCO SE NÃO TIVER UM INTEGRADOR.</p>
             <BuscaIntegrador 
               initialValue={isEditing && formData.integrador_id ? formData.integrador_id : ''} 
               onSelect={(int) => setFormData(prev => ({ ...prev, integrador_id: int?.id || null }))} 
             />
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider ml-1">AO SELECIONAR, ESTE INTEGRADOR SERÁ VINCULADO AO SEU CADASTRO.</p>
+            <p className="text-[10px] text-slate-300 font-black tracking-[0.2em] ml-1 uppercase">AO SELECIONAR, ESTE INTEGRADOR SERÁ VINCULADO AO SEU CADASTRO.</p>
           </div>
         </section>
 
@@ -416,8 +417,9 @@ const UsinaForm = () => {
 
         {/* Sessão: Dados Técnicos */}
         <section>
-          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
-            <Zap className="w-5 h-5 text-amber-500" /> Dados Técnicos (Potência)
+          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3 mb-6">
+            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
+            Localização e Unidades
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <div>
@@ -515,11 +517,11 @@ const UsinaForm = () => {
             Cancelar
           </button>
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={loading}
-            className="bg-green-600 text-white px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-100 ring-4 ring-green-50 transition-all hover:bg-green-700 disabled:opacity-50"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-12 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 ring-4 ring-blue-500/10 transition-all hover:to-blue-500 disabled:opacity-50 uppercase tracking-widest"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             Salvar Usina

@@ -72,23 +72,23 @@ const LoginPage: React.FC = () => {
   return (
     <div className="relative">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md p-8 bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md p-10 bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(30,64,175,0.2)] border border-white/50"
       >
         <motion.h1
           initial={{ y: -20 }}
           animate={{ y: 0 }}
-          className="text-4xl font-black text-center text-gray-800 mb-8 pb-4 border-b border-gray-100 flex justify-center items-center gap-2"
+          className="text-4xl font-black text-center text-slate-800 mb-10 pb-6 border-b border-slate-100 flex justify-center items-center gap-2 uppercase tracking-tighter"
         >
           <motion.span
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="text-green-600"
+            animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1.2, 1] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+            className="text-blue-600"
           >
             ✦
           </motion.span>
-          Login <span className="text-green-600">FPGD</span>
+          Login <span className="text-blue-600">FPGD</span>
         </motion.h1>
 
         <AnimatePresence mode="wait">
@@ -108,12 +108,12 @@ const LoginPage: React.FC = () => {
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700 ml-1">E-mail</label>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all placeholder-gray-300 text-lg font-medium"
+              className="w-full p-5 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all placeholder-slate-300 text-lg font-black text-slate-700 shadow-inner"
               placeholder="exemplo@email.com"
               required
             />
@@ -121,11 +121,11 @@ const LoginPage: React.FC = () => {
 
           <div className="space-y-2">
             <div className="flex justify-between items-center px-1">
-              <label className="text-sm font-bold text-gray-700">Senha</label>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Senha</label>
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors"
+                className="text-[10px] font-black text-blue-600 hover:text-indigo-700 transition-colors uppercase tracking-widest"
               >
                 Esqueci a senha
               </button>
@@ -135,37 +135,37 @@ const LoginPage: React.FC = () => {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-4 pr-12 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all text-lg font-medium"
+                className="w-full p-5 pr-14 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-lg font-black text-slate-700 shadow-inner"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-600 transition-colors"
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
               </button>
             </div>
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.02, backgroundColor: '#15803d' }}
+            whileHover={{ scale: 1.02, backgroundColor: '#2563eb' }}
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full py-5 bg-green-600 text-white font-black text-lg rounded-2xl shadow-xl shadow-green-200 transition-colors disabled:opacity-50"
+            className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-blue-200 transition-all duration-200 disabled:opacity-50 uppercase tracking-[0.2em] border-b-4 border-blue-800"
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Acessando...' : 'ENTRAR NO SISTEMA ✦'}
           </motion.button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col items-center gap-4">
-          <p className="text-sm font-bold text-gray-400">Não tem uma conta?</p>
+        <div className="mt-10 pt-8 border-t border-slate-100 flex flex-col items-center gap-5">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ainda não tem acesso?</p>
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowSignupModal(true)}
-            className="px-8 py-3 bg-white text-green-600 border-2 border-green-500 font-black rounded-2xl hover:bg-green-50 transition-all shadow-sm"
+            className="px-10 py-4 bg-white text-blue-600 border-2 border-blue-500 font-black rounded-2xl hover:bg-blue-50 transition-all shadow-[0_4px_20px_-4px_rgba(37,99,235,0.3)] uppercase text-xs tracking-[0.2em]"
           >
             CADASTRE-SE AGORA
           </motion.button>
@@ -199,27 +199,27 @@ const LoginPage: React.FC = () => {
               
               <div className="space-y-4">
                 <motion.button
-                  whileHover={{ scale: 1.02, x: 5 }}
+                  whileHover={{ scale: 1.02, x: 5, borderColor: '#3b82f6' }}
                   onClick={() => navigate('/cadastro_cliente')}
-                  className="w-full flex items-center justify-between p-6 bg-slate-50 border-2 border-transparent hover:border-green-500 rounded-2xl text-left group transition-all"
+                  className="w-full flex items-center justify-between p-7 bg-slate-50 border-2 border-slate-100 rounded-3xl text-left group transition-all"
                 >
                   <div>
-                    <span className="block text-lg font-black text-gray-800">Sou Cliente</span>
-                    <span className="block text-xs font-bold text-gray-400 uppercase">Gestão e acompanhamento</span>
+                    <span className="block text-xl font-black text-slate-800">Sou Cliente</span>
+                    <span className="block text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">Gestão e acompanhamento fpgd</span>
                   </div>
-                  <div className="p-3 bg-white rounded-xl shadow-sm text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all">👤</div>
+                  <div className="p-4 bg-white rounded-2xl shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all ring-4 ring-blue-50">👤</div>
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.02, x: 5 }}
+                  whileHover={{ scale: 1.02, x: 5, borderColor: '#3b82f6' }}
                   onClick={() => navigate('/cadastro')}
-                  className="w-full flex items-center justify-between p-6 bg-slate-50 border-2 border-transparent hover:border-blue-500 rounded-2xl text-left group transition-all"
+                  className="w-full flex items-center justify-between p-7 bg-slate-50 border-2 border-slate-100 rounded-3xl text-left group transition-all"
                 >
                   <div>
-                    <span className="block text-lg font-black text-gray-800">Sou Integrador</span>
-                    <span className="block text-xs font-bold text-gray-400 uppercase">Instalador técnico</span>
+                    <span className="block text-xl font-black text-slate-800">Sou Integrador</span>
+                    <span className="block text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">Instalador técnico parceiro</span>
                   </div>
-                  <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all">🛠️</div>
+                  <div className="p-4 bg-white rounded-2xl shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all ring-4 ring-blue-50">🛠️</div>
                 </motion.button>
               </div>
             </motion.div>
@@ -242,14 +242,13 @@ const LoginPage: React.FC = () => {
               exit={{ scale: 0.8, opacity: 0, y: 20 }}
               className="bg-white p-10 rounded-[3rem] max-w-sm w-full shadow-2xl relative text-center"
             >
-              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-50 ring-8 ring-green-50/50">
-                <Send className="w-10 h-10" />
+              <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-blue-100 ring-8 ring-blue-50/50 border-2 border-blue-100/50">
+                <Send className="w-12 h-12" />
               </div>
               
-              <h3 className="text-2xl font-black text-gray-800 mb-4">E-mail Enviado!</h3>
-              <p className="text-gray-500 font-bold text-sm leading-relaxed mb-8">
-                Instruções de recuperação foram enviadas para:<br/>
-                <span className="text-green-600 break-all font-black">{email}</span>
+              <h3 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">E-mail Enviado!</h3>
+              <p className="text-slate-400 font-bold text-sm leading-relaxed mb-10 px-4">
+                As instruções para redefinir sua senha foram enviadas para o seu e-mail cadastrado.
               </p>
 
               <motion.button

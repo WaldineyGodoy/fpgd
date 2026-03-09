@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onAgendamentoClick, onAdesaoClick }) =>
                 <button
                   key={link.label}
                   onClick={link.onClick}
-                  className={`text-sm font-bold ${link.label.includes('Agendamento') ? 'text-green-500' : 'text-slate-600'} hover:text-[#34b27b] transition-colors`}
+                  className={`text-sm font-black uppercase tracking-widest ${link.label.includes('Agendamento') ? 'text-blue-600' : 'text-slate-600'} hover:text-blue-500 transition-all duration-300`}
                 >
                   {link.label}
                 </button>
@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ onAgendamentoClick, onAdesaoClick }) =>
                   href={link.href}
                   target={link.href?.startsWith('http') && !link.href?.includes('fpgd.site') ? "_blank" : undefined}
                   rel={link.href?.startsWith('http') && !link.href?.includes('fpgd.site') ? "noopener noreferrer" : undefined}
-                  className={`text-sm ${link.label === 'Reclame Cosern' ? 'font-bold text-red-600' : 'font-medium text-slate-600'} hover:text-[#3ecf8e] transition-colors`}
+                  className={`text-sm font-black uppercase tracking-widest ${link.label === 'Reclame Cosern' ? 'text-red-500' : 'text-slate-600'} hover:text-blue-600 transition-all duration-300`}
                 >
                   {link.label}
                 </a>
@@ -60,9 +60,9 @@ const Header: React.FC<HeaderProps> = ({ onAgendamentoClick, onAdesaoClick }) =>
           <div className="hidden md:block">
             <a
               href="/#/login"
-              className="bg-green-500 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#24b47e] transition-all shadow-sm shadow-green-500/20"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-blue-900/10"
             >
-              Login
+              Fazer Login
             </a>
           </div>
 

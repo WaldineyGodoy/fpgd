@@ -3,10 +3,10 @@
 
 @theme {
   --font-family-outfit: 'Outfit', sans-serif;
-  --color-primary: #16a34a;
-  /* Green 600 */
-  --color-secondary: #f3f4f6;
-  /* Gray 100 */
+  --color-primary: #2563eb;
+  /* Blue 600 */
+  --color-secondary: #f8fafc;
+  /* Slate 50 */
 }
 
 :root {
