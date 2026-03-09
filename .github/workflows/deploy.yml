@@ -35,7 +35,10 @@ jobs:
           local-dir: ./dist/
           server-dir: /
           dangerous-clean-slate: false
-          timeout: 600000 # 10 minutes
+          timeout: 900000 # 15 minutes
           port: 21
           state-name: .ftp-deploy-sync-state.json
           log-level: verbose
+          # Adicionando configurações para melhor compatibilidade com Hostinger
+          protocol: ftp
+          security: loose # Permite conexões sem SSL se o servidor não suportar FTPS rigidamente
