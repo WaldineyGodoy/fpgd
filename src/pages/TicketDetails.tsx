@@ -125,6 +125,13 @@ const TicketDetails: React.FC = () => {
         if (canEditAgreement) {
           updates.esta_de_acordo = localConcordancia;
           updates.recurso = localConcordancia ? 'Sem recurso' : localRecurso;
+          
+          // New status logic
+          if (localConcordancia === true) {
+            updates.status = 'Encerrado';
+          } else if (localConcordancia === false || localReplica.length > 0) {
+            updates.status = 'Recorrer';
+          }
         }
       }
 
@@ -390,30 +397,32 @@ const TicketDetails: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
                 <div className="space-y-4">
                   <label className="text-sm font-black text-gray-700 ml-1 uppercase tracking-widest">
-                    Concordância com o resultado?
+                    Ação Final
                   </label>
                   <div className="flex gap-4">
                     <button
                       disabled={!canEditAgreement}
                       onClick={() => setLocalConcordancia(true)}
-                      className={`flex-1 py-5 rounded-2xl font-black transition-all border-b-4 ${
+                      className={`flex-1 py-5 px-4 rounded-2xl font-black transition-all border-b-4 text-center leading-tight flex flex-col items-center justify-center gap-1 ${
                         localConcordancia === true
                         ? 'bg-green-600 text-white border-green-800 shadow-lg shadow-green-100' 
                         : 'bg-gray-100 text-gray-400 border-gray-200 hover:bg-gray-200'
                       } ${!canEditAgreement && 'cursor-not-allowed'}`}
                     >
-                      SIM
+                      <span className="text-xs">RESOLVIDO E</span>
+                      <span className="text-sm">ENCERRAR TICKET</span>
                     </button>
                     <button
                       disabled={!canEditAgreement}
                       onClick={() => setLocalConcordancia(false)}
-                      className={`flex-1 py-5 rounded-2xl font-black transition-all border-b-4 ${
+                      className={`flex-1 py-5 px-4 rounded-2xl font-black transition-all border-b-4 text-center leading-tight flex flex-col items-center justify-center gap-1 ${
                         localConcordancia === false
                         ? 'bg-red-600 text-white border-red-800 shadow-lg shadow-red-100' 
                         : 'bg-gray-100 text-gray-400 border-gray-200 hover:bg-gray-200'
                       } ${!canEditAgreement && 'cursor-not-allowed'}`}
                     >
-                      NÃO
+                      <span className="text-xs">NÃO RESOLVIDO</span>
+                      <span className="text-sm">RECORRER</span>
                     </button>
                   </div>
                 </div>

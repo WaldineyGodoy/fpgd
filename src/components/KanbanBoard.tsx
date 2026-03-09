@@ -26,7 +26,9 @@ interface Ticket {
 const STATUS_COLUMNS = [
   { id: 'Em Aberto', label: 'Em Aberto', color: 'bg-orange-500', lightColor: 'bg-orange-50' },
   { id: 'Respondido', label: 'Respondido', color: 'bg-green-500', lightColor: 'bg-green-50' },
-  { id: 'Resolvido', label: 'Resolvido', color: 'bg-blue-500', lightColor: 'bg-blue-50' }
+  { id: 'Recorrer', label: 'Recorrer', color: 'bg-red-600', lightColor: 'bg-red-50' },
+  { id: 'Resolvido', label: 'Resolvido', color: 'bg-blue-500', lightColor: 'bg-blue-50' },
+  { id: 'Encerrado', label: 'Encerrado', color: 'bg-slate-600', lightColor: 'bg-slate-100' }
 ];
 
 const KanbanBoard: React.FC = () => {
@@ -113,7 +115,7 @@ const KanbanBoard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-250px)]">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 h-[calc(100vh-250px)] overflow-x-auto pb-4 custom-scrollbar">
         {STATUS_COLUMNS.map((column) => (
           <div key={column.id} className="flex flex-col gap-4 bg-slate-50/50 p-4 rounded-[2rem] border border-slate-100/50">
             <div className="flex items-center justify-between px-2">
@@ -139,7 +141,7 @@ const KanbanBoard: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     onClick={() => navigate(`/tickets/${ticket.id}`)}
-                    className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md hover:border-green-100 transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-white p-5 rounded-3xl shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)] border-2 border-slate-200/60 hover:shadow-xl hover:border-green-300 transition-all cursor-pointer group relative overflow-hidden"
                   >
                     <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ChevronRight size={14} className="text-green-500" />
@@ -159,7 +161,7 @@ const KanbanBoard: React.FC = () => {
                         </div>
                       </div>
 
-                      <h4 className="text-sm font-black text-slate-700 leading-tight group-hover:text-green-600 transition-colors">
+                      <h4 className="text-sm font-black text-slate-800 leading-tight group-hover:text-green-600 transition-colors">
                         {ticket.tipo_chamado}
                       </h4>
                       
@@ -189,6 +191,20 @@ const KanbanBoard: React.FC = () => {
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
       `}</style>
     </div>
   );

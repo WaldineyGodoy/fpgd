@@ -495,7 +495,9 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                       <option value="All">Ticket: Todos</option>
                       <option>Em Aberto</option>
                       <option>Respondido</option>
+                      <option>Recorrer</option>
                       <option>Resolvido</option>
+                      <option>Encerrado</option>
                     </select>
                     <select
                       value={activeFilters.protocolStatus}
@@ -537,9 +539,13 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                             </div>
                           </td>
                            <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${t.status === 'Em Aberto' ? 'bg-orange-50 text-orange-600' :
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${
+                              t.status === 'Em Aberto' ? 'bg-orange-50 text-orange-600' :
                               t.status === 'Respondido' ? 'bg-green-50 text-green-600' :
-                                'bg-slate-100 text-slate-400'
+                              t.status === 'Recorrer' ? 'bg-red-50 text-red-600' :
+                              t.status === 'Resolvido' ? 'bg-blue-50 text-blue-600' :
+                              t.status === 'Encerrado' ? 'bg-slate-100 text-slate-600' :
+                              'bg-slate-100 text-slate-400'
                               }`}>
                               {t.status || 'Em Aberto'}
                             </span>
