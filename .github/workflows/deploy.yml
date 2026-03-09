@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to Hostinger via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -35,10 +35,13 @@ jobs:
           local-dir: ./dist/
           server-dir: /
           dangerous-clean-slate: false
-          timeout: 900000 # 15 minutes
+          timeout: 999999
           port: 21
-          state-name: .ftp-deploy-sync-state.json
-          log-level: verbose
-          # Adicionando configurações para melhor compatibilidade com Hostinger
           protocol: ftp
-          security: loose # Permite conexões sem SSL se o servidor não suportar FTPS rigidamente
+          security: loose
+          # Removendo arquivos desnecessários do sync
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .ftp-deploy-sync-state.json
