@@ -24,11 +24,11 @@ interface Ticket {
 }
 
 const STATUS_COLUMNS = [
-  { id: 'Em Aberto', label: 'Em Aberto', color: 'bg-orange-500', lightColor: 'bg-orange-50' },
-  { id: 'Respondido', label: 'Respondido', color: 'bg-green-500', lightColor: 'bg-green-50' },
-  { id: 'Recorrer', label: 'Recorrer', color: 'bg-red-600', lightColor: 'bg-red-50' },
-  { id: 'Resolvido', label: 'Resolvido', color: 'bg-blue-500', lightColor: 'bg-blue-50' },
-  { id: 'Encerrado', label: 'Encerrado', color: 'bg-slate-600', lightColor: 'bg-slate-100' }
+  { id: 'Em Aberto', label: 'Em Aberto', color: 'bg-[#f59e0b]', lightColor: 'bg-[#fffbeb]', borderColor: 'border-[#fef3c7]', textColor: 'text-[#92400e]', iconColor: 'text-[#f59e0b]' },
+  { id: 'Respondido', label: 'Respondido', color: 'bg-[#10b981]', lightColor: 'bg-[#ecfdf5]', borderColor: 'border-[#d1fae5]', textColor: 'text-[#065f46]', iconColor: 'text-[#10b981]' },
+  { id: 'Recorrer', label: 'Recorrer', color: 'bg-[#e11d48]', lightColor: 'bg-[#fff1f2]', borderColor: 'border-[#ffe4e6]', textColor: 'text-[#9f1239]', iconColor: 'text-[#e11d48]' },
+  { id: 'Resolvido', label: 'Resolvido', color: 'bg-[#2563eb]', lightColor: 'bg-[#eff6ff]', borderColor: 'border-[#dbeafe]', textColor: 'text-[#1e40af]', iconColor: 'text-[#2563eb]' },
+  { id: 'Encerrado', label: 'Encerrado', color: 'bg-[#7c3aed]', lightColor: 'bg-[#f5f3ff]', borderColor: 'border-[#ede9fe]', textColor: 'text-[#5b21b6]', iconColor: 'text-[#7c3aed]' }
 ];
 
 const KanbanBoard: React.FC = () => {
@@ -117,12 +117,12 @@ const KanbanBoard: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 h-[calc(100vh-250px)] overflow-x-auto pb-4 custom-scrollbar">
         {STATUS_COLUMNS.map((column) => (
-          <div key={column.id} className="flex flex-col gap-4 bg-slate-50/50 p-4 rounded-[2rem] border border-slate-100/50">
+          <div key={column.id} className={`flex flex-col gap-4 ${column.lightColor} p-4 rounded-[2rem] border-2 ${column.borderColor} shadow-inner`}>
             <div className="flex items-center justify-between px-2">
               <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${column.color}`} />
-                <h3 className="font-black text-slate-700 uppercase text-xs tracking-tighter">{column.label}</h3>
-                <span className="bg-white px-2 py-0.5 rounded-lg text-[10px] font-black text-slate-400 shadow-sm border border-slate-100">
+                <div className={`w-3 h-3 rounded-full ${column.color} shadow-[0_0_12px_rgba(0,0,0,0.1)]`} />
+                <h3 className={`font-black ${column.textColor} uppercase text-xs tracking-tighter`}>{column.label}</h3>
+                <span className="bg-white px-2 py-0.5 rounded-lg text-[10px] font-black text-slate-500 shadow-sm border border-slate-100">
                   {getTicketsByStatus(column.id).length}
                 </span>
               </div>
@@ -141,8 +141,9 @@ const KanbanBoard: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     onClick={() => navigate(`/tickets/${ticket.id}`)}
-                    className="bg-white p-5 rounded-3xl shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)] border-2 border-slate-200/60 hover:shadow-xl hover:border-green-300 transition-all cursor-pointer group relative overflow-hidden"
+                    className="bg-white p-5 rounded-3xl shadow-[0_8px_20px_-4px_rgba(0,0,0,0.12)] border-2 border-slate-100 hover:shadow-2xl hover:border-white transition-all cursor-pointer group relative overflow-hidden active:scale-[0.98]"
                   >
+                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${column.color}`} />
                     <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ChevronRight size={14} className="text-green-500" />
                     </div>
@@ -161,7 +162,7 @@ const KanbanBoard: React.FC = () => {
                         </div>
                       </div>
 
-                      <h4 className="text-sm font-black text-slate-800 leading-tight group-hover:text-green-600 transition-colors">
+                      <h4 className={`text-sm font-black text-slate-800 leading-tight group-hover:${column.textColor} transition-colors uppercase`}>
                         {ticket.tipo_chamado}
                       </h4>
                       

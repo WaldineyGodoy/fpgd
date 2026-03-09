@@ -207,19 +207,19 @@ const TicketDetails: React.FC = () => {
             >
               <ChevronLeft size={24} />
             </button>
-            <motion.h1 className="text-4xl font-black text-gray-800">
-              Detalhes do <span className="text-green-600">Ticket</span>
+            <motion.h1 className="text-4xl font-black text-gray-800 tracking-tighter uppercase relative">
+              Detalhes do <span className="text-blue-600">Ticket</span>
             </motion.h1>
           </div>
           <div className="flex items-center gap-2 mt-2 ml-12">
-            <span className="px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-100">Ticket #{ticket.numero_ticket || ticket.id.slice(0, 4)}</span>
+            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">Ticket #{ticket.numero_ticket || ticket.id.slice(0, 4)}</span>
             <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-lg text-xs font-black uppercase tracking-widest">Protocolo</span>
             <p className="text-sm font-bold text-gray-400">{ticket.numero_protocolo}</p>
           </div>
         </div>
         <button
           onClick={() => navigate('/tickets')}
-          className="px-6 py-3 text-gray-400 hover:text-green-600 font-bold transition-all flex items-center gap-2 border-2 border-transparent hover:border-green-50 rounded-2xl"
+          className="px-6 py-3 text-gray-400 hover:text-blue-600 font-bold transition-all flex items-center gap-2 border-2 border-transparent hover:border-blue-50 rounded-2xl"
         >
           <span className="text-xl">‹</span> Voltar
         </button>
@@ -229,8 +229,8 @@ const TicketDetails: React.FC = () => {
         {/* Left Column: Info */}
         <motion.div variants={cardVariants} initial="initial" animate="animate" transition={{ delay: 0.1 }} className="space-y-8">
           <section className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
-            <h3 className="text-xs font-black text-green-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-              <span className="h-1 w-4 bg-green-600 rounded-full"></span>
+            <h3 className="text-xs font-black text-blue-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+              <span className="h-1 w-4 bg-blue-600 rounded-full"></span>
               Integrador
             </h3>
             <p className="text-xl font-black text-gray-800 leading-tight mb-1">
@@ -253,7 +253,7 @@ const TicketDetails: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm font-black text-gray-400 uppercase tracking-tighter">Tipo UG</p>
-                  <span className="inline-block mt-1 px-3 py-1 bg-green-50 text-green-600 rounded-lg text-xs font-black">{ticket.tipo_uc.toUpperCase()}</span>
+                  <span className="inline-block mt-1 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-black uppercase tracking-wider border border-blue-100 shadow-sm">{ticket.tipo_uc.toUpperCase()}</span>
                 </div>
               </div>
             </div>
@@ -276,23 +276,24 @@ const TicketDetails: React.FC = () => {
 
         {/* Right Column: Status & Interactive Area */}
         <motion.div variants={cardVariants} initial="initial" animate="animate" transition={{ delay: 0.2 }} className="space-y-8">
-          <section className="p-8 bg-green-600 rounded-[2.5rem] shadow-xl shadow-green-100 text-white relative overflow-hidden">
+          <section className="p-8 bg-gradient-to-br from-blue-700 to-blue-500 rounded-[2.5rem] shadow-2xl shadow-blue-200 text-white relative overflow-hidden group">
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-700" />
             <div className="absolute top-0 right-0 p-4 opacity-10 text-8xl font-black">✦</div>
-            <h3 className="text-xs font-black text-green-200 uppercase tracking-[0.2em] mb-4">Status da Solicitação</h3>
+            <h3 className="text-xs font-black text-blue-100 uppercase tracking-[0.2em] mb-4">Status da Solicitação</h3>
             <div className="space-y-4">
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black text-green-100 uppercase tracking-widest">Ticket</span>
-                <span className="inline-block px-5 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-lg font-black w-fit uppercase">
+                <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Estado Atual</span>
+                <span className="inline-block px-5 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-lg font-black w-fit uppercase shadow-lg border border-white/20">
                   {ticket.status}
                 </span>
               </div>
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black text-green-100 uppercase tracking-widest">Protocolo</span>
-                <span className="inline-block px-5 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-lg font-black w-fit uppercase text-wrap max-w-full">
+                <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Protocolo</span>
+                <span className="inline-block px-5 py-2 bg-white/20 backdrop-blur-md rounded-2xl text-lg font-black w-fit uppercase text-wrap max-w-full shadow-lg border border-white/20">
                   {ticket.status_protocolo}
                 </span>
               </div>
-              <p className="text-xs font-bold text-green-100 mt-2">
+              <p className="text-xs font-bold text-blue-100 mt-2">
                 Aberto em: <span className="text-white">{new Date(ticket.data_abertura).toLocaleDateString('pt-BR')}</span>
               </p>
             </div>
@@ -309,8 +310,8 @@ const TicketDetails: React.FC = () => {
                 <p className="font-black text-gray-700">{ticket.recurso || 'Não informado'}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-              <div className={`w-3 h-3 rounded-full ${ticket.esta_de_acordo ? 'bg-green-500 shadow-lg shadow-green-100' : 'bg-red-400'}`}></div>
+            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm">
+              <div className={`w-3 h-3 rounded-full ${ticket.esta_de_acordo ? 'bg-emerald-500 shadow-lg shadow-emerald-200' : 'bg-rose-500 shadow-lg shadow-rose-200'}`}></div>
               <p className="text-sm font-bold text-gray-600">
                 {ticket.esta_de_acordo ? 'De acordo com o resultado' : 'Em desacordo com o resultado'}
               </p>
@@ -338,7 +339,7 @@ const TicketDetails: React.FC = () => {
         {/* RESPOSTA (ADMIN/MEDIADOR) */}
         <section className="animate-in fade-in slide-in-from-bottom-4">
           <h3 className="text-xl font-black text-gray-800 mb-6 flex items-center gap-3">
-             Resposta <span className="text-green-600">Mediador</span>
+             Resposta do <span className="text-blue-600 uppercase">Mediador</span>
           </h3>
           <div className="relative group">
             <textarea
@@ -348,12 +349,12 @@ const TicketDetails: React.FC = () => {
               placeholder={canEditResposta ? "Escreva aqui a resposta oficial da mediação..." : "Aguardando resposta do mediador..."}
               className={`w-full p-8 rounded-[2rem] border-2 transition-all min-h-[150px] font-medium leading-relaxed ${
                 canEditResposta 
-                ? 'bg-white border-green-100 focus:border-green-500 outline-none shadow-xl shadow-green-50' 
+                ? 'bg-white border-blue-100 focus:border-blue-500 outline-none shadow-xl shadow-blue-50 focus:ring-4 ring-blue-500/10' 
                 : 'bg-gray-50 border-gray-100 text-gray-500 cursor-not-allowed italic'
               }`}
             />
             {canEditResposta && (
-              <div className="absolute top-4 right-4 text-green-600 opacity-20">✦</div>
+              <div className="absolute top-4 right-4 text-blue-600 opacity-20">✦</div>
             )}
           </div>
         </section>
@@ -367,7 +368,7 @@ const TicketDetails: React.FC = () => {
               className="animate-in fade-in slide-in-from-bottom-4"
             >
               <h3 className="text-xl font-black text-gray-800 mb-6 flex items-center gap-3">
-                 Sua <span className="text-green-600">Réplica</span>
+                 Sua <span className="text-blue-600 uppercase">Réplica</span>
               </h3>
               <textarea
                 readOnly={!canEditReplica}
@@ -376,7 +377,7 @@ const TicketDetails: React.FC = () => {
                 placeholder={canEditReplica ? "Caso não concorde, escreva aqui seus argumentos técnicos..." : "Campo reservado para a réplica do cliente."}
                 className={`w-full p-8 rounded-[2rem] border-2 transition-all min-h-[150px] font-medium leading-relaxed ${
                   canEditReplica 
-                  ? 'bg-white border-gray-200 focus:border-green-500 outline-none shadow-xl' 
+                  ? 'bg-white border-gray-200 focus:border-blue-500 outline-none shadow-xl focus:ring-4 ring-blue-500/10' 
                   : 'bg-gray-50 border-gray-100 text-gray-500 cursor-not-allowed italic'
                 }`}
               />
@@ -390,8 +391,8 @@ const TicketDetails: React.FC = () => {
             <motion.section 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`p-8 rounded-[3rem] border-2 transition-all ${
-                canEditAgreement ? 'bg-white border-green-50 shadow-2xl shadow-green-100/20' : 'bg-gray-50 border-transparent opacity-80'
+              className={`p-10 rounded-[3rem] border-2 transition-all ${
+                canEditAgreement ? 'bg-white border-blue-50 shadow-2xl shadow-blue-100/20' : 'bg-gray-50 border-transparent opacity-80'
               }`}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
@@ -405,8 +406,8 @@ const TicketDetails: React.FC = () => {
                       onClick={() => setLocalConcordancia(true)}
                       className={`flex-1 py-5 px-4 rounded-2xl font-black transition-all border-b-4 text-center leading-tight flex flex-col items-center justify-center gap-1 ${
                         localConcordancia === true
-                        ? 'bg-green-600 text-white border-green-800 shadow-lg shadow-green-100' 
-                        : 'bg-gray-100 text-gray-400 border-gray-200 hover:bg-gray-200'
+                        ? 'bg-emerald-600 text-white border-emerald-800 shadow-xl shadow-emerald-200' 
+                        : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-slate-200'
                       } ${!canEditAgreement && 'cursor-not-allowed'}`}
                     >
                       <span className="text-xs">RESOLVIDO E</span>
@@ -437,7 +438,7 @@ const TicketDetails: React.FC = () => {
                     onChange={(e) => setLocalRecurso(e.target.value)}
                     className={`w-full p-5 rounded-2xl border-2 outline-none transition-all font-bold ${
                       canEditAgreement && localConcordancia === false
-                      ? 'bg-white border-gray-200 focus:border-green-500' 
+                      ? 'bg-white border-gray-200 focus:border-blue-500 focus:ring-4 ring-blue-500/10' 
                       : 'bg-gray-50 border-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
                   >
@@ -470,7 +471,7 @@ const TicketDetails: React.FC = () => {
             <button
               onClick={handleUpdateTicket}
               disabled={saving}
-              className="px-12 py-5 bg-green-600 text-white font-black text-lg rounded-2xl shadow-2xl shadow-green-200 hover:bg-green-700 transition-all flex items-center gap-4 border-b-8 border-green-800 disabled:opacity-50"
+              className="px-16 py-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-blue-900/30 hover:to-blue-500 transition-all flex items-center gap-4 border-b-8 border-blue-900/50 disabled:opacity-50 active:scale-[0.98] uppercase tracking-widest"
             >
               {saving ? 'Salvando...' : 'SALVAR ALTERAÇÕES'}
               <Send size={20} />

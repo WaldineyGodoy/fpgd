@@ -37,7 +37,7 @@ interface TicketData {
   } | null;
 }
 
-const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#e11d48', '#7c3aed', '#06b6d4'];
 
 interface TicketDashboardProps {
   view?: 'dashboard' | 'list';
@@ -199,28 +199,28 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
             <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
-              <div className="p-3 bg-green-100 rounded-2xl">
-                {view === 'dashboard' ? <LayoutDashboard className="w-8 h-8 text-green-600" /> : <Ticket className="w-8 h-8 text-green-600" />}
+              <div className="p-3 bg-blue-100 rounded-2xl shadow-lg shadow-blue-100">
+                {view === 'dashboard' ? <LayoutDashboard className="w-8 h-8 text-blue-600" /> : <Ticket className="w-8 h-8 text-blue-600" />}
               </div>
               {view === 'dashboard' ? (
-                <>Termometro <span className="text-green-600">satisfação Cosern</span></>
+                <>Termômetro <span className="text-blue-600">satisfação Cosern</span></>
               ) : (
-                <>Lista de <span className="text-green-600">Tickets</span></>
+                <>Lista de <span className="text-blue-600">Tickets</span></>
               )}
             </h1>
-            <p className="text-slate-400 font-bold text-sm mt-1 uppercase tracking-widest pl-14">
+            <p className="text-slate-400 font-bold text-xs mt-1 uppercase tracking-[0.3em] pl-14">
               {view === 'dashboard' ? 'Protocolos e Qualidade fpgd' : 'Todos os registros do sistema'}
             </p>
           </div>
 
           <div className="flex gap-3 w-full md:w-auto">
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/tickets/novo')}
-              className="flex-1 bg-green-600 text-white px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-100 ring-4 ring-green-50 transition-all hover:bg-green-700"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 ring-4 ring-blue-500/10 transition-all hover:to-blue-500"
             >
-              <Plus className="w-5 h-5" /> {isPublic ? 'Faça uma reclamação' : 'Abrir Novo Ticket'}
+              <Plus className="w-5 h-5" strokeWidth={3} /> {isPublic ? 'FAÇA UMA RECLAMAÇÃO' : 'ABRIR NOVO TICKET'}
             </motion.button>
           </div>
         </div>
@@ -248,11 +248,11 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                   let bgColor = 'bg-slate-300';
                   let Emote = Meh;
                   
-                  if (numAvg >= 4.5) { iconColor = 'text-green-500'; bgColor = 'bg-green-500'; Emote = Smile; }
-                  else if (numAvg >= 3.5) { iconColor = 'text-lime-500'; bgColor = 'bg-lime-500'; Emote = Smile; }
-                  else if (numAvg >= 2.5) { iconColor = 'text-yellow-400'; bgColor = 'bg-yellow-400'; Emote = Meh; }
+                  if (numAvg >= 4.5) { iconColor = 'text-emerald-500'; bgColor = 'bg-emerald-500'; Emote = Smile; }
+                  else if (numAvg >= 3.5) { iconColor = 'text-blue-500'; bgColor = 'bg-blue-500'; Emote = Smile; }
+                  else if (numAvg >= 2.5) { iconColor = 'text-amber-500'; bgColor = 'bg-amber-500'; Emote = Meh; }
                   else if (numAvg >= 1.5) { iconColor = 'text-orange-500'; bgColor = 'bg-orange-500'; Emote = Frown; }
-                  else if (numAvg > 0) { iconColor = 'text-red-500'; bgColor = 'bg-red-500'; Emote = Frown; }
+                  else if (numAvg > 0) { iconColor = 'text-rose-500'; bgColor = 'bg-rose-500'; Emote = Frown; }
 
                   return (
                   <motion.div
@@ -260,10 +260,10 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
                     key={stat.key}
-                    className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm group hover:border-green-200 transition-all flex flex-col justify-between"
+                    className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08)] group hover:border-blue-200 transition-all flex flex-col justify-between"
                   >
-                    <div className="flex items-center gap-2 text-slate-400 mb-3 font-black text-[10px] uppercase">
-                      {stat.icon} {stat.label}
+                    <div className="flex items-center gap-2 text-slate-400 mb-4 font-black text-[9px] uppercase tracking-widest">
+                      <div className="p-1.5 rounded-lg bg-slate-50 text-blue-500">{stat.icon}</div> {stat.label}
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                       <div className="text-3xl font-black text-slate-800 flex items-baseline gap-1">
@@ -539,12 +539,12 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                             </div>
                           </td>
                            <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${
-                              t.status === 'Em Aberto' ? 'bg-orange-50 text-orange-600' :
-                              t.status === 'Respondido' ? 'bg-green-50 text-green-600' :
-                              t.status === 'Recorrer' ? 'bg-red-50 text-red-600' :
-                              t.status === 'Resolvido' ? 'bg-blue-50 text-blue-600' :
-                              t.status === 'Encerrado' ? 'bg-slate-100 text-slate-600' :
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                              t.status === 'Em Aberto' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
+                              t.status === 'Respondido' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                              t.status === 'Recorrer' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                              t.status === 'Resolvido' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                              t.status === 'Encerrado' ? 'bg-slate-100 text-slate-600 border border-slate-200' :
                               'bg-slate-100 text-slate-400'
                               }`}>
                               {t.status || 'Em Aberto'}

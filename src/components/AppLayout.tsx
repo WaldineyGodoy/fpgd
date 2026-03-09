@@ -47,7 +47,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         <motion.div 
           animate={{ rotate: 360 }} 
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-12 h-12 border-4 border-green-100 border-t-green-600 rounded-full" 
+          className="w-12 h-12 border-4 border-blue-50 border-t-blue-600 rounded-full shadow-lg shadow-blue-100" 
         />
       </div>
     );

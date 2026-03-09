@@ -44,11 +44,11 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   }, []);
 
   const menuItems = [
-    { id: 'home', label: 'Satisfação do cliente', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'tickets', label: 'Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'kanban', label: 'Status dos Tickets', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'usinas', label: 'Minhas Usinas', icon: Sun, path: '/usinas', roles: ['superadmin', 'mediador', 'integrador', 'cliente'] },
-    { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'] },
+    { id: 'home', label: 'Satisfação do cliente', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-blue-500' },
+    { id: 'tickets', label: 'Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-emerald-500' },
+    { id: 'kanban', label: 'Status dos Tickets', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-amber-500' },
+    { id: 'usinas', label: 'Minhas Usinas', icon: Sun, path: '/usinas', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-cyan-500' },
+    { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'], color: 'text-purple-500' },
   ];
 
   const filteredItems = menuItems.filter(item => item.roles.includes(userRole));
@@ -61,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
   return (
     <motion.aside
       animate={{ width: isCollapsed ? 80 : 280 }}
-      className="h-screen bg-white border-r border-slate-100 flex flex-col sticky top-0 z-40 transition-all duration-300"
+      className="h-screen bg-[#111827] border-r border-slate-800 flex flex-col sticky top-0 z-40 transition-all duration-300 shadow-2xl shadow-blue-900/10"
     >
       {/* Logo Area */}
       <div className="p-6 flex items-center justify-between">
@@ -71,8 +71,8 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
             animate={{ opacity: 1 }}
             className="flex items-center gap-2"
           >
-            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-black">F</div>
-            <span className="text-xl font-black text-slate-800 tracking-tighter">FPGD<span className="text-green-600">.</span></span>
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-400 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-blue-500/20">F</div>
+            <span className="text-xl font-black text-white tracking-tighter uppercase relative">FPGD<span className="text-blue-500">.</span></span>
           </motion.div>
         )}
         {isCollapsed && (
@@ -91,13 +91,13 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       {/* Create Ticket Button */}
       <div className="px-4 py-4">
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/tickets/novo')}
-          className={`w-full bg-green-600 text-white rounded-2xl font-black flex items-center gap-4 shadow-lg shadow-green-100 ring-4 ring-green-50 transition-all hover:bg-green-700 ${isCollapsed ? 'p-4 justify-center' : 'p-4'}`}
+          className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl font-black flex items-center gap-4 shadow-xl shadow-blue-900/20 ring-4 ring-blue-500/10 transition-all hover:to-blue-500 ${isCollapsed ? 'p-4 justify-center' : 'p-4'}`}
         >
-          <Plus size={22} />
-          {!isCollapsed && <span className="text-sm">Novo Ticket</span>}
+          <Plus size={22} strokeWidth={3} />
+          {!isCollapsed && <span className="text-sm uppercase tracking-widest text-[10px]">Novo Ticket</span>}
         </motion.button>
       </div>
 
@@ -110,17 +110,23 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
             <button
               key={item.id}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group ${
+              className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group relative ${
                 isReallyActive 
-                  ? 'bg-green-50 text-green-600 shadow-sm shadow-green-50' 
-                  : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                  ? 'bg-blue-600/10 text-blue-400' 
+                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               }`}
             >
-              <div className={`${isReallyActive ? 'text-green-600' : 'text-slate-400 group-hover:text-slate-600'}`}>
-                <Icon size={22} />
+              {isReallyActive && (
+                <motion.div 
+                  layoutId="active-pill"
+                  className="absolute left-0 w-1.5 h-8 bg-blue-500 rounded-r-full"
+                />
+              )}
+              <div className={`${isReallyActive ? 'text-blue-400' : item.color + ' opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all'}`}>
+                <Icon size={22} strokeWidth={isReallyActive ? 3 : 2} />
               </div>
               {!isCollapsed && (
-                <span className="font-bold text-sm tracking-tight">{item.label}</span>
+                <span className={`font-bold text-xs uppercase tracking-widest ${isReallyActive ? 'text-white' : ''}`}>{item.label}</span>
               )}
             </button>
           );
@@ -130,13 +136,13 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
       {/* Footer / User Profile */}
       <div className="p-4 border-t border-slate-50 space-y-4">
         {!isCollapsed && (
-          <div className="flex items-center gap-3 p-2">
-            <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+          <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-2xl border border-slate-800">
+            <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center text-blue-400 border border-blue-500/20">
               <UserCircle size={24} />
             </div>
             <div className="flex flex-col overflow-hidden">
-              <span className="text-xs font-black text-slate-800 truncate">{userName}</span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{userRole}</span>
+              <span className="text-[10px] font-black text-white truncate uppercase tracking-tighter">{userName}</span>
+              <span className="text-[8px] font-black text-blue-400 uppercase tracking-[0.2em]">{userRole}</span>
             </div>
           </div>
         )}
