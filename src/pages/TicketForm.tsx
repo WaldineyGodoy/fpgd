@@ -21,8 +21,6 @@ interface FormData {
   data_abertura: string;
   status_protocolo: string;
   descricao_reclamacao: string;
-  esta_de_acordo: boolean;
-  recurso: string;
 }
 
 const TicketForm: React.FC = () => {
@@ -59,9 +57,7 @@ const TicketForm: React.FC = () => {
     numero_protocolo: '',
     data_abertura: '',
     status_protocolo: 'Sem Protocolo',
-    descricao_reclamacao: '',
-    esta_de_acordo: false,
-    recurso: 'Abrir novo protocolo'
+    descricao_reclamacao: ''
   });
 
   useEffect(() => {
@@ -406,63 +402,9 @@ const TicketForm: React.FC = () => {
               <input type="date" name="data_abertura" value={formData.data_abertura} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600" />
             </div>
           </div>
-        </section>
-
-        <section className="space-y-6">
           <div className="space-y-2">
             <label className="text-sm font-black text-gray-700 ml-1">Descrição Detalhada</label>
             <textarea name="descricao_reclamacao" value={formData.descricao_reclamacao} onChange={handleChange} rows={5} className="w-full p-4 rounded-3xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium resize-none shadow-inner" placeholder="Explique aqui os detalhes da reclamação..." />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-            <div className="space-y-3">
-              <label className="text-sm font-black text-gray-700 ml-1">Concordância com o resultado?</label>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, esta_de_acordo: true, recurso: 'Sem recurso' }))}
-                  className={`flex-1 py-4 rounded-2xl font-black transition-all border-b-4 ${formData.esta_de_acordo 
-                    ? 'bg-green-600 text-white border-green-800 shadow-lg shadow-green-100' 
-                    : 'bg-white text-gray-400 border-gray-100 hover:border-green-200'}`}
-                >
-                  SIM
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, esta_de_acordo: false }))}
-                  className={`flex-1 py-4 rounded-2xl font-black transition-all border-b-4 ${!formData.esta_de_acordo 
-                    ? 'bg-red-600 text-white border-red-800 shadow-lg shadow-red-100' 
-                    : 'bg-white text-gray-400 border-gray-100 hover:border-red-200'}`}
-                >
-                  NÃO
-                </button>
-              </div>
-            </div>
-
-            <AnimatePresence>
-              {!formData.esta_de_acordo && (
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="space-y-2"
-                >
-                  <label className="text-sm font-black text-gray-700 ml-1">Recurso Pretendido</label>
-                  <select 
-                    name="recurso" 
-                    value={formData.recurso === 'Sem recurso' ? 'Abrir novo protocolo' : formData.recurso} 
-                    onChange={handleChange} 
-                    className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white"
-                  >
-                    <option>Abrir novo protocolo</option>
-                    <option>Ouvidoria</option>
-                    <option>Aneel</option>
-                    <option>Judicializar</option>
-                    <option>Todas as opções</option>
-                  </select>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </section>
 
