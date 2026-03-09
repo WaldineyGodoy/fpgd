@@ -114,7 +114,7 @@ const TicketDetails: React.FC = () => {
       // Admin/Mediador update Resposta
       if (isAdminOrMediator) {
         updates.resposta = localResposta;
-        // Optionally update status too if needed
+        updates.status = 'Respondido';
       } 
       
       // Cliente/Integrador update Replica + Agreement
