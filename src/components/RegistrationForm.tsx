@@ -73,12 +73,12 @@ const RegistrationForm: React.FC = () => {
     const checkExistingCnpj = async (cnpj: string) => {
         const { data } = await supabase
             .from('companies')
-            .select('cnpj')
+            .select('cnpj, auth_user_id')
             .eq('cnpj', cnpj)
-            .single();
+            .maybeSingle();
 
-        if (data) {
-            setCnpjError('Este CNPJ já está cadastrado em nossa base.');
+        if (data && data.auth_user_id) {
+            setCnpjError('Este CNPJ já possui um login associado. Recupere sua senha ou use outro e-mail.');
             setCnpjChecked(false);
         } else {
             setCnpjError(null);
@@ -111,14 +111,14 @@ const RegistrationForm: React.FC = () => {
             if (authError) throw authError;
             if (!authData.user) throw new Error("Erro ao criar usuário.");
 
-            // 2. Save Company Data linked to Auth User
+            // 2. Save Company Data linked to Auth User (UPSERT if CNPJ exists without auth_user_id)
             const { password, ...companyData } = formData;
             const { error: dbError } = await supabase
                 .from('companies')
-                .insert([{
+                .upsert([{
                     ...companyData,
                     auth_user_id: authData.user.id
-                }]);
+                }], { onConflict: 'cnpj' });
 
             if (dbError) throw dbError;
             setShowModal(true);

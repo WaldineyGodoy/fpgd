@@ -39,12 +39,12 @@ const ClientRegistrationForm: React.FC = () => {
         
         const { data } = await supabase
             .from('companies')
-            .select('cnpj')
+            .select('cnpj, auth_user_id')
             .eq('cnpj', cleanCnpj)
-            .single();
+            .maybeSingle();
 
-        if (data) {
-            setCnpjError('Este documento já está cadastrado.');
+        if (data && data.auth_user_id) {
+            setCnpjError('Este documento já possui um login associado. Tente recuperar sua senha.');
         } else {
             setCnpjError(null);
         }
@@ -75,17 +75,17 @@ const ClientRegistrationForm: React.FC = () => {
             if (authError) throw authError;
             if (!authData.user) throw new Error("Erro ao criar usuário.");
 
-            // 2. Insert into companies
+            // 2. Insert into companies (UPSERT if CNPJ exists without auth_user_id)
             const { password, ...companyData } = formData;
             const cleanCnpj = formData.cnpj.replace(/\D/g, '');
             
             const { error: dbError } = await supabase
                 .from('companies')
-                .insert([{
+                .upsert([{
                     ...companyData,
                     cnpj: cleanCnpj,
                     auth_user_id: authData.user.id
-                }]);
+                }], { onConflict: 'cnpj' });
 
             if (dbError) throw dbError;
 
