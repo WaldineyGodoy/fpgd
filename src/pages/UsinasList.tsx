@@ -87,12 +87,12 @@ const UsinasList: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
         <div>
-          <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 tracking-tighter uppercase">
-            <div className="p-3 bg-blue-100 rounded-2xl shadow-lg shadow-blue-100">
-              <Sun className="w-8 h-8 text-blue-600" />
-            </div>
-            Minhas <span className="text-blue-600">Usinas</span>
-          </h1>
+            <h1 className="text-3xl font-black text-[#262727] flex items-center gap-3 tracking-tighter uppercase">
+              <div className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                <Sun className="w-8 h-8 text-[#198754]" />
+              </div>
+              Minhas <span className="text-[#198754]">Usinas</span>
+            </h1>
           <p className="text-slate-400 font-black text-xs mt-1 uppercase tracking-[0.3em] pl-14">
             Gestão de Ativos Solares fpgd
           </p>
@@ -103,7 +103,7 @@ const UsinasList: React.FC = () => {
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/usinas/nova')}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-blue-900/20 ring-4 ring-blue-500/10 transition-all hover:to-blue-500 uppercase tracking-widest"
+          className="bg-[#198754] text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-green-900/10 transition-all hover:bg-[#157347] uppercase tracking-widest"
         >
           <Plus className="w-5 h-5" strokeWidth={3} /> Adicionar Usina
         </motion.button>
@@ -124,14 +124,14 @@ const UsinasList: React.FC = () => {
               placeholder="Buscar por nome, endereço ou cliente..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-600 placeholder:text-slate-400 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-200 transition-all outline-none"
+              className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-600 placeholder:text-slate-400 focus:ring-4 focus:ring-[#198754]/10 focus:border-[#198754]/20 transition-all outline-none"
             />
           </div>
         </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center p-20 gap-4">
-            <div className="w-12 h-12 border-4 border-blue-50 border-t-blue-600 rounded-full animate-spin shadow-lg shadow-blue-100" />
+            <div className="w-12 h-12 border-4 border-slate-200 border-t-[#198754] rounded-full animate-spin shadow-sm" />
             <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest animate-pulse">Buscando usinas...</p>
           </div>
         ) : filteredUsinas.length === 0 ? (
@@ -175,9 +175,9 @@ const UsinasList: React.FC = () => {
                     </td>
                     <td className="py-4 px-8">
                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <button onClick={() => navigate(`/usinas/${usina.id}/detalhes`)} className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="Detalhes">
-                          <Eye className="w-4 h-4" />
-                        </button>
+                          <button onClick={() => navigate(`/usinas/${usina.id}/detalhes`)} className="p-2 bg-green-50 text-[#198754] rounded-lg hover:bg-green-100 transition-colors" title="Detalhes">
+                            <Eye className="w-4 h-4" />
+                          </button>
                         <button onClick={() => navigate(`/usinas/${usina.id}/editar`)} className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors" title="Editar">
                           <Edit className="w-4 h-4" />
                         </button>

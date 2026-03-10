@@ -216,8 +216,8 @@ const TicketForm: React.FC = () => {
             animate={{ scale: 1, opacity: 1 }}
             className="text-4xl font-black text-slate-800 flex items-center gap-4 tracking-tighter uppercase"
           >
-            Novo <span className="text-blue-600">Ticket</span>
-            <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-blue-100 shadow-sm">
+            Novo <span className="text-[#198754]">Ticket</span>
+            <span className="px-4 py-1.5 bg-[#198754]/10 text-[#198754] rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] border border-[#198754]/20 shadow-sm">
               Status: Em Aberto
             </span>
           </motion.h1>
@@ -225,15 +225,15 @@ const TicketForm: React.FC = () => {
             {company?.nome_fantasia || 'IDENTIFICANDO...'} • <span className="text-slate-300 font-bold">{company?.cnpj}</span>
           </p>
         </div>
-        <button onClick={() => navigate('/tickets')} className="px-6 py-3 text-slate-400 hover:text-blue-600 font-bold transition-all flex items-center gap-2 group">
+        <button onClick={() => navigate('/tickets')} className="px-6 py-3 text-slate-400 hover:text-[#198754] font-bold transition-all flex items-center gap-2 group">
           <span className="text-xl group-hover:-translate-x-1 transition-transform">‹</span> Voltar para Listagem
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-10">
         <section className="space-y-6">
-          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3">
-            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
+          <h2 className="text-xs font-black text-[#198754] uppercase tracking-[0.3em] flex items-center gap-3">
+            <span className="h-1.5 w-10 bg-[#198754] rounded-full"></span>
             Identificação do Cliente
           </h2>
           
@@ -285,7 +285,7 @@ const TicketForm: React.FC = () => {
               whileHover={{ x: 5 }}
               type="button"
               onClick={() => navigate('/usinas')}
-              className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-indigo-700 flex items-center gap-2 ml-1"
+              className="text-[10px] font-black uppercase tracking-widest text-[#198754] hover:text-[#157347] flex items-center gap-2 ml-1"
             >
               <PlusCircle className="w-4 h-4" />
               Não encontrou o cliente? Cadastre aqui.
@@ -307,7 +307,7 @@ const TicketForm: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Tipo de UG</label>
-              <div className="w-full px-5 py-3 rounded-xl bg-blue-50 text-blue-600 font-black uppercase text-[10px] tracking-[0.2em] border border-blue-100 shadow-sm w-fit">
+              <div className="w-full px-5 py-3 rounded-xl bg-green-50 text-[#198754] font-black uppercase text-[10px] tracking-[0.2em] border border-green-100 shadow-sm w-fit">
                 {formData.tipo_uc || 'SELECIONE...'}
               </div>
             </div>
@@ -321,29 +321,29 @@ const TicketForm: React.FC = () => {
 
             <div className="space-y-2">
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome do Cliente (Proprietário)</label>
-              <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-black text-blue-900 shadow-sm uppercase text-[11px]">
-                {usinaContact.nome_cliente || <span className="text-blue-300 font-medium italic">N/A</span>}
+              <div className="w-full p-4 rounded-2xl bg-[#F8F6F2] border-2 border-slate-100 font-black text-slate-700 shadow-sm uppercase text-[11px]">
+                {usinaContact.nome_cliente || <span className="text-slate-300 font-medium italic">N/A</span>}
               </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email de Contato</label>
-                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-black text-blue-900 text-[10px] truncate shadow-sm">
-                  {usinaContact.email_contato || <span className="text-blue-300 font-medium italic">N/A</span>}
+                <div className="w-full p-4 rounded-2xl bg-[#F8F6F2] border-2 border-slate-100 font-black text-slate-700 text-[10px] truncate shadow-sm">
+                  {usinaContact.email_contato || <span className="text-slate-300 font-medium italic">N/A</span>}
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">WhatsApp</label>
-                <div className="w-full p-4 rounded-2xl bg-blue-50/50 border-2 border-blue-100 font-black text-blue-900 text-[10px] shadow-sm tracking-widest">
-                  {usinaContact.telefone_contato || <span className="text-blue-300 font-medium italic">N/A</span>}
+                <div className="w-full p-4 rounded-2xl bg-[#F8F6F2] border-2 border-slate-100 font-black text-slate-700 text-[10px] shadow-sm tracking-widest">
+                  {usinaContact.telefone_contato || <span className="text-slate-300 font-medium italic">N/A</span>}
                 </div>
               </div>
             </div>
           </div>
           
           <p className="text-[9px] text-slate-300 font-black uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+            <div className="w-1.5 h-1.5 bg-[#198754] rounded-full animate-pulse" />
             Dados vinculados automaticamente à usina selecionada.
           </p>
         </section>
@@ -374,14 +374,14 @@ const TicketForm: React.FC = () => {
         </section>
 
         <section className="space-y-6">
-          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3">
-            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
+          <h2 className="text-xs font-black text-[#198754] uppercase tracking-[0.3em] flex items-center gap-3">
+            <span className="h-1.5 w-10 bg-[#198754] rounded-full"></span>
             Dados do Atendimento
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Tipo de Chamado</label>
-              <select name="tipo_chamado" value={formData.tipo_chamado} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white">
+              <select name="tipo_chamado" value={formData.tipo_chamado} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600 bg-white">
                 <option>Compensação</option>
                 <option>Desligamento Involuntário</option>
                 <option>Vistoria</option>
@@ -392,7 +392,7 @@ const TicketForm: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Status do Protocolo</label>
-              <select name="status_protocolo" value={formData.status_protocolo} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600 bg-white">
+              <select name="status_protocolo" value={formData.status_protocolo} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600 bg-white">
                 <option value="Sem Protocolo">Sem Protocolo</option>
                 <option value="Em Analise">Em Analise</option>
                 <option value="Fechado Improcedente">Fechado Improcedente</option>
@@ -401,25 +401,25 @@ const TicketForm: React.FC = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Número de Protocolo</label>
-              <input type="text" name="numero_protocolo" value={formData.numero_protocolo} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold" />
+              <input type="text" name="numero_protocolo" value={formData.numero_protocolo} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-[#262727]" />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Data de Abertura</label>
-              <input type="date" name="data_abertura" value={formData.data_abertura} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-bold text-gray-600" />
+              <input type="date" name="data_abertura" value={formData.data_abertura} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600" />
             </div>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-black text-gray-700 ml-1">Descrição Detalhada</label>
-            <textarea name="descricao_reclamacao" value={formData.descricao_reclamacao} onChange={handleChange} rows={5} className="w-full p-4 rounded-3xl border-2 border-gray-100 focus:border-green-500 outline-none transition-all font-medium resize-none shadow-inner" placeholder="Explique aqui os detalhes da reclamação..." />
+            <textarea name="descricao_reclamacao" value={formData.descricao_reclamacao} onChange={handleChange} rows={5} className="w-full p-4 rounded-3xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-medium resize-none shadow-inner" placeholder="Explique aqui os detalhes da reclamação..." />
           </div>
         </section>
 
         <motion.button
-          whileHover={{ scale: 1.02, backgroundColor: '#2563eb' }}
+          whileHover={{ scale: 1.02, backgroundColor: '#157347' }}
           whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={loading}
-          className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xl rounded-[2rem] shadow-2xl shadow-blue-200 transition-all duration-200 disabled:opacity-50 border-b-8 border-blue-800 uppercase tracking-[0.2em]"
+          className="w-full py-6 bg-[#198754] text-white font-black text-xl rounded-[2rem] shadow-2xl shadow-green-900/10 transition-all duration-200 disabled:opacity-50 uppercase tracking-[0.2em]"
         >
           {loading ? 'Processando Chamado...' : 'REGISTRAR TICKET ✦'}
         </motion.button>

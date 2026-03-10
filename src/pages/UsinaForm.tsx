@@ -229,7 +229,7 @@ const UsinaForm = () => {
   if (initialFetch) {
     return (
       <div className="flex flex-col items-center justify-center p-20 gap-4">
-        <div className="w-12 h-12 border-4 border-blue-50 border-t-blue-600 rounded-full animate-spin shadow-lg shadow-blue-100" />
+        <div className="w-12 h-12 border-4 border-slate-200 border-t-[#198754] rounded-full animate-spin shadow-sm" />
         <p className="text-slate-400 font-black text-[10px] uppercase tracking-widest animate-pulse">Carregando dados da usina...</p>
       </div>
     );
@@ -245,8 +245,8 @@ const UsinaForm = () => {
           <ArrowLeft className="w-5 h-5 text-slate-500" />
         </button>
         <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tighter uppercase">
-            {isEditing ? 'Editar' : 'Nova'} <span className="text-blue-600">Usina</span>
+          <h1 className="text-2xl font-black text-[#262727] tracking-tighter uppercase">
+            {isEditing ? 'Editar' : 'Nova'} <span className="text-[#198754]">Usina</span>
           </h1>
           <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">
             Gestão de Ativos Solares fpgd
@@ -257,8 +257,8 @@ const UsinaForm = () => {
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8">
         {/* Sessão: Informações Gerais */}
         <section>
-          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3 mb-6">
-            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
+          <h2 className="text-xs font-black text-[#198754] uppercase tracking-[0.3em] flex items-center gap-3 mb-6">
+            <span className="h-1.5 w-10 bg-[#198754] rounded-full"></span>
             Identificação
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -289,7 +289,7 @@ const UsinaForm = () => {
                 name="nome_cliente"
                 value={formData.nome_cliente}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-black text-slate-600 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-200 outline-none transition-all uppercase" 
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-black text-slate-600 focus:ring-4 focus:ring-[#198754]/10 focus:border-[#198754]/20 outline-none transition-all uppercase" 
                 placeholder="Ex: João Silva"
               />
             </div>
@@ -318,7 +318,7 @@ const UsinaForm = () => {
           </div>
           <div className="mt-6 space-y-3 pt-4 border-t border-gray-50">
             <label className="block text-sm font-black text-gray-700 ml-1">Integrador / Vendedor Responsável</label>
-            <p className="text-[10px] text-blue-500 font-black uppercase tracking-[0.2em] ml-1">DEIXE EM BRANCO SE NÃO TIVER UM INTEGRADOR.</p>
+            <p className="text-[10px] text-[#198754] font-black uppercase tracking-[0.2em] ml-1">DEIXE EM BRANCO SE NÃO TIVER UM INTEGRADOR.</p>
             <BuscaIntegrador 
               initialValue={isEditing && formData.integrador_id ? formData.integrador_id : ''} 
               onSelect={(int) => setFormData(prev => ({ ...prev, integrador_id: int?.id || null }))} 
@@ -330,7 +330,7 @@ const UsinaForm = () => {
         {/* Sessão: Localização */}
         <section>
           <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
-            <MapPin className="w-5 h-5 text-blue-500" /> Localização e Unidades
+            <MapPin className="w-5 h-5 text-[#198754]" /> Localização e Unidades
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
              <div className="md:col-span-2">
@@ -343,7 +343,7 @@ const UsinaForm = () => {
                 name="endereco"
                 value={formData.endereco}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
                 placeholder="Rua Exemplo, 123 - Cidade/UF"
               />
             </div>
@@ -356,7 +356,7 @@ const UsinaForm = () => {
                   name="numero"
                   value={formData.numero}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
                   placeholder="Ex: 123"
                 />
               </div>
@@ -366,7 +366,7 @@ const UsinaForm = () => {
                   name="complemento"
                   value={formData.complemento}
                   onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
                   placeholder="Ex: Apto 101, Lote 5"
                 />
               </div>
@@ -379,7 +379,7 @@ const UsinaForm = () => {
                 name="ug"
                 value={formData.ug}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
                 placeholder="Nº Contrato UG"
               />
             </div>
@@ -389,21 +389,21 @@ const UsinaForm = () => {
                 <input 
                   value={ucInput}
                   onChange={(e) => setUcInput(e.target.value)}
-                  className="flex-1 bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-blue-50 outline-none" 
+                  className="flex-1 bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
                   placeholder="Ex: 12345678"
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addUc())}
                 />
                 <button 
                   type="button"
                   onClick={addUc}
-                  className="bg-blue-600 text-white px-6 rounded-2xl font-black shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all text-sm"
+                  className="bg-[#198754] text-white px-6 rounded-2xl font-black shadow-lg shadow-green-900/10 hover:bg-[#157347] transition-all text-sm"
                 >
                   Adicionar
                 </button>
               </div>
               <div className="flex flex-wrap gap-2 mt-3">
                 {formData.ucs.split(',').filter(Boolean).map((uc, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-blue-50 text-blue-700 font-bold text-xs rounded-lg flex items-center gap-2 border border-blue-100 shadow-sm">
+                  <span key={i} className="px-3 py-1.5 bg-green-50 text-[#198754] font-bold text-xs rounded-lg flex items-center gap-2 border border-green-100 shadow-sm">
                     {uc.trim()}
                     <button type="button" onClick={() => removeUc(i)} className="text-red-400 hover:text-red-600 transition-colors p-0.5 rounded outline-none focus:ring-2 focus:ring-red-100">
                       <X className="w-3 h-3" />
@@ -417,9 +417,9 @@ const UsinaForm = () => {
 
         {/* Sessão: Dados Técnicos */}
         <section>
-          <h2 className="text-xs font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-3 mb-6">
-            <span className="h-1.5 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"></span>
-            Localização e Unidades
+          <h2 className="text-xs font-black text-[#198754] uppercase tracking-[0.3em] flex items-center gap-3 mb-6">
+            <span className="h-1.5 w-10 bg-[#198754] rounded-full"></span>
+            Dados Técnicos
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              <div>
@@ -432,10 +432,10 @@ const UsinaForm = () => {
                   value={formData.potencia_usina}
                   onChange={handleChange}
                   readOnly
-                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/50 cursor-not-allowed" 
+                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/50 cursor-not-allowed" 
                   placeholder="0.00"
                 />
-                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-amber-500" />
+                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-[#FFA600]" />
               </div>
             </div>
              <div>
@@ -447,7 +447,7 @@ const UsinaForm = () => {
                   name="geracao_media_anual"
                   value={formData.geracao_media_anual}
                   onChange={handleChange}
-                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
                   placeholder="0.00"
                 />
                 <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -474,7 +474,7 @@ const UsinaForm = () => {
                   name="potencia_paineis"
                   value={formData.potencia_paineis}
                   onChange={handleChange as any}
-                  className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30 appearance-none cursor-pointer" 
+                  className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/30 appearance-none cursor-pointer" 
                 >
                   <option value="">Selecione...</option>
                   {listaPaineis.map(p => <option key={p} value={p}>{p}W</option>)}
@@ -521,7 +521,7 @@ const UsinaForm = () => {
             whileTap={{ scale: 0.95 }}
             type="submit"
             disabled={loading}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-12 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 ring-4 ring-blue-500/10 transition-all hover:to-blue-500 disabled:opacity-50 uppercase tracking-widest"
+            className="bg-[#198754] text-white px-12 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-900/10 transition-all hover:bg-[#157347] disabled:opacity-50 uppercase tracking-widest"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
             Salvar Usina

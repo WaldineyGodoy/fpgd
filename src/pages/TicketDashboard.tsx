@@ -41,7 +41,7 @@ interface TicketData {
   integrador_id: string | null;
 }
 
-const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#e11d48', '#7c3aed', '#06b6d4'];
+const COLORS = ['#198754', '#FFA600', '#F1DF3C', '#181818', '#0D6EFD', '#6C757D'];
 
 interface TicketDashboardProps {
   view?: 'dashboard' | 'list';
@@ -203,26 +203,26 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
     const agreed = tickets.filter(t => t.esta_de_acordo).length;
     const disagreed = tickets.length - agreed;
     return [
-      { name: 'De Acordo', value: agreed, color: '#22c55e' },
-      { name: 'Discorda', value: disagreed, color: '#ef4444' }
+      { name: 'De Acordo', value: agreed, color: '#198754' },
+      { name: 'Discorda', value: disagreed, color: '#181818' }
     ];
   }, [tickets]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] p-4 md:p-8">
+    <div className="min-h-screen bg-[#F8F6F2] p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3">
-              <div className="p-3 bg-blue-100 rounded-2xl shadow-lg shadow-blue-100">
-                {view === 'dashboard' ? <LayoutDashboard className="w-8 h-8 text-blue-600" /> : <Ticket className="w-8 h-8 text-blue-600" />}
+            <h1 className="text-3xl font-black text-[#262727] flex items-center gap-3">
+              <div className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                {view === 'dashboard' ? <LayoutDashboard className="w-8 h-8 text-[#198754]" /> : <Ticket className="w-8 h-8 text-[#198754]" />}
               </div>
               {view === 'dashboard' ? (
-                <>Termômetro <span className="text-blue-600">satisfação Cosern</span></>
+                <>Termômetro <span className="text-[#198754]">satisfação Cosern</span></>
               ) : (
-                <>Lista de <span className="text-blue-600">Tickets</span></>
+                <>Lista de <span className="text-[#198754]">Tickets</span></>
               )}
             </h1>
             <p className="text-slate-400 font-bold text-xs mt-1 uppercase tracking-[0.1em] pl-14">
@@ -235,7 +235,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/tickets/novo')}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-blue-900/20 ring-4 ring-blue-500/10 transition-all hover:to-blue-500"
+              className="flex-1 bg-[#198754] text-white px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-900/10 transition-all hover:bg-[#157347]"
             >
               <Plus className="w-5 h-5" strokeWidth={3} /> {isPublic ? 'FAÇA UMA RECLAMAÇÃO' : 'ABRIR NOVO TICKET'}
             </motion.button>
@@ -244,8 +244,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
 
         {loading ? (
           <div className="flex flex-col items-center justify-center h-96 gap-4">
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="w-16 h-16 border-4 border-green-100 border-t-green-600 rounded-full" />
-            <p className="text-slate-400 font-black animate-pulse uppercase tracking-tighter">Processando Inteligência...</p>
+            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="w-16 h-16 border-4 border-slate-200 border-t-[#198754] rounded-full" />
+            <p className="text-slate-400 font-black animate-pulse uppercase tracking-tighter">Carregando Dados...</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -254,8 +254,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               <>
                 {/* 1. NPS Cards */}
             <div className="space-y-4">
-              <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+              <h2 className="text-xl font-black text-[#262727] flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#198754]" />
                 Satisfação por canal de atendimento <span className="text-slate-400 font-bold text-xs uppercase tracking-widest ml-2">de 1 a 5</span>
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -265,11 +265,11 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                   let bgColor = 'bg-slate-300';
                   let Emote = Meh;
                   
-                  if (numAvg >= 4.5) { iconColor = 'text-emerald-500'; bgColor = 'bg-emerald-500'; Emote = Smile; }
-                  else if (numAvg >= 3.5) { iconColor = 'text-blue-500'; bgColor = 'bg-blue-500'; Emote = Smile; }
-                  else if (numAvg >= 2.5) { iconColor = 'text-amber-500'; bgColor = 'bg-amber-500'; Emote = Meh; }
-                  else if (numAvg >= 1.5) { iconColor = 'text-orange-500'; bgColor = 'bg-orange-500'; Emote = Frown; }
-                  else if (numAvg > 0) { iconColor = 'text-rose-500'; bgColor = 'bg-rose-500'; Emote = Frown; }
+                  if (numAvg >= 4.5) { iconColor = 'text-[#198754]'; bgColor = 'bg-[#198754]'; Emote = Smile; }
+                  else if (numAvg >= 3.5) { iconColor = 'text-[#198754]/70'; bgColor = 'bg-[#198754]/70'; Emote = Smile; }
+                  else if (numAvg >= 2.5) { iconColor = 'text-[#F1DF3C]'; bgColor = 'bg-[#F1DF3C]'; Emote = Meh; }
+                  else if (numAvg >= 1.5) { iconColor = 'text-[#FFA600]'; bgColor = 'bg-[#FFA600]'; Emote = Frown; }
+                  else if (numAvg > 0) { iconColor = 'text-[#181818]'; bgColor = 'bg-[#181818]'; Emote = Frown; }
 
                   return (
                   <motion.div
@@ -280,7 +280,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08)] group hover:border-blue-200 transition-all flex flex-col justify-between"
                   >
                     <div className="flex items-center gap-2 text-slate-400 mb-4 font-black text-[9px] uppercase tracking-widest">
-                      <div className="p-1.5 rounded-lg bg-slate-50 text-blue-500">{stat.icon}</div> {stat.label}
+                      <div className="p-1.5 rounded-lg bg-slate-50 text-[#198754]">{stat.icon}</div> {stat.label}
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                       <div className="text-3xl font-black text-slate-800 flex items-baseline gap-1">
@@ -321,7 +321,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                       <button
                         key={r.id}
                         onClick={() => setTimeRange(r.id as any)}
-                        className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${timeRange === r.id ? 'bg-white shadow-sm text-green-600' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${timeRange === r.id ? 'bg-white shadow-sm text-[#198754]' : 'text-slate-400 hover:text-slate-600'}`}
                       >
                         {r.label}
                       </button>
@@ -337,10 +337,10 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                       <Tooltip
                         labelStyle={{ fontWeight: 900, color: '#64748b' }}
                         contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', padding: '1rem' }}
-                        itemStyle={{ fontWeight: 900, color: '#16a34a' }}
+                        itemStyle={{ fontWeight: 900, color: '#198754' }}
                         formatter={(value) => [value, 'Valor']}
                       />
-                      <Bar dataKey="value" fill="#22c55e" radius={[10, 10, 0, 0]} />
+                      <Bar dataKey="value" fill="#198754" radius={[10, 10, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -396,13 +396,13 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     <div key={item.name} className="group cursor-default">
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-xs font-black text-slate-600 truncate mr-2">{item.name}</span>
-                        <span className="text-xs font-black text-green-600">{item.value}</span>
+                        <span className="text-xs font-black text-[#198754]">{item.value}</span>
                       </div>
                       <div className="w-full bg-slate-50 h-3 rounded-full overflow-hidden relative">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${(item.value / (tickets.length || 1)) * 100}%` }}
-                          className="h-full bg-blue-500 rounded-full group-hover:bg-blue-600 transition-colors"
+                          className="h-full bg-[#198754] rounded-full group-hover:bg-[#157347] transition-colors"
                         />
                       </div>
                     </div>
@@ -425,7 +425,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                         contentStyle={{ borderRadius: '1rem', border: 'none', fontWeight: 900 }}
                         formatter={(value) => [value, 'Valor']}
                       />
-                      <Bar dataKey="value" fill="#f59e0b" radius={[0, 10, 10, 0]} barSize={20}>
+                      <Bar dataKey="value" fill="#FFA600" radius={[0, 10, 10, 0]} barSize={20}>
                         <LabelList dataKey="value" position="insideRight" offset={8} style={{ fill: '#fff', fontSize: 10, fontWeight: 900 }} />
                       </Bar>
                     </BarChart>
@@ -449,8 +449,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                       className="flex gap-4 relative"
                     >
                       {i !== 4 && <div className="absolute left-[11px] top-8 w-[2px] h-full bg-slate-50" />}
-                      <div className={`w-6 h-6 rounded-full flex-shrink-0 z-10 flex items-center justify-center ${t.esta_de_acordo ? 'bg-green-100' : 'bg-red-100'}`}>
-                        {t.esta_de_acordo ? <CheckCircle2 className="w-4 h-4 text-green-600" /> : <AlertCircle className="w-4 h-4 text-red-600" />}
+                      <div className={`w-6 h-6 rounded-full flex-shrink-0 z-10 flex items-center justify-center ${t.esta_de_acordo ? 'bg-green-50' : 'bg-[#181818]/5'}`}>
+                        {t.esta_de_acordo ? <CheckCircle2 className="w-4 h-4 text-[#198754]" /> : <AlertCircle className="w-4 h-4 text-[#181818]" />}
                       </div>
                       <div className="flex-1 pb-2">
                         <div className="flex justify-between items-start mb-1">
@@ -501,13 +501,13 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                         placeholder="Filtrar por UC, UG ou Cliente..."
                         value={activeFilters.search}
                         onChange={e => setActiveFilters({ ...activeFilters, search: e.target.value })}
-                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-green-500/20 outline-none"
+                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-[#198754]/20 outline-none"
                       />
                     </div>
                     <select
                       value={activeFilters.status}
                       onChange={e => setActiveFilters({ ...activeFilters, status: e.target.value })}
-                      className="px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-green-500/20 outline-none"
+                      className="px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-[#198754]/20 outline-none"
                     >
                       <option value="All">Ticket: Todos</option>
                       <option>Em Aberto</option>
@@ -519,7 +519,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     <select
                       value={activeFilters.protocolStatus}
                       onChange={e => setActiveFilters({ ...activeFilters, protocolStatus: e.target.value })}
-                      className="px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-green-500/20 outline-none"
+                      className="px-4 py-3 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 ring-[#198754]/20 outline-none"
                     >
                       <option value="All">Protocolo: Todos</option>
                       <option>Sem Protocolo</option>
@@ -568,9 +568,9 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                             </span>
                           </td>
                           <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${t.status_protocolo === 'Em Analise' ? 'bg-blue-50 text-blue-600' :
-                              t.status_protocolo === 'Fechado Procedente' ? 'bg-green-50 text-green-600' :
-                                t.status_protocolo === 'Fechado Improcedente' ? 'bg-red-50 text-red-600' :
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${t.status_protocolo === 'Em Analise' ? 'bg-slate-100 text-slate-600' :
+                              t.status_protocolo === 'Fechado Procedente' ? 'bg-green-50 text-[#198754]' :
+                                t.status_protocolo === 'Fechado Improcedente' ? 'bg-[#181818]/5 text-[#181818]' :
                                   'bg-slate-100 text-slate-400'
                               }`}>
                               {t.status_protocolo || 'Sem Protocolo'}
@@ -588,7 +588,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                             </span>
                           </td>
                           <td className="py-4 px-4 text-right">
-                            <button className="p-2 text-slate-400 hover:text-green-600 transition-colors">
+                            <button className="p-2 text-slate-400 hover:text-[#198754] transition-colors">
                               <ChevronRight className="w-5 h-5" />
                             </button>
                           </td>

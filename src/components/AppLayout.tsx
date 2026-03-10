@@ -54,7 +54,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#f8fafc] overflow-hidden">
+    <div className="flex h-screen w-full bg-[#F8F6F2] overflow-hidden font-sans">
       <Sidebar userRole={userRole || 'cliente'} />
       <main className="flex-1 overflow-y-auto scroll-smooth">
         <div className="p-4 md:p-8 max-w-7xl mx-auto">
