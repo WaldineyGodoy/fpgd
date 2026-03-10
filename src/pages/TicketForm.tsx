@@ -30,6 +30,7 @@ const TicketForm: React.FC = () => {
   const [newUc, setNewUc] = useState<string>('');
   const [selectedIntegratorId, setSelectedIntegratorId] = useState<string | null>(null);
   const [selectedIntegratorName, setSelectedIntegratorName] = useState<string | null>(null);
+  const [selectedUsinaId, setSelectedUsinaId] = useState<string | null>(null);
   const [notification, setNotification] = useState<{
     show: boolean;
     type: NotificationType;
@@ -175,7 +176,8 @@ const TicketForm: React.FC = () => {
         status: 'Em Aberto',
         numero_ticket: generateTicketNumber(),
         company_id: company.id,
-        integrador_id: selectedIntegratorId // New field for security and scoping
+        integrador_id: selectedIntegratorId, // New field for security and scoping
+        usina_id: selectedUsinaId // Bind ticket to specific usina for perfect isolation
       }]);
 
       if (error) throw error;
@@ -253,6 +255,7 @@ const TicketForm: React.FC = () => {
                         setSelectedIntegratorId(usina.integrador_id);
                         setSelectedIntegratorName(usina.integrador?.nome_fantasia || usina.integrador?.razao_social || 'N/A');
                       }
+                      setSelectedUsinaId(usina.id);
                       setUsinaContact({
                         nome_cliente: usina.nome_cliente || '',
                         email_contato: usina.email_contato || '',
@@ -264,6 +267,7 @@ const TicketForm: React.FC = () => {
                         email_contato: '',
                         telefone_contato: ''
                       });
+                      setSelectedUsinaId(null);
                     }
                   }} 
                 />

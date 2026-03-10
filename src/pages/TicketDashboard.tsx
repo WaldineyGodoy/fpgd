@@ -30,6 +30,7 @@ interface TicketData {
   nps_data: any;
   created_at: string;
   company_id: string;
+  usina_id: string | null;
   codigo_cliente_ug: string | null;
   codigo_cliente_uc: string[] | null;
   companies: {
