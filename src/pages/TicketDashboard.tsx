@@ -180,15 +180,17 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
       } else if (userRole === 'cliente') {
         hasAccess = t.company_id === companyId;
       } else if (userRole === 'integrador') {
-        // Integrator sees tickets specifically assigned to them
-        hasAccess = t.company_id === companyId || t.integrador_id === companyId;
+        // Integrator sees tickets specifically assigned to them OR tickets from their linked companies
+        hasAccess = t.company_id === companyId || 
+                    t.integrador_id === companyId || 
+                    t.companies?.integrador_id === companyId;
       }
 
       if (!hasAccess) return false;
 
       // 2. UI Filters
-      const matchesSearch = t.cliente?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
-        t.codigo_cliente_ug?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
+      const matchesSearch = (t.cliente?.toLowerCase() || '').includes(activeFilters.search.toLowerCase()) ||
+        (t.codigo_cliente_ug?.toLowerCase() || '').includes(activeFilters.search.toLowerCase()) ||
         t.codigo_cliente_uc?.some(uc => uc.toLowerCase().includes(activeFilters.search.toLowerCase()));
       const matchesStatus = activeFilters.status === 'All' || t.status === activeFilters.status;
       const matchesProtocolStatus = activeFilters.protocolStatus === 'All' || t.status_protocolo === activeFilters.protocolStatus;
