@@ -37,6 +37,7 @@ interface TicketData {
     cnpj: string;
     integrador_id: string | null;
   } | null;
+  integrador_id: string | null;
 }
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#e11d48', '#7c3aed', '#06b6d4'];
@@ -178,8 +179,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
       } else if (userRole === 'cliente') {
         hasAccess = t.company_id === companyId;
       } else if (userRole === 'integrador') {
-        // Integrator sees their own and their linked clients
-        hasAccess = t.company_id === companyId || t.companies?.integrador_id === companyId;
+        // Integrator sees tickets specifically assigned to them
+        hasAccess = t.company_id === companyId || t.integrador_id === companyId;
       }
 
       if (!hasAccess) return false;

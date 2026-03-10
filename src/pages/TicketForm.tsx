@@ -174,7 +174,8 @@ const TicketForm: React.FC = () => {
         mes_referencia: formData.mes_referencia + '-01',
         status: 'Em Aberto',
         numero_ticket: generateTicketNumber(),
-        company_id: company.id
+        company_id: company.id,
+        integrador_id: selectedIntegratorId // New field for security and scoping
       }]);
 
       if (error) throw error;
