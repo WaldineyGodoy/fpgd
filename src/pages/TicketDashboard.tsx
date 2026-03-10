@@ -196,7 +196,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
 
       return matchesSearch && matchesStatus && matchesProtocolStatus && matchesTipo;
     });
-  }, [tickets, user, activeFilters]);
+  }, [tickets, user, activeFilters, userRole, companyId, isPublic]);
 
   // 5. Agreement Percentages
   const agreementData = useMemo(() => {
