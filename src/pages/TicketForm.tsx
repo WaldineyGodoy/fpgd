@@ -85,29 +85,30 @@ const TicketForm: React.FC = () => {
     const value = npsData[field];
     const emojis = ['😡', '🙁', '😐', '🙂', '🤩'];
     return (
-      <div className="flex flex-col gap-4 p-5 bg-white rounded-[1.8rem] border border-slate-100 shadow-[0_4px_12px_-2px_rgba(0,0,0,0.05)] hover:shadow-lg transition-all relative overflow-hidden group">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block pl-1">{label}</label>
-        <div className="flex flex-wrap items-center justify-between gap-y-4">
-          <div className="flex items-center gap-3">
-            {[1, 2, 3, 4, 5].map((star, idx) => (
+      <div className="flex flex-col gap-5 p-6 bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-xl transition-all group overflow-hidden">
+        <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] block text-center border-b border-slate-50 pb-3">{label}</label>
+        <div className="flex items-center justify-center gap-4 py-1">
+          {emojis.map((emoji, idx) => {
+            const star = idx + 1;
+            return (
               <button
                 key={star}
                 type="button"
                 onClick={() => handleNpsChange(field, star)}
-                className={`text-3xl transition-all hover:scale-125 active:scale-90 ${value && star === value ? 'drop-shadow-xl scale-110 z-10' : 'opacity-40 hover:opacity-100'}`}
+                className={`text-3xl sm:text-4xl transition-all hover:scale-125 active:scale-90 ${value && star === value ? 'drop-shadow-xl scale-110 z-10' : 'opacity-25 hover:opacity-100 grayscale-[0.8] hover:grayscale-0'}`}
               >
-                {emojis[idx]}
+                {emoji}
               </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => handleNpsChange(field, null)}
-            className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm ${value === null ? 'bg-[#198754] text-white shadow-[#198754]/20' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
-          >
-            {value === null ? '✓ NÃO AVALIADO' : 'NÃO PONTUAR'}
-          </button>
+            );
+          })}
         </div>
+        <button
+          type="button"
+          onClick={() => handleNpsChange(field, null)}
+          className={`w-full py-3 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${value === null ? 'bg-[#198754] text-white border-[#198754] shadow-lg shadow-[#198754]/20' : 'bg-slate-50 text-slate-400 border-transparent hover:bg-slate-100'}`}
+        >
+          {value === null ? '✓ NÃO AVALIADO' : 'NÃO PONTUAR'}
+        </button>
       </div>
     );
   };
