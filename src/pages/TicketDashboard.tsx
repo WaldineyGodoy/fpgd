@@ -29,11 +29,13 @@ interface TicketData {
   descricao_reclamacao: string | null;
   nps_data: any;
   created_at: string;
+  company_id: string;
   codigo_cliente_ug: string | null;
   codigo_cliente_uc: string[] | null;
   companies: {
     nome_fantasia: string | null;
     cnpj: string;
+    integrador_id: string | null;
   } | null;
 }
 
@@ -91,33 +93,14 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
         .select('*, companies(nome_fantasia, cnpj, integrador_id)')
         .order('created_at', { ascending: false });
 
-      // Apply RBAC Filtering
+      // Apply RBAC Filtering (Removed to make dashboard global as requested)
+      // We will filter only the "Meus Tickets" list in memory to keep charts universal.
       if (supabaseUser) {
         const { data: userComp } = await supabase
           .from('companies')
           .select('id, user_type, integrador_id')
           .eq('auth_user_id', supabaseUser.id)
           .maybeSingle();
-        
-        if (userComp) {
-          if (userComp.user_type === 'cliente') {
-            query = query.eq('company_id', userComp.id);
-          } else if (userComp.user_type === 'integrador') {
-            const { data: linkedClients } = await supabase
-              .from('companies')
-              .select('id')
-              .eq('integrador_id', userComp.id);
-            
-            const clientIds = linkedClients?.map(c => c.id) || [];
-            if (clientIds.length > 0) {
-              query = query.or(`company_id.eq.${userComp.id},company_id.in.(${clientIds.join(',')})`);
-            } else {
-              query = query.eq('company_id', userComp.id);
-            }
-          } else if (userComp.user_type === 'mediador' || userComp.user_type === 'superadmin') {
-            // Keep global access
-          }
-        }
       }
 
       const { data, error } = await query;
@@ -188,6 +171,20 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
     if (!user) return [] as TicketData[];
 
     return tickets.filter((t: TicketData) => {
+      // 1. RBAC Check (Mandatory)
+      let hasAccess = false;
+      if (userRole === 'mediador' || userRole === 'superadmin' || isPublic) {
+        hasAccess = true;
+      } else if (userRole === 'cliente') {
+        hasAccess = t.company_id === companyId;
+      } else if (userRole === 'integrador') {
+        // Integrator sees their own and their linked clients
+        hasAccess = t.company_id === companyId || t.companies?.integrador_id === companyId;
+      }
+
+      if (!hasAccess) return false;
+
+      // 2. UI Filters
       const matchesSearch = t.cliente?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
         t.codigo_cliente_ug?.toLowerCase().includes(activeFilters.search.toLowerCase()) ||
         t.codigo_cliente_uc?.some(uc => uc.toLowerCase().includes(activeFilters.search.toLowerCase()));
@@ -226,8 +223,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                 <>Lista de <span className="text-blue-600">Tickets</span></>
               )}
             </h1>
-            <p className="text-slate-400 font-bold text-xs mt-1 uppercase tracking-[0.3em] pl-14">
-              {view === 'dashboard' ? 'Protocolos e Qualidade fpgd' : 'Todos os registros do sistema'}
+            <p className="text-slate-400 font-bold text-xs mt-1 uppercase tracking-[0.1em] pl-14">
+              {view === 'dashboard' ? 'Indice de Qualidade das tratativas de protocolo e atendimento' : 'Todos os registros do sistema'}
             </p>
           </div>
 
