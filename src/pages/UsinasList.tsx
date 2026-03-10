@@ -7,12 +7,14 @@ import { Plus, Sun, Search, LayoutDashboard, Edit, Trash2, MapPin, Eye } from 'l
 interface Usina {
   id: string;
   nome: string;
+  nome_cliente: string | null;
   endereco: string;
   potencia_usina: number;
   geracao_media_anual: number;
   created_at: string;
   companies: {
     nome_fantasia: string | null;
+    razao_social: string | null;
   } | null;
 }
 
@@ -46,7 +48,8 @@ const UsinasList: React.FC = () => {
         .select(`
           *,
           companies!usinas_company_id_fkey (
-            nome_fantasia
+            nome_fantasia,
+            razao_social
           )
         `)
         .order('nome');
@@ -156,7 +159,9 @@ const UsinasList: React.FC = () => {
                     </td>
                     {userRole !== 'cliente' && (
                       <td className="py-4 px-8">
-                        <span className="font-bold text-slate-600">{usina.companies?.nome_fantasia || 'N/A'}</span>
+                        <span className="font-bold text-slate-600">
+                          {usina.nome_cliente || usina.companies?.nome_fantasia || usina.companies?.razao_social || 'N/A'}
+                        </span>
                       </td>
                     )}
                     <td className="py-4 px-8">

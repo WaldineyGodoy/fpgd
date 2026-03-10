@@ -24,8 +24,13 @@ interface Usina {
   ucs: string[];
   geracao_media_anual: number;
   created_at: string;
-  companies: {
+  client: {
     nome_fantasia: string | null;
+    razao_social: string | null;
+  } | null;
+  integrator: {
+    nome_fantasia: string | null;
+    razao_social: string | null;
   } | null;
 }
 
@@ -41,7 +46,7 @@ const UsinaDetails: React.FC = () => {
       try {
         const { data, error } = await supabase
           .from('usinas')
-          .select('*, companies!usinas_company_id_fkey(nome_fantasia)')
+          .select('*, client:companies!usinas_company_id_fkey(nome_fantasia, razao_social), integrator:companies!usinas_integrador_id_fkey(nome_fantasia, razao_social)')
           .eq('id', id)
           .single();
 
@@ -245,11 +250,11 @@ const UsinaDetails: React.FC = () => {
                  {usina.geracao_media_anual ? Math.round(usina.geracao_media_anual / 365) : 0} <span className="text-lg text-slate-400">kWh</span>
                </div>
             </div>
-            {usina.companies && (
+            {usina.integrator && (
                <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center justify-between">
                  <div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Empresa Gerenciadora</h4>
-                    <p className="font-black text-slate-700">{usina.companies.nome_fantasia}</p>
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Integradora Responsável</h4>
+                    <p className="font-black text-slate-700">{usina.integrator.nome_fantasia || usina.integrator.razao_social}</p>
                  </div>
                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center">
                     <Calendar className="w-5 h-5" />
