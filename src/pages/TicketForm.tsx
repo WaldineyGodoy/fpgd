@@ -23,6 +23,14 @@ interface FormData {
   descricao_reclamacao: string;
 }
 
+interface NPSData {
+  agencias: number | null;
+  whatsapp: number | null;
+  telefone: number | null;
+  portal_gd: number | null;
+  equipe_campo_vistoria: number | null;
+}
+
 const TicketForm: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -60,6 +68,46 @@ const TicketForm: React.FC = () => {
     status_protocolo: 'Sem Protocolo',
     descricao_reclamacao: ''
   });
+
+  const [npsData, setNpsData] = useState<NPSData>({
+    agencias: null,
+    whatsapp: null,
+    telefone: null,
+    portal_gd: null,
+    equipe_campo_vistoria: null
+  });
+
+  const handleNpsChange = (field: keyof NPSData, value: number | null) => {
+    setNpsData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const renderNpsRating = (field: keyof NPSData, label: string) => {
+    const value = npsData[field];
+    return (
+      <div className="space-y-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:border-[#198754]/30 transition-all">
+        <label className="text-xs font-black text-gray-500 uppercase tracking-wider block">{label}</label>
+        <div className="flex items-center gap-2">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => handleNpsChange(field, star)}
+              className={`text-2xl transition-all hover:scale-125 ${value && star <= value ? 'filter-none grayscale-0' : 'filter grayscale opacity-30 hover:opacity-60'}`}
+            >
+              {star <= 2 ? '☹️' : star <= 3 ? '😐' : star <= 4 ? '🙂' : '🤩'}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => handleNpsChange(field, null)}
+            className={`ml-3 px-3 py-1 rounded-full text-[9px] font-black uppercase transition-all ${value === null ? 'bg-[#198754] text-white shadow-lg' : 'bg-gray-200 text-gray-400 hover:bg-gray-300'}`}
+          >
+            Não pontuar
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const fetchCompany = async () => {
@@ -177,7 +225,8 @@ const TicketForm: React.FC = () => {
         numero_ticket: generateTicketNumber(),
         company_id: company.id,
         integrador_id: selectedIntegratorId, // New field for security and scoping
-        usina_id: selectedUsinaId // Bind ticket to specific usina for perfect isolation
+        usina_id: selectedUsinaId, // Bind ticket to specific usina for perfect isolation
+        nps_data: npsData
       }]);
 
       if (error) throw error;
@@ -411,6 +460,27 @@ const TicketForm: React.FC = () => {
           <div className="space-y-2">
             <label className="text-sm font-black text-gray-700 ml-1">Descrição Detalhada</label>
             <textarea name="descricao_reclamacao" value={formData.descricao_reclamacao} onChange={handleChange} rows={5} className="w-full p-4 rounded-3xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-medium resize-none shadow-inner" placeholder="Explique aqui os detalhes da reclamação..." />
+          </div>
+
+          {/* NPS Evaluation Section */}
+          <div className="mt-12 space-y-6 pt-8 border-t-2 border-dashed border-gray-100">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-yellow-50 text-yellow-600 rounded-lg">
+                 <span className="text-xl">⭐️</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-[#262727]">Avaliação de Satisfação (NPS)</h3>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Sua opinião é fundamental para melhorarmos o atendimento</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {renderNpsRating('agencias', 'Atendimento em Agências')}
+              {renderNpsRating('whatsapp', 'Atendimento via WhatsApp')}
+              {renderNpsRating('telefone', 'Atendimento via Telefone')}
+              {renderNpsRating('portal_gd', 'Experiência no Portal GD')}
+              {renderNpsRating('equipe_campo_vistoria', 'Equipe de Campo / Vistoria')}
+            </div>
           </div>
         </section>
 
