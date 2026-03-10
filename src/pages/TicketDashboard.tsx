@@ -92,7 +92,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
 
       let query = supabase
         .from('tickets')
-        .select('*, companies(nome_fantasia, cnpj, integrador_id)')
+        .select('*, companies:tickets_company_id_fkey(nome_fantasia, cnpj, integrador_id)')
         .order('created_at', { ascending: false });
 
       // Apply RBAC Filtering (Removed to make dashboard global as requested)
