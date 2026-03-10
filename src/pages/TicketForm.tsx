@@ -83,24 +83,25 @@ const TicketForm: React.FC = () => {
 
   const renderNpsRating = (field: keyof NPSData, label: string) => {
     const value = npsData[field];
+    const emojis = ['😡', '🙁', '😐', '🙂', '🤩'];
     return (
-      <div className="space-y-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:border-[#198754]/30 transition-all">
+      <div className="space-y-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:border-[#198754]/30 transition-all relative">
         <label className="text-xs font-black text-gray-500 uppercase tracking-wider block">{label}</label>
-        <div className="flex items-center gap-2">
-          {[1, 2, 3, 4, 5].map((star) => (
+        <div className="flex items-center gap-3">
+          {[1, 2, 3, 4, 5].map((star, idx) => (
             <button
               key={star}
               type="button"
               onClick={() => handleNpsChange(field, star)}
-              className={`text-2xl transition-all hover:scale-125 ${value && star <= value ? 'filter-none grayscale-0' : 'filter grayscale opacity-30 hover:opacity-60'}`}
+              className={`text-3xl transition-all hover:scale-125 active:scale-90 ${value && star === value ? 'drop-shadow-md scale-110' : 'opacity-40 hover:opacity-80'}`}
             >
-              {star <= 2 ? '☹️' : star <= 3 ? '😐' : star <= 4 ? '🙂' : '🤩'}
+              {emojis[idx]}
             </button>
           ))}
           <button
             type="button"
             onClick={() => handleNpsChange(field, null)}
-            className={`ml-3 px-3 py-1 rounded-full text-[9px] font-black uppercase transition-all ${value === null ? 'bg-[#198754] text-white shadow-lg' : 'bg-gray-200 text-gray-400 hover:bg-gray-300'}`}
+            className={`ml-4 px-3 py-1.5 rounded-full text-[8px] font-black uppercase transition-all ${value === null ? 'bg-[#198754] text-white shadow-lg' : 'bg-gray-200 text-gray-400 hover:bg-gray-300'}`}
           >
             Não pontuar
           </button>
