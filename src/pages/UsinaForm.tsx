@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Zap, Settings, MapPin, Hash, Loader2, X } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import BuscaCEP from '../components/BuscaCEP';
 import BuscaIntegrador from '../components/BuscaIntegrador';
 import InputCpfCnpj from '../components/InputCpfCnpj';
@@ -37,6 +37,8 @@ const UsinaForm = () => {
     nome_cliente: '',
     email_contato: '',
     telefone_contato: '',
+    tem_energia_solar: true,
+    consumo_medio_kwh: '',
   });
 
   useEffect(() => {
@@ -86,6 +88,8 @@ const UsinaForm = () => {
             nome_cliente: data.nome_cliente || '',
             email_contato: data.email_contato || '',
             telefone_contato: data.telefone_contato || '',
+            tem_energia_solar: data.tem_energia_solar ?? true,
+            consumo_medio_kwh: data.consumo_medio_kwh?.toString() || '',
           });
         }
         setInitialFetch(false);
@@ -170,6 +174,8 @@ const UsinaForm = () => {
         nome_cliente: formData.nome_cliente,
         email_contato: formData.email_contato,
         telefone_contato: formData.telefone_contato,
+        tem_energia_solar: formData.tem_energia_solar,
+        consumo_medio_kwh: formData.consumo_medio_kwh ? parseFloat(formData.consumo_medio_kwh) : null,
       };
 
       if (isEditing && id) {
@@ -190,7 +196,13 @@ const UsinaForm = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCepData = (data: any) => {
@@ -246,7 +258,7 @@ const UsinaForm = () => {
         </button>
         <div>
           <h1 className="text-2xl font-black text-[#262727] tracking-tighter uppercase">
-            {isEditing ? 'Editar' : 'Nova'} <span className="text-[#198754]">Usina</span>
+            {isEditing ? 'Editar' : 'Nova'} <span className="text-[#198754]">Unidade</span>
           </h1>
           <p className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">
             Gestão de Ativos Solares fpgd
@@ -415,97 +427,152 @@ const UsinaForm = () => {
           </div>
         </section>
 
-        {/* Sessão: Dados Técnicos */}
+        {/* Sessão: Dados da Usina */}
         <section>
-          <h2 className="text-xs font-black text-[#198754] uppercase tracking-[0.3em] flex items-center gap-3 mb-6">
-            <span className="h-1.5 w-10 bg-[#198754] rounded-full"></span>
-            Dados Técnicos
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência da Usina (kWp)</label>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <h2 className="text-xs font-black text-[#198754] uppercase tracking-[0.3em] flex items-center gap-3">
+              <span className="h-1.5 w-10 bg-[#198754] rounded-full"></span>
+              Dados da Usina
+            </h2>
+            
+            <label className="flex items-center gap-3 px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-100 transition-all">
               <div className="relative">
                 <input 
-                  type="number"
-                  step="0.01"
-                  name="potencia_usina"
-                  value={formData.potencia_usina}
-                  onChange={handleChange}
-                  readOnly
-                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/50 cursor-not-allowed" 
-                  placeholder="0.00"
+                  type="checkbox"
+                  name="tem_energia_solar"
+                  checked={!formData.tem_energia_solar}
+                  onChange={(e) => setFormData(prev => ({ ...prev, tem_energia_solar: !e.target.checked }))}
+                  className="sr-only"
                 />
-                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-[#FFA600]" />
+                <div className={`w-10 h-6 rounded-full transition-colors ${!formData.tem_energia_solar ? 'bg-amber-500' : 'bg-slate-300'}`} />
+                <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${!formData.tem_energia_solar ? 'translate-x-4' : ''}`} />
               </div>
-            </div>
-             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Geração Média (kWh/ano)</label>
-               <div className="relative">
-                <input 
-                  type="number"
-                  step="0.01"
-                  name="geracao_media_anual"
-                  value={formData.geracao_media_anual}
-                  onChange={handleChange}
-                  className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
-                  placeholder="0.00"
-                />
-                <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
-              </div>
-            </div>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Não tenho energia solar</span>
+            </label>
           </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Painéis (Und)</label>
-              <input 
-                type="number"
-                name="qtd_paineis"
-                value={formData.qtd_paineis}
-                onChange={handleChange}
-                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência Painel (W)</label>
-              <div className="relative">
-                <select 
-                  name="potencia_paineis"
-                  value={formData.potencia_paineis}
-                  onChange={handleChange as any}
-                  className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/30 appearance-none cursor-pointer" 
-                >
-                  <option value="">Selecione...</option>
-                  {listaPaineis.map(p => <option key={p} value={p}>{p}W</option>)}
-                </select>
-                <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">▼</div>
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Inversores</label>
-              <input 
-                type="number"
-                name="qtd_inversor"
-                value={formData.qtd_inversor}
-                onChange={handleChange}
-                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
-                placeholder="0"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência Inversor (kW)</label>
-              <input 
-                type="number"
-                step="0.1"
-                name="potencia_inversor"
-                value={formData.potencia_inversor}
-                onChange={handleChange}
-                className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
-                placeholder="0.0"
-              />
-            </div>
-          </div>
+          <AnimatePresence mode="wait">
+            {!formData.tem_energia_solar ? (
+              <motion.div 
+                key="no-solar"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                <div>
+                  <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Consumo Médio (kWh/mês)</label>
+                  <div className="relative">
+                    <input 
+                      type="number"
+                      step="0.01"
+                      name="consumo_medio_kwh"
+                      value={formData.consumo_medio_kwh}
+                      onChange={handleChange}
+                      required={!formData.tem_energia_solar}
+                      className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                      placeholder="0.00"
+                    />
+                    <Zap className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-amber-500" />
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="with-solar"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência da Usina (kWp)</label>
+                    <div className="relative">
+                      <input 
+                        type="number"
+                        step="0.01"
+                        name="potencia_usina"
+                        value={formData.potencia_usina}
+                        onChange={handleChange}
+                        readOnly
+                        className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/50 cursor-not-allowed" 
+                        placeholder="0.00"
+                      />
+                      <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-[#FFA600]" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Geração Média (kWh/ano)</label>
+                    <div className="relative">
+                      <input 
+                        type="number"
+                        step="0.01"
+                        name="geracao_media_anual"
+                        value={formData.geracao_media_anual}
+                        onChange={handleChange}
+                        className="w-full p-5 pl-14 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                        placeholder="0.00"
+                      />
+                      <Hash className="w-5 h-5 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Painéis (Und)</label>
+                    <input 
+                      type="number"
+                      name="qtd_paineis"
+                      value={formData.qtd_paineis}
+                      onChange={handleChange}
+                      className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência Painel (W)</label>
+                    <div className="relative">
+                      <select 
+                        name="potencia_paineis"
+                        value={formData.potencia_paineis}
+                        onChange={handleChange as any}
+                        className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-[#FFA600] outline-none transition-all font-bold text-gray-700 bg-gray-50/30 appearance-none cursor-pointer" 
+                      >
+                        <option value="">Selecione...</option>
+                        {listaPaineis.map(p => <option key={p} value={p}>{p}W</option>)}
+                      </select>
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">▼</div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Qtd de Inversores</label>
+                    <input 
+                      type="number"
+                      name="qtd_inversor"
+                      value={formData.qtd_inversor}
+                      onChange={handleChange}
+                      className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Potência Inversor (kW)</label>
+                    <input 
+                      type="number"
+                      step="0.1"
+                      name="potencia_inversor"
+                      value={formData.potencia_inversor}
+                      onChange={handleChange}
+                      className="w-full p-5 rounded-2xl border-2 border-gray-100 focus:border-amber-500 outline-none transition-all font-bold text-gray-700 bg-gray-50/30" 
+                      placeholder="0.0"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
 
         <div className="pt-6 border-t border-slate-100 flex justify-end gap-4">

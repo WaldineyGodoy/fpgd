@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userRole }) => {
     { id: 'home', label: 'Satisfação do cliente', icon: LayoutDashboard, path: '/tickets', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-green-500' },
     { id: 'tickets', label: 'Tickets', icon: Ticket, path: '/tickets/lista', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-green-500' },
     { id: 'kanban', label: 'Status dos Tickets', icon: Kanban, path: '/tickets/kanban', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-amber-500' },
-    { id: 'usinas', label: 'Minhas Usinas', icon: Sun, path: '/usinas', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-cyan-500' },
+    { id: 'usinas', label: 'Minhas Unidades', icon: Sun, path: '/usinas', roles: ['superadmin', 'mediador', 'integrador', 'cliente'], color: 'text-cyan-500' },
     { id: 'admin', label: 'Administração', icon: Shield, path: '/admin', roles: ['superadmin'], color: 'text-purple-500' },
   ];
 

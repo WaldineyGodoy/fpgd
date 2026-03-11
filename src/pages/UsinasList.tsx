@@ -91,7 +91,7 @@ const UsinasList: React.FC = () => {
               <div className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
                 <Sun className="w-8 h-8 text-[#198754]" />
               </div>
-              Minhas <span className="text-[#198754]">Usinas</span>
+              Minhas <span className="text-[#198754]">Unidades</span>
             </h1>
           <p className="text-slate-400 font-black text-xs mt-1 uppercase tracking-[0.3em] pl-14">
             Gestão de Ativos Solares fpgd
@@ -105,14 +105,14 @@ const UsinasList: React.FC = () => {
           onClick={() => navigate('/usinas/nova')}
           className="bg-[#198754] text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-green-900/10 transition-all hover:bg-[#157347] uppercase tracking-widest"
         >
-          <Plus className="w-5 h-5" strokeWidth={3} /> Adicionar Usina
+          <Plus className="w-5 h-5" strokeWidth={3} /> Adicionar Unidade
         </motion.button>
       </div>
 
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-             <h2 className="text-xl font-black text-slate-800">Lista de Usinas</h2>
+             <h2 className="text-xl font-black text-slate-800">Lista de Unidades</h2>
              <span className="bg-slate-100 text-slate-500 font-bold px-3 py-1 rounded-full text-sm">
                {filteredUsinas.length}
              </span>
@@ -136,17 +136,17 @@ const UsinasList: React.FC = () => {
           </div>
         ) : filteredUsinas.length === 0 ? (
           <div className="p-12 text-center text-slate-400 font-bold">
-            Nenhuma usina encontrada.
+            Nenhuma unidade encontrada.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50">
-                  <th className="py-4 px-8 text-xs font-black text-slate-400 uppercase tracking-wider">Nome da Usina</th>
+                  <th className="py-4 px-8 text-xs font-black text-slate-400 uppercase tracking-wider">Nome da Unidade</th>
                   {userRole !== 'cliente' && <th className="py-4 px-8 text-xs font-black text-slate-400 uppercase tracking-wider">Cliente</th>}
                   <th className="py-4 px-8 text-xs font-black text-slate-400 uppercase tracking-wider">Endereço</th>
-                  <th className="py-4 px-8 text-xs font-black text-slate-400 uppercase tracking-wider">Potência</th>
+                  <th className="py-4 px-8 text-xs font-black text-slate-400 uppercase tracking-wider">Potência / Consumo</th>
                   <th className="py-4 px-8 text-xs font-black text-slate-400 uppercase tracking-wider">Ações</th>
                 </tr>
               </thead>
