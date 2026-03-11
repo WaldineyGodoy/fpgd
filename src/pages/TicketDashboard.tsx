@@ -216,18 +216,31 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <h1 className="text-3xl font-black text-[#262727] flex items-center gap-3">
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
-                {view === 'dashboard' ? <LayoutDashboard className="w-8 h-8 text-[#198754]" /> : <Ticket className="w-8 h-8 text-[#198754]" />}
-              </div>
-              {view === 'dashboard' ? (
-                <>Termômetro <span className="text-[#198754]">satisfação Cosern</span></>
-              ) : (
-                <>Lista de <span className="text-[#198754]">Tickets</span></>
-              )}
+          <div className="relative">
+            <h1 className="text-3xl font-black text-[#262727] flex items-center gap-4">
+              <motion.img 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                src="/assets/mascote_lampada.png" 
+                alt="Mascote Lâmpada" 
+                className="w-24 h-24 object-contain -ml-8 drop-shadow-xl" 
+              />
+              <span className="flex flex-col">
+                {view === 'dashboard' ? (
+                  <>Termômetro <span className="text-[#198754] leading-tight">satisfação Cosern</span></>
+                ) : (
+                  <>Lista de <span className="text-[#198754] leading-tight">Tickets</span></>
+                )}
+              </span>
+              <motion.img 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                src="/assets/mascote_solar.png" 
+                alt="Mascote Solar" 
+                className="w-24 h-24 object-contain drop-shadow-xl" 
+              />
             </h1>
-            <p className="text-slate-400 font-bold text-xs mt-1 uppercase tracking-[0.1em] pl-14">
+            <p className="text-slate-400 font-bold text-[10px] mt-0 uppercase tracking-[0.1em] pl-16">
               {view === 'dashboard' ? 'Indice de Qualidade das tratativas de protocolo e atendimento' : 'Todos os registros do sistema'}
             </p>
           </div>
