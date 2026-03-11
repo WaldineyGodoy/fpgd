@@ -21,6 +21,7 @@ interface FormData {
   data_abertura: string;
   status_protocolo: string;
   descricao_reclamacao: string;
+  valor_conta: string;
 }
 
 interface NPSData {
@@ -66,7 +67,8 @@ const TicketForm: React.FC = () => {
     numero_protocolo: '',
     data_abertura: '',
     status_protocolo: 'Sem Protocolo',
-    descricao_reclamacao: ''
+    descricao_reclamacao: '',
+    valor_conta: ''
   });
 
   const [npsData, setNpsData] = useState<NPSData>({
@@ -230,7 +232,8 @@ const TicketForm: React.FC = () => {
         company_id: company.id,
         integrador_id: selectedIntegratorId, // New field for security and scoping
         usina_id: selectedUsinaId, // Bind ticket to specific usina for perfect isolation
-        nps_data: npsData
+        nps_data: npsData,
+        valor_conta: formData.valor_conta
       }]);
 
       if (error) throw error;
@@ -434,18 +437,20 @@ const TicketForm: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Tipo de Chamado</label>
-              <select name="tipo_chamado" value={formData.tipo_chamado} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600 bg-white">
+              <select name="tipo_chamado" value={formData.tipo_chamado} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600 bg-white">
                 <option>Compensação</option>
                 <option>Desligamento Involuntário</option>
                 <option>Vistoria</option>
                 <option>Homologação</option>
-                <option>Nova Instalação com GD</option>
-                <option>Nova Instalação</option>
+                <option>Ligação Nova - Conexão - MMGD</option>
+                <option>Ligação Nova</option>
+                <option>Cobrança Indevida</option>
+                <option>Falta de Energia</option>
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Status do Protocolo</label>
-              <select name="status_protocolo" value={formData.status_protocolo} onChange={handleChange} className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600 bg-white">
+              <select name="status_protocolo" value={formData.status_protocolo} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600 bg-white">
                 <option value="Sem Protocolo">Sem Protocolo</option>
                 <option value="Em Analise">Em Analise</option>
                 <option value="Fechado Improcedente">Fechado Improcedente</option>
@@ -457,13 +462,17 @@ const TicketForm: React.FC = () => {
               <input type="text" name="numero_protocolo" value={formData.numero_protocolo} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-[#262727]" />
             </div>
             <div className="space-y-2">
+              <label className="text-sm font-black text-gray-700 ml-1">Valor da Conta R$</label>
+              <input type="text" name="valor_conta" value={formData.valor_conta} onChange={handleChange} required placeholder="0,00" className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-[#262727]" />
+            </div>
+            <div className="space-y-2">
               <label className="text-sm font-black text-gray-700 ml-1">Data de Abertura</label>
               <input type="date" name="data_abertura" value={formData.data_abertura} onChange={handleChange} required className="w-full p-4 rounded-2xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-bold text-gray-600" />
             </div>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-black text-gray-700 ml-1">Descrição Detalhada</label>
-            <textarea name="descricao_reclamacao" value={formData.descricao_reclamacao} onChange={handleChange} rows={5} className="w-full p-4 rounded-3xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-medium resize-none shadow-inner" placeholder="Explique aqui os detalhes da reclamação..." />
+            <textarea name="descricao_reclamacao" value={formData.descricao_reclamacao} onChange={handleChange} required rows={5} className="w-full p-4 rounded-3xl border-2 border-gray-100 focus:border-[#198754] outline-none transition-all font-medium resize-none shadow-inner" placeholder="Explique aqui os detalhes da reclamação..." />
           </div>
 
           {/* NPS Evaluation Section */}
