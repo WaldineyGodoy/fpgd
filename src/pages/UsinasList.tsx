@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Sun, Search, LayoutDashboard, Edit, Trash2, MapPin, Eye } from 'lucide-react';
+import { Plus, Sun, Search, LayoutDashboard, Edit, Trash2, MapPin, Eye, Loader2 } from 'lucide-react';
+import Notification, { NotificationType } from '../components/Notification';
+import CustomModal from '../components/CustomModal';
 
 interface Usina {
   id: string;
@@ -24,6 +26,20 @@ const UsinasList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [userRole, setUserRole] = useState<string | null>(null);
+
+  // States for Modal and Notifications
+  const [modalConfig, setModalConfig] = useState<{ show: boolean; id?: string }>({ show: false });
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    type: 'success' | 'error' | 'info';
+    title: string;
+    message: string;
+  }>({
+    show: false,
+    type: 'success',
+    title: '',
+    message: ''
+  });
 
   useEffect(() => {
     fetchUsinas();
@@ -63,17 +79,39 @@ const UsinasList: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta usina?')) return;
+  const confirmDelete = async () => {
+    if (!modalConfig.id) return;
+    
+    setModalConfig({ show: false });
+    setLoading(true);
     
     try {
-      const { error } = await supabase.from('usinas').delete().eq('id', id);
+      const { error } = await supabase.from('usinas').delete().eq('id', modalConfig.id);
       if (error) throw error;
-      setUsinas(usinas.filter(u => u.id !== id));
-    } catch (err) {
+      
+      setUsinas(usinas.filter(u => u.id !== modalConfig.id));
+      
+      setNotification({
+        show: true,
+        type: 'success',
+        title: 'Excluído com Sucesso!',
+        message: 'A unidade e todos os seus vínculos foram removidos.'
+      });
+    } catch (err: any) {
       console.error('Erro ao deletar usina:', err);
-      alert('Erro ao excluir a usina.');
+      setNotification({
+        show: true,
+        type: 'error',
+        title: 'Erro na Exclusão',
+        message: err.message || 'Não foi possível excluir a unidade no momento.'
+      });
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleDelete = (id: string) => {
+    setModalConfig({ show: true, id });
   };
 
   const filteredUsinas = usinas.filter(u => 
@@ -193,6 +231,25 @@ const UsinasList: React.FC = () => {
           </div>
         )}
       </div>
+
+      <CustomModal
+        show={modalConfig.show}
+        type="danger"
+        title="Confirmar Exclusão"
+        message="Tem certeza que deseja excluir esta unidade? Esta ação é irreversível e removerá todos os tickets associados."
+        confirmLabel="Excluir Unidade"
+        cancelLabel="Vou pensar melhor"
+        onConfirm={confirmDelete}
+        onCancel={() => setModalConfig({ show: false })}
+      />
+
+      <Notification
+        show={notification.show}
+        type={notification.type}
+        title={notification.title}
+        message={notification.message}
+        onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+      />
     </div>
   );
 };
