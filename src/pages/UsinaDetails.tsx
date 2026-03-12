@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   ArrowLeft, Edit, Trash2, MapPin, Zap, Hash, Sun, 
-  BarChart as BarChartIcon, Settings, Calendar
+  BarChart as BarChartIcon, Settings, Calendar, Mail, Phone
 } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -25,6 +25,9 @@ interface Usina {
   potencia_inversor: number;
   ug: string;
   ucs: string[];
+  nome_cliente: string | null;
+  email_contato: string | null;
+  telefone_contato: string | null;
   geracao_media_anual: number;
   created_at: string;
   client: {
@@ -106,36 +109,88 @@ const UsinaDetails: React.FC = () => {
     <div className="max-w-7xl mx-auto space-y-6">
       
       {/* HEADER E AÇÕES */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate('/usinas')}
-            className="p-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-2xl shadow-sm transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-500" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 tracking-tighter uppercase">
-              {usina.nome}
-            </h1>
-            <p className="text-sm font-bold text-slate-400 mt-1 flex items-center gap-1">
-              <MapPin className="w-4 h-4 text-[#198754]" /> 
-              {usina.endereco ? (
-                `${usina.endereco}${usina.bairro ? ', ' + usina.bairro : ''} - ${usina.municipio || ''}/${usina.uf || ''}`
-              ) : (
-                'Endereço não informado'
-              )}
-            </p>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate('/usinas')}
+              className="p-3 bg-white hover:bg-slate-50 border border-slate-100 rounded-2xl shadow-sm transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-500" />
+            </button>
+            <div>
+              <h1 className="text-3xl font-black text-slate-800 flex items-center gap-3 tracking-tighter uppercase">
+                {usina.nome}
+              </h1>
+              <p className="text-xs font-black text-slate-400 mt-1 uppercase tracking-widest flex items-center gap-2">
+                <Sun className="w-4 h-4 text-[#198754]" /> Usina Solar Fotovoltaica
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 w-full md:w-auto">
+            <motion.button onClick={() => navigate(`/usinas/${usina.id}/editar`)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1 bg-amber-50 text-amber-600 px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-amber-100 transition-colors">
+              <Edit className="w-5 h-5" /> Editar
+            </motion.button>
+            <motion.button onClick={handleDelete} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1 bg-red-50 text-red-600 px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
+              <Trash2 className="w-5 h-5" /> Excluir
+            </motion.button>
           </div>
         </div>
 
-        <div className="flex gap-3 w-full md:w-auto">
-          <motion.button onClick={() => navigate(`/usinas/${usina.id}/editar`)} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1 bg-amber-50 text-amber-600 px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-amber-100 transition-colors">
-            <Edit className="w-5 h-5" /> Editar
-          </motion.button>
-          <motion.button onClick={handleDelete} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1 bg-red-50 text-red-600 px-6 py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
-            <Trash2 className="w-5 h-5" /> Excluir
-          </motion.button>
+        {/* HEADER DE IDENTIFICAÇÃO (MODIFICADO) */}
+        <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-green-900/5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-green-50/50 rounded-full -translate-y-1/2 translate-x-1/3 -z-0" />
+          
+          <div className="relative z-10 space-y-1">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Titular / Cliente</p>
+            <p className="text-lg font-black text-slate-800 leading-tight">
+              {usina.nome_cliente || usina.client?.nome_fantasia || usina.client?.razao_social || 'N/A'}
+            </p>
+            <div className="flex flex-col gap-1 mt-2">
+               <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5 line-clamp-1">
+                 <Mail className="w-3.5 h-3.5 text-[#198754]" /> {usina.email_contato || 'E-mail não informado'}
+               </span>
+               <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
+                 <Phone className="w-3.5 h-3.5 text-[#198754]" /> {usina.telefone_contato || 'Telefone não informado'}
+               </span>
+            </div>
+          </div>
+
+          <div className="relative z-10 space-y-1">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Documento e Contrato</p>
+            <p className="text-sm font-black text-slate-700">CPF/CNPJ: <span className="text-slate-500 font-bold">{usina.cpf_cnpj || 'N/A'}</span></p>
+            <p className="text-sm font-black text-slate-700">Nº Geradora (UG): <span className="text-[#198754]">{usina.ug || 'Sem contrato'}</span></p>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-[10px] font-black bg-green-50 text-[#198754] px-2 py-1 rounded-lg border border-green-100 uppercase tracking-tighter">Conexão Ativa</span>
+            </div>
+          </div>
+
+          <div className="relative z-10 space-y-1 md:col-span-2">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Localização e Unidades</p>
+            <div className="flex gap-2">
+              <MapPin className="w-4 h-4 text-[#198754] flex-shrink-0 mt-0.5" />
+              <p className="text-xs font-bold text-slate-500 leading-relaxed">
+                {usina.endereco ? (
+                  `${usina.endereco}${usina.bairro ? ', ' + usina.bairro : ''} - ${usina.municipio || ''}/${usina.uf || ''}`
+                ) : (
+                  'Endereço não informado'
+                )}
+              </p>
+            </div>
+            <div className="mt-3">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Unidades Consumidoras Vinculadas</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(!usina.ucs || usina.ucs.length === 0) ? (
+                  <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">Nenhuma UC vinculada</span>
+                ) : (
+                  usina.ucs.map((uc, i) => (
+                    <span key={i} className="px-2.5 py-1 bg-green-50 text-[#198754] font-black text-[10px] rounded-lg border border-green-100 shadow-sm">{uc}</span>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -177,32 +232,6 @@ const UsinaDetails: React.FC = () => {
             </div>
           </div>
 
-           <div className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
-            <h3 className="text-xs font-black text-[#198754] uppercase tracking-[0.2em] flex items-center gap-3 mb-6">
-              <Hash className="w-5 h-5" /> Identificação e Dados
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase">CPF/CNPJ</p>
-                <p className="font-black text-slate-700">{usina.cpf_cnpj || 'Não informado'}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase">Unidade Geradora (UG)</p>
-                <p className="font-black text-slate-700">{usina.ug || 'Não informado'}</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400 uppercase">Unidades Consumidoras</p>
-                 <div className="flex flex-wrap gap-2 mt-1">
-                  {(!usina.ucs || usina.ucs.length === 0) ? (
-                    <span className="font-black text-slate-700">Nenhuma UC vinculada</span>
-                  ) : (
-                    usina.ucs.map((uc, i) => (
-                      <span key={i} className="px-3 py-1 bg-green-50 text-[#198754] font-bold text-xs rounded-lg border border-green-100">{uc}</span>
-                    ))
-                  )}
-                 </div>
-              </div>
-            </div>
           </div>
         </div>
 

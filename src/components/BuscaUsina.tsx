@@ -78,7 +78,7 @@ const BuscaUsina: React.FC<BuscaUsinaProps> = ({ onSelect, initialValue = '' }) 
                         razao_social
                     )
                 `)
-                .or(`nome.ilike.%${searchTerm}%,cpf_cnpj.ilike.%${searchTerm}%,ug.ilike.%${searchTerm}%`)
+                .or(`nome.ilike.%${searchTerm}%,cpf_cnpj.ilike.%${searchTerm}%,ug.ilike.%${searchTerm}%,nome_cliente.ilike.%${searchTerm}%,email_contato.ilike.%${searchTerm}%,telefone_contato.ilike.%${searchTerm}%`)
                 .limit(10);
 
             if (error) throw error;
