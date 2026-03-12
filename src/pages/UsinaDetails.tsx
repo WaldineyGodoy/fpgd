@@ -231,8 +231,6 @@ const UsinaDetails: React.FC = () => {
                 </div>
             </div>
           </div>
-
-          </div>
         </div>
 
         {/* COLUNA DIREITA: GRÁFICOS E MÉDIAS */}
