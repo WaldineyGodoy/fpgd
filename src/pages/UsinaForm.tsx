@@ -310,13 +310,16 @@ const UsinaForm = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div>
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Nome do Cliente</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Nome do Cliente (Proprietário)</label>
               <input 
                 name="nome_cliente"
                 value={formData.nome_cliente}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setFormData(prev => ({ ...prev, nome_cliente: val }));
+                }}
                 className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-normal text-slate-600 focus:ring-4 focus:ring-[#198754]/10 focus:border-[#198754]/20 outline-none transition-all" 
-                placeholder="Ex: João Silva"
+                placeholder="Ex: João da Silva"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

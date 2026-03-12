@@ -37,6 +37,7 @@ interface TicketData {
     nome_fantasia: string | null;
     cnpj: string;
     integrador_id: string | null;
+    user_type: string | null;
   } | null;
   integrador_id: string | null;
 }
@@ -65,54 +66,68 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
   });
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user: supabaseUser } } = await supabase.auth.getUser();
-      if (supabaseUser) {
-        setUser(supabaseUser);
-        const { data: company } = await supabase
-          .from('companies')
-          .select('id, user_type')
-          .eq('auth_user_id', supabaseUser.id)
-          .maybeSingle();
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        const { data: { user: supabaseUser } } = await supabase.auth.getUser();
         
-        if (company) {
-          setUserRole(company.user_type);
-          setCompanyId(company.id);
+        if (!supabaseUser) {
+          // Se não houver usuário logado (ex: dashboard público)
+          const { data, error } = await supabase
+            .from('tickets')
+            .select('*, companies:tickets_company_id_fkey(nome_fantasia, cnpj, integrador_id, user_type)')
+            .order('created_at', { ascending: false });
+          
+          if (error) throw error;
+          setTickets(data || []);
+          return;
         }
+
+        setUser(supabaseUser);
+
+        // Busca paralela de perfil da empresa e tickets
+        const [companyResult, ticketsResult] = await Promise.all([
+          supabase
+            .from('companies')
+            .select('id, user_type')
+            .eq('auth_user_id', supabaseUser.id)
+            .maybeSingle(),
+          supabase
+            .from('tickets')
+            .select('*, companies:tickets_company_id_fkey(nome_fantasia, cnpj, integrador_id, user_type)')
+            .order('created_at', { ascending: false })
+        ]);
+
+        if (companyResult.data) {
+          setUserRole(companyResult.data.user_type);
+          setCompanyId(companyResult.data.id);
+        }
+
+        if (ticketsResult.error) throw ticketsResult.error;
+        setTickets(ticketsResult.data || []);
+
+      } catch (err) {
+        console.error('Error loading initial data:', err);
+      } finally {
+        setLoading(false);
       }
     };
-    checkUser();
-    fetchTickets();
-  }, []);
-  const fetchTickets = async () => {
-    setLoading(true);
-    try {
-      const { data: { user: supabaseUser } } = await supabase.auth.getUser();
-      // Allow fetching even if no user, because we have public SELECT policy
 
-      let query = supabase
+    loadInitialData();
+  }, [isPublic]);
+
+  const fetchTickets = async () => {
+    // Mantido apenas para compatibilidade ou refresh manual, mas otimizado
+    try {
+      const { data, error } = await supabase
         .from('tickets')
-        .select('*, companies:tickets_company_id_fkey(nome_fantasia, cnpj, integrador_id)')
+        .select('*, companies:tickets_company_id_fkey(nome_fantasia, cnpj, integrador_id, user_type)')
         .order('created_at', { ascending: false });
 
-      // Apply RBAC Filtering (Removed to make dashboard global as requested)
-      // We will filter only the "Meus Tickets" list in memory to keep charts universal.
-      if (supabaseUser) {
-        const { data: userComp } = await supabase
-          .from('companies')
-          .select('id, user_type, integrador_id')
-          .eq('auth_user_id', supabaseUser.id)
-          .maybeSingle();
-      }
-
-      const { data, error } = await query;
-
       if (error) throw error;
-      if (data) setTickets(data as any);
+      setTickets(data || []);
     } catch (err) {
       console.error('Error fetching tickets:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -202,11 +217,18 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
 
   // 5. Agreement Percentages
   const agreementData = useMemo(() => {
-    const agreed = tickets.filter(t => t.esta_de_acordo).length;
-    const disagreed = tickets.length - agreed;
+    const agreedCount = tickets.filter(t => t.esta_de_acordo).length;
+    const total = tickets.length || 1;
+    const pAgreed = (agreedCount / total) * 100;
+    const pDisagreed = 100 - pAgreed;
+
+    let dynamicColor = '#f59e0b'; // Laranja (Padrão)
+    if (pAgreed > 69) dynamicColor = '#198754'; // Verde
+    else if (pDisagreed > 70) dynamicColor = '#ef4444'; // Vermelho
+
     return [
-      { name: 'De Acordo', value: agreed, color: '#198754' },
-      { name: 'Discorda', value: disagreed, color: '#181818' }
+      { name: 'De Acordo', value: agreedCount, color: dynamicColor },
+      { name: 'Discorda', value: tickets.length - agreedCount, color: '#181818' }
     ];
   }, [tickets]);
 
@@ -266,7 +288,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
           <div className="space-y-6">
 
             {view === 'dashboard' && (
-              <>
+              <React.Fragment>
                 {/* 1. NPS Cards */}
             <div className="space-y-4">
               <h2 className="text-xl font-black text-[#262727] flex items-center gap-2">
@@ -276,15 +298,15 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {npsStats.map((stat, i) => {
                   const numAvg = stat.avg === 'N/A' ? 0 : Number(stat.avg);
-                  let iconColor = 'text-slate-300';
-                  let bgColor = 'bg-slate-300';
-                  let Emote = Meh;
+                  let color = '#94a3b8'; // Neutro (Cinza)
+                  let emoji = '😐';
+                  let label = 'Neutro';
                   
-                  if (numAvg >= 4.5) { iconColor = 'text-[#198754]'; bgColor = 'bg-[#198754]'; Emote = Smile; }
-                  else if (numAvg >= 3.5) { iconColor = 'text-[#198754]/70'; bgColor = 'bg-[#198754]/70'; Emote = Smile; }
-                  else if (numAvg >= 2.5) { iconColor = 'text-[#F1DF3C]'; bgColor = 'bg-[#F1DF3C]'; Emote = Meh; }
-                  else if (numAvg >= 1.5) { iconColor = 'text-[#FFA600]'; bgColor = 'bg-[#FFA600]'; Emote = Frown; }
-                  else if (numAvg > 0) { iconColor = 'text-[#181818]'; bgColor = 'bg-[#181818]'; Emote = Frown; }
+                  if (numAvg >= 4.5) { color = '#198754'; emoji = '🤩'; label = 'Excelente'; }
+                  else if (numAvg >= 3.5) { color = '#198754'; emoji = '🙂'; label = 'Bom'; }
+                  else if (numAvg >= 2.5) { color = '#94a3b8'; emoji = '😐'; label = 'Neutro'; }
+                  else if (numAvg >= 1.5) { color = '#f59e0b'; emoji = '🙁'; label = 'Ruim'; }
+                  else if (numAvg > 0) { color = '#181818'; emoji = '😡'; label = 'Péssimo'; }
 
                   return (
                   <motion.div
@@ -292,26 +314,30 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.1 }}
                     key={stat.key}
-                    className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08)] group hover:border-blue-200 transition-all flex flex-col justify-between"
+                    className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08)] group hover:border-[#198754]/20 transition-all flex flex-col justify-between"
                   >
                     <div className="flex items-center gap-2 text-slate-400 mb-4 font-black text-[9px] uppercase tracking-widest">
                       <div className="p-1.5 rounded-lg bg-slate-50 text-[#198754]">{stat.icon}</div> {stat.label}
                     </div>
                     <div className="flex items-center justify-between mt-auto">
-                      <div className="text-3xl font-black text-slate-800 flex items-baseline gap-1">
+                      <div className="text-3xl font-black flex items-baseline gap-1" style={{ color }}>
                         {stat.avg}
-                        <span className="text-[10px] text-slate-300">/ 5.0</span>
+                        <span className="text-[10px] opacity-30">/ 5.0</span>
                       </div>
                       {stat.avg !== 'N/A' && (
-                        <Emote className={`w-8 h-8 ${iconColor} drop-shadow-sm`} strokeWidth={2.5} />
+                        <span className="text-3xl drop-shadow-sm">{emoji}</span>
                       )}
                     </div>
-                    <div className="w-full bg-slate-50 h-1.5 rounded-full mt-4 overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(numAvg / 5) * 100}%` }}
-                        className={`h-full ${bgColor}`}
-                      />
+                    <div className="mt-4">
+                      <div className="w-full bg-slate-50 h-1.5 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(numAvg / 5) * 100}%` }}
+                          className="h-full"
+                          style={{ backgroundColor: color }}
+                        />
+                      </div>
+                      <p className="text-[8px] font-black uppercase tracking-widest mt-2 text-center" style={{ color }}>{label}</p>
                     </div>
                   </motion.div>
                 )})}
@@ -464,12 +490,18 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                       className="flex gap-4 relative"
                     >
                       {i !== 4 && <div className="absolute left-[11px] top-8 w-[2px] h-full bg-slate-50" />}
-                      <div className={`w-6 h-6 rounded-full flex-shrink-0 z-10 flex items-center justify-center ${t.esta_de_acordo ? 'bg-green-50' : 'bg-[#181818]/5'}`}>
-                        {t.esta_de_acordo ? <CheckCircle2 className="w-4 h-4 text-[#198754]" /> : <AlertCircle className="w-4 h-4 text-[#181818]" />}
+                      <div className={`w-6 h-6 rounded-full flex-shrink-0 z-10 flex items-center justify-center ${t.esta_de_acordo ? 'bg-green-100' : 'bg-red-100'}`}>
+                        {t.esta_de_acordo ? (
+                          <CheckCircle2 className="w-4 h-4 text-[#198754]" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-red-600" />
+                        )}
                       </div>
                       <div className="flex-1 pb-2">
                         <div className="flex justify-between items-start mb-1">
-                          <h4 className="text-xs font-black text-slate-800 truncate max-w-[150px]">{t.companies?.nome_fantasia || 'Integrador'}</h4>
+                          <h4 className="text-xs font-black text-slate-800 truncate max-w-[150px]">
+                            {t.companies?.user_type === 'cliente' ? t.cliente : (t.companies?.nome_fantasia || 'Integrador')}
+                          </h4>
                           <div className="flex flex-col items-end gap-0.5">
                             <span className="text-[9px] font-black text-slate-300 uppercase">{new Date(t.created_at).toLocaleDateString('pt-BR')}</span>
                             <span className="text-[8px] font-black text-slate-300 flex items-center gap-1 uppercase">
@@ -492,9 +524,9 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                   Ver Todos Registros <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
-              </div> {/* Closes Grid */}
-            </>
-          )}
+            </div>
+          </React.Fragment>
+        )}
 
           {/* Meus Tickets Section (Image 1 Reference) */}
             {user && !isPublic && (
