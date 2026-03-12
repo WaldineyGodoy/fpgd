@@ -222,13 +222,20 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
     const pAgreed = (agreedCount / total) * 100;
     const pDisagreed = 100 - pAgreed;
 
-    let dynamicColor = '#f59e0b'; // Laranja (Padrão)
-    if (pAgreed > 69) dynamicColor = '#198754'; // Verde
-    else if (pDisagreed > 70) dynamicColor = '#ef4444'; // Vermelho
+    let colorAgreed = '#e2e8f0'; // Cor base (cinza claro)
+    let colorDisagreed = '#181818'; // Cor base (preto/dark)
+
+    if (pAgreed > 69) {
+      colorAgreed = '#198754'; // Verde
+    } else if (pDisagreed > 70) {
+      colorDisagreed = '#ef4444'; // Vermelho
+    } else {
+      colorAgreed = '#f59e0b'; // Laranja
+    }
 
     return [
-      { name: 'De Acordo', value: agreedCount, color: dynamicColor },
-      { name: 'Discorda', value: tickets.length - agreedCount, color: '#181818' }
+      { name: 'De Acordo', value: agreedCount, color: colorAgreed },
+      { name: 'Discorda', value: tickets.length - agreedCount, color: colorDisagreed }
     ];
   }, [tickets]);
 
@@ -298,15 +305,15 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 {npsStats.map((stat, i) => {
                   const numAvg = stat.avg === 'N/A' ? 0 : Number(stat.avg);
-                  let color = '#94a3b8'; // Neutro (Cinza)
+                  let color = '#94a3b8'; // Neutro
                   let emoji = '😐';
                   let label = 'Neutro';
                   
                   if (numAvg >= 4.5) { color = '#198754'; emoji = '🤩'; label = 'Excelente'; }
-                  else if (numAvg >= 3.5) { color = '#198754'; emoji = '🙂'; label = 'Bom'; }
-                  else if (numAvg >= 2.5) { color = '#94a3b8'; emoji = '😐'; label = 'Neutro'; }
+                  else if (numAvg >= 3.5) { color = '#84cc16'; emoji = '🙂'; label = 'Bom'; }
+                  else if (numAvg >= 2.5) { color = '#facc15'; emoji = '😐'; label = 'Neutro'; }
                   else if (numAvg >= 1.5) { color = '#f59e0b'; emoji = '🙁'; label = 'Ruim'; }
-                  else if (numAvg > 0) { color = '#181818'; emoji = '😡'; label = 'Péssimo'; }
+                  else if (numAvg > 0) { color = '#ef4444'; emoji = '😡'; label = 'Péssimo'; }
 
                   return (
                   <motion.div
@@ -316,8 +323,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     key={stat.key}
                     className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08)] group hover:border-[#198754]/20 transition-all flex flex-col justify-between"
                   >
-                    <div className="flex items-center gap-2 text-slate-400 mb-4 font-black text-[9px] uppercase tracking-widest">
-                      <div className="p-1.5 rounded-lg bg-slate-50 text-[#198754]">{stat.icon}</div> {stat.label}
+                    <div className="flex items-center gap-2 mb-4 font-black text-[9px] uppercase tracking-widest" style={{ color }}>
+                      <div className="p-1.5 rounded-lg bg-slate-50" style={{ color }}>{stat.icon}</div> {stat.label}
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                       <div className="text-3xl font-black flex items-baseline gap-1" style={{ color }}>
