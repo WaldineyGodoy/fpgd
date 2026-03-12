@@ -11,6 +11,9 @@ interface Usina {
   nome: string;
   nome_cliente: string | null;
   endereco: string;
+  bairro: string | null;
+  municipio: string | null;
+  uf: string | null;
   potencia_usina: number;
   geracao_media_anual: number;
   created_at: string;
@@ -205,7 +208,13 @@ const UsinasList: React.FC = () => {
                     <td className="py-4 px-8">
                       <div className="flex items-center gap-2 text-slate-500 font-bold text-sm">
                         <MapPin className="w-4 h-4 text-slate-400" />
-                        <span className="truncate max-w-[200px]">{usina.endereco || 'Não preenchido'}</span>
+                        <span className="truncate max-w-[250px]">
+                          {usina.endereco ? (
+                            `${usina.endereco}${usina.bairro ? ', ' + usina.bairro : ''} - ${usina.municipio || ''}/${usina.uf || ''}`
+                          ) : (
+                            'Não preenchido'
+                          )}
+                        </span>
                       </div>
                     </td>
                     <td className="py-4 px-8">

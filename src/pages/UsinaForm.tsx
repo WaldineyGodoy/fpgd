@@ -22,6 +22,9 @@ const UsinaForm = () => {
     nome: '',
     cpf_cnpj: '',
     endereco: '',
+    bairro: '',
+    municipio: '',
+    uf: '',
     numero: '',
     complemento: '',
     potencia_usina: '',
@@ -73,6 +76,9 @@ const UsinaForm = () => {
             nome: data.nome || '',
             cpf_cnpj: data.cpf_cnpj || '',
             endereco: data.endereco || '',
+            bairro: data.bairro || '',
+            municipio: data.municipio || '',
+            uf: data.uf || '',
             numero: data.numero || '',
             complemento: data.complemento || '',
             potencia_usina: data.potencia_usina?.toString() || '',
@@ -149,6 +155,12 @@ const UsinaForm = () => {
     fetchIrradiance();
   }, [cepIbge, formData.potencia_usina]);
 
+  const toTitleCase = (str: string) => {
+    return str.toLowerCase().split(' ').map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyId) return alert('Autenticação inválida ou empresa não encontrada.');
@@ -159,6 +171,9 @@ const UsinaForm = () => {
         nome: formData.nome,
         cpf_cnpj: formData.cpf_cnpj,
         endereco: formData.endereco,
+        bairro: formData.bairro,
+        municipio: formData.municipio,
+        uf: formData.uf,
         numero: formData.numero,
         complemento: formData.complemento,
         integrador_id: formData.integrador_id,
@@ -171,7 +186,7 @@ const UsinaForm = () => {
         ucs: formData.ucs ? formData.ucs.split(',').map(s => s.trim()).filter(Boolean) : [],
         geracao_media_anual: formData.geracao_media_anual ? parseFloat(formData.geracao_media_anual) : null,
         tipo_uc: formData.ug && formData.ug.trim() !== '' ? 'Geradora' : 'Beneficiaria',
-        nome_cliente: formData.nome_cliente,
+        nome_cliente: toTitleCase(formData.nome_cliente),
         email_contato: formData.email_contato,
         telefone_contato: formData.telefone_contato,
         tem_energia_solar: formData.tem_energia_solar,
@@ -207,14 +222,13 @@ const UsinaForm = () => {
 
   const handleCepData = (data: any) => {
     if (data) {
-      if (data.logradouro) {
-        setFormData(prev => ({ 
-          ...prev, 
-          endereco: `${data.logradouro}${data.bairro ? ', ' + data.bairro : ''} - ${data.city || ''}/${data.state || ''}`
-        }));
-      } else {
-        setFormData(prev => ({ ...prev, endereco: '' }));
-      }
+      setFormData(prev => ({ 
+        ...prev, 
+        endereco: data.logradouro || '',
+        bairro: data.bairro || '',
+        municipio: data.city || '',
+        uf: data.state || ''
+      }));
       if (data.ibge) {
         setCepIbge(data.ibge);
       }
@@ -301,12 +315,13 @@ const UsinaForm = () => {
                 name="nome_cliente"
                 value={formData.nome_cliente}
                 onChange={handleChange}
-                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-black text-slate-600 focus:ring-4 focus:ring-[#198754]/10 focus:border-[#198754]/20 outline-none transition-all uppercase" 
+                className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm font-normal text-slate-600 focus:ring-4 focus:ring-[#198754]/10 focus:border-[#198754]/20 outline-none transition-all" 
                 placeholder="Ex: João Silva"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">E-mail</label>
                 <input 
                   name="email_contato"
                   type="email"
@@ -344,46 +359,76 @@ const UsinaForm = () => {
           <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 mb-4">
             <MapPin className="w-5 h-5 text-[#198754]" /> Localização e Unidades
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-             <div className="md:col-span-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+             <div className="md:col-span-4">
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Buscar CEP</label>
               <BuscaCEP onAddressFound={handleCepData} />
             </div>
              <div className="md:col-span-2">
-              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Endereço de Instalação</label>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Endereço (Rua/Logradouro)</label>
               <input 
                 name="endereco"
                 value={formData.endereco}
                 onChange={handleChange}
                 className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
-                placeholder="Rua Exemplo, 123 - Cidade/UF"
+                placeholder="Ex: Rua das Flores"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Bairro</label>
+              <input 
+                name="bairro"
+                value={formData.bairro}
+                onChange={handleChange}
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
+                placeholder="Ex: Centro"
+              />
+            </div>
+            <div className="md:col-span-3">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Cidade / Município</label>
+              <input 
+                name="municipio"
+                value={formData.municipio}
+                onChange={handleChange}
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
+                placeholder="Ex: Natal"
+              />
+            </div>
+            <div className="md:col-span-1">
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">UF</label>
+              <input 
+                name="uf"
+                value={formData.uf}
+                onChange={handleChange}
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
+                placeholder="EX: RN"
               />
             </div>
           </div>
-          {formData.endereco && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-in fade-in slide-in-from-top-4 duration-500">
-               <div>
-                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Número da Casa</label>
-                <input 
-                  name="numero"
-                  value={formData.numero}
-                  onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
-                  placeholder="Ex: 123"
-                />
-              </div>
-               <div>
-                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Complemento</label>
-                <input 
-                  name="complemento"
-                  value={formData.complemento}
-                  onChange={handleChange}
-                  className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
-                  placeholder="Ex: Apto 101, Lote 5"
-                />
-              </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-in fade-in slide-in-from-top-4 duration-500">
+             <div>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Número da Casa</label>
+              <input 
+                name="numero"
+                value={formData.numero}
+                onChange={handleChange}
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
+                placeholder="Ex: 123"
+              />
             </div>
-          )}
+             <div>
+              <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Complemento</label>
+              <input 
+                name="complemento"
+                value={formData.complemento}
+                onChange={handleChange}
+                className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold text-slate-600 focus:ring-4 focus:ring-[#198754]/10 transition-all outline-none" 
+                placeholder="Ex: Apto 101, Lote 5"
+              />
+            </div>
+          </div>
+
            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-4 border-t border-gray-50">
              <div>
               <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-2">Unidade Geradora (UG)</label>
