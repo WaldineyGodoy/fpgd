@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import Logo from '../components/Logo';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend, AreaChart, Area, LabelList
@@ -222,8 +223,8 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
     const pAgreed = (agreedCount / total) * 100;
     const pDisagreed = 100 - pAgreed;
 
-    let colorAgreed = '#e2e8f0'; // Cor base (cinza claro)
-    let colorDisagreed = '#181818'; // Cor base (preto/dark)
+    let colorAgreed = '#36405A'; // Cor base (cinza claro)
+    let colorDisagreed = '#36405A'; // Cor base (preto/dark)
 
     if (pAgreed > 69) {
       colorAgreed = '#198754'; // Verde
@@ -240,56 +241,36 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
   }, [tickets]);
 
   return (
-    <div className="min-h-screen bg-[#F8F6F2] p-4 md:p-8 font-sans">
+    <div className={`font-sans ${isPublic ? 'w-full max-w-7xl self-start' : ''}`}>
       <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="relative">
-            <h1 className="text-3xl font-black text-[#262727] flex items-center gap-4">
-              <motion.img 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                src="/assets/mascote_lampada.png" 
-                alt="Mascote Lâmpada" 
-                className="w-24 h-24 object-contain -ml-8 drop-shadow-xl" 
-              />
-              <span className="flex flex-col">
-                {view === 'dashboard' ? (
-                  <>Termômetro <span className="text-[#198754] leading-tight">satisfação Cosern</span></>
-                ) : (
-                  <>Lista de <span className="text-[#198754] leading-tight">Tickets</span></>
-                )}
-              </span>
-              <motion.img 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                src="/assets/mascote_solar.png" 
-                alt="Mascote Solar" 
-                className="w-24 h-24 object-contain drop-shadow-xl" 
-              />
+        {isPublic && (
+          <div className="flex items-center justify-between gap-4 pb-2">
+            <a href="#/" aria-label="FPGD RN, início"><Logo /></a>
+            <a href="#/login" className="btn btn-ghost">Entrar</a>
+          </div>
+        )}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div>
+            <h1 className="text-[28px] md:text-[32px] font-extrabold tracking-tight text-fg">
+              {view === 'dashboard' ? 'Termômetro de satisfação com a Cosern' : 'Tickets'}
             </h1>
-            <p className="text-slate-400 font-bold text-[10px] mt-0 uppercase tracking-[0.1em] pl-16">
-              {view === 'dashboard' ? 'Indice de Qualidade das tratativas de protocolo e atendimento' : 'Todos os registros do sistema'}
+            <p className="mt-1.5 text-sm text-fg-2 max-w-2xl">
+              {view === 'dashboard'
+                ? 'Qualidade do atendimento e das respostas aos protocolos, a partir dos tickets abertos por associados e clientes da Frente.'
+                : 'Todos os registros que você pode acompanhar.'}
             </p>
           </div>
-
-          <div className="flex gap-3 w-full md:w-auto">
-            <motion.button
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/tickets/novo')}
-              className="flex-1 bg-[#198754] text-white px-8 py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-xl shadow-green-900/10 transition-all hover:bg-[#157347]"
-            >
-              <Plus className="w-5 h-5" strokeWidth={3} /> {isPublic ? 'FAÇA UMA RECLAMAÇÃO' : 'ABRIR NOVO TICKET'}
-            </motion.button>
-          </div>
+          <button onClick={() => navigate('/tickets/novo')} className="btn btn-primary !h-11 w-full md:w-auto">
+            <Plus size={18} /> {isPublic ? 'Registrar reclamação' : 'Abrir novo ticket'}
+          </button>
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-96 gap-4">
-            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} className="w-16 h-16 border-4 border-slate-200 border-t-[#198754] rounded-full" />
-            <p className="text-slate-400 font-black animate-pulse uppercase tracking-tighter">Carregando Dados...</p>
+          <div className="space-y-6" aria-busy="true" aria-label="Carregando dados">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">{[0, 1, 2, 3, 4].map(i => <div key={i} className="skeleton h-36" />)}</div>
+            <div className="grid lg:grid-cols-3 gap-6"><div className="skeleton h-80 lg:col-span-2" /><div className="skeleton h-80" /></div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -298,55 +279,34 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               <React.Fragment>
                 {/* 1. NPS Cards */}
             <div className="space-y-4">
-              <h2 className="text-xl font-black text-[#262727] flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-[#198754]" />
-                Satisfação por canal de atendimento <span className="text-slate-400 font-bold text-xs uppercase tracking-widest ml-2">de 1 a 5</span>
+              <h2 className="text-lg font-bold text-fg flex items-baseline gap-2">
+                Satisfação por canal de atendimento <span className="text-sm font-medium text-fg-3">nota média de 1 a 5</span>
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {npsStats.map((stat, i) => {
+                {npsStats.map((stat) => {
                   const numAvg = stat.avg === 'N/A' ? 0 : Number(stat.avg);
-                  let color = '#94a3b8'; // Neutro
-                  let emoji = '😐';
-                  let label = 'Neutro';
-                  
-                  if (numAvg >= 4.5) { color = '#198754'; emoji = '🤩'; label = 'Excelente'; }
-                  else if (numAvg >= 3.5) { color = '#84cc16'; emoji = '🙂'; label = 'Bom'; }
-                  else if (numAvg >= 2.5) { color = '#facc15'; emoji = '😐'; label = 'Neutro'; }
-                  else if (numAvg >= 1.5) { color = '#f59e0b'; emoji = '🙁'; label = 'Ruim'; }
-                  else if (numAvg > 0) { color = '#ef4444'; emoji = '😡'; label = 'Péssimo'; }
+                  let color = '#7F899C';
+                  let label = 'Sem avaliações';
+                  if (numAvg >= 4.5) { color = '#198754'; label = 'Excelente'; }
+                  else if (numAvg >= 3.5) { color = '#84cc16'; label = 'Bom'; }
+                  else if (numAvg >= 2.5) { color = '#facc15'; label = 'Neutro'; }
+                  else if (numAvg >= 1.5) { color = '#f59e0b'; label = 'Ruim'; }
+                  else if (numAvg > 0) { color = '#ef4444'; label = 'Péssimo'; }
 
                   return (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    key={stat.key}
-                    className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-[0_8px_20px_-4px_rgba(0,0,0,0.08)] group hover:border-[#198754]/20 transition-all flex flex-col justify-between"
-                  >
-                    <div className="flex items-center gap-2 mb-4 font-black text-[9px] uppercase tracking-widest" style={{ color }}>
-                      <div className="p-1.5 rounded-lg bg-slate-50" style={{ color }}>{stat.icon}</div> {stat.label}
+                  <div key={stat.key} className="panel glow-corner p-5 flex flex-col">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-fg-2">
+                      <span className="text-fg-3">{stat.icon}</span> {stat.label}
                     </div>
-                    <div className="flex items-center justify-between mt-auto">
-                      <div className="text-3xl font-black flex items-baseline gap-1" style={{ color }}>
-                        {stat.avg}
-                        <span className="text-[10px] opacity-30">/ 5.0</span>
-                      </div>
-                      {stat.avg !== 'N/A' && (
-                        <span className="text-3xl drop-shadow-sm">{emoji}</span>
-                      )}
+                    <div className="mt-4 flex items-baseline gap-1.5">
+                      <span className="text-[32px] leading-none font-extrabold tabular-nums text-fg">{stat.avg === 'N/A' ? '–' : String(stat.avg).replace('.', ',')}</span>
+                      <span className="text-sm text-fg-3">/ 5</span>
                     </div>
-                    <div className="mt-4">
-                      <div className="w-full bg-slate-50 h-1.5 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(numAvg / 5) * 100}%` }}
-                          className="h-full"
-                          style={{ backgroundColor: color }}
-                        />
-                      </div>
-                      <p className="text-[8px] font-black uppercase tracking-widest mt-2 text-center" style={{ color }}>{label}</p>
+                    <div className="mt-4 h-1.5 rounded-full bg-raised overflow-hidden">
+                      <div className="h-full rounded-full transition-[width] duration-700 ease-out" style={{ width: `${(numAvg / 5) * 100}%`, backgroundColor: color }} />
                     </div>
-                  </motion.div>
+                    <p className="mt-2 text-xs font-semibold" style={{ color }}>{label}</p>
+                  </div>
                 )})}
               </div>
             </div>
@@ -354,22 +314,22 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* 4. Volume Chart */}
-              <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
+              <div className="lg:col-span-2 panel glow-corner p-6 md:p-8 relative overflow-hidden">
                 <div className="flex justify-between items-center mb-8">
                   <div>
-                    <h3 className="text-lg font-black text-slate-800">Volume de Registros</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase">Chamados abertos por período</p>
+                    <h3 className="text-lg font-bold text-fg">Volume de Registros</h3>
+                    <p className="text-sm text-fg-3">Chamados abertos por período</p>
                   </div>
                   <div className="flex bg-slate-50 p-1 rounded-xl">
                     {[
-                      { id: 'week', label: 'SEMANA' },
-                      { id: 'month', label: 'MÊS' },
-                      { id: 'year', label: 'ANO' }
+                      { id: 'week', label: 'Semana' },
+                      { id: 'month', label: 'Mês' },
+                      { id: 'year', label: 'Ano' }
                     ].map(r => (
                       <button
                         key={r.id}
                         onClick={() => setTimeRange(r.id as any)}
-                        className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${timeRange === r.id ? 'bg-white shadow-sm text-[#198754]' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${timeRange === r.id ? 'bg-raised text-fg shadow-sm' : 'text-fg-3 hover:text-fg-2'}`}
                       >
                         {r.label}
                       </button>
@@ -379,25 +339,25 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#94a3b8' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#94a3b8' }} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#283044" />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#7F899C' }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 900, fill: '#7F899C' }} />
                       <Tooltip
-                        labelStyle={{ fontWeight: 900, color: '#64748b' }}
-                        contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', padding: '1rem' }}
+                        labelStyle={{ fontWeight: 700, color: '#AFB8C8' }}
+                        contentStyle={{ borderRadius: '10px', border: '1px solid #283044', background: '#1B2130', color: '#EEF2F8', padding: '0.75rem' }}
                         itemStyle={{ fontWeight: 900, color: '#198754' }}
                         formatter={(value) => [value, 'Valor']}
                       />
-                      <Bar dataKey="value" fill="#198754" radius={[10, 10, 0, 0]} />
+                      <Bar dataKey="value" fill="#2F8CFF" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
               {/* 5. Agreement Chart */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                <h3 className="text-lg font-black text-slate-800 mb-1">Satisfação com Concessionária</h3>
-                <p className="text-xs text-slate-400 font-bold uppercase mb-8">Acordo vs. Desacordo</p>
+              <div className="panel p-6 md:p-8">
+                <h3 className="text-lg font-bold text-fg mb-1">Satisfação com Concessionária</h3>
+                <p className="text-sm text-fg-3 mb-8">Acordo vs. Desacordo</p>
                 <div className="h-48 relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -416,10 +376,10 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-2xl font-black text-slate-800">
+                    <span className="text-2xl font-bold text-slate-800">
                       {tickets.length > 0 ? Math.round((tickets.filter(t => t.esta_de_acordo).length / tickets.length) * 100) : 0}%
                     </span>
-                    <span className="text-[8px] font-black text-slate-400 uppercase">Acordo Total</span>
+                    <span className="text-xs text-fg-3">de acordo</span>
                   </div>
                 </div>
                 <div className="mt-6 space-y-2">
@@ -427,30 +387,30 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     <div key={item.name} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                        <span className="text-xs font-black text-slate-600">{item.name}</span>
+                        <span className="text-xs font-bold text-slate-600">{item.name}</span>
                       </div>
-                      <span className="text-xs font-black text-slate-400">{item.value}</span>
+                      <span className="text-xs font-bold text-slate-400">{item.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* 2 & 7. Ticket Types Breakdown */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                <h3 className="text-lg font-black text-slate-800 mb-1">Motivações (Tickets)</h3>
-                <p className="text-xs text-slate-400 font-bold uppercase mb-8">Principais reclamações</p>
+              <div className="panel p-6 md:p-8">
+                <h3 className="text-lg font-bold text-fg mb-1">Motivações (Tickets)</h3>
+                <p className="text-sm text-fg-3 mb-8">Principais reclamações</p>
                 <div className="space-y-4">
                   {typeData.sort((a, b) => b.value - a.value).map((item, i) => (
                     <div key={item.name} className="group cursor-default">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-black text-slate-600 truncate mr-2">{item.name}</span>
-                        <span className="text-xs font-black text-[#198754]">{item.value}</span>
+                        <span className="text-xs font-bold text-slate-600 truncate mr-2">{item.name}</span>
+                        <span className="text-xs font-bold text-fg-2 tabular-nums">{item.value}</span>
                       </div>
                       <div className="w-full bg-slate-50 h-3 rounded-full overflow-hidden relative">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${(item.value / (tickets.length || 1)) * 100}%` }}
-                          className="h-full bg-[#198754] rounded-full group-hover:bg-[#157347] transition-colors"
+                          className="h-full bg-primary rounded-full"
                         />
                       </div>
                     </div>
@@ -459,18 +419,21 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               </div>
 
               {/* 3. Resource Channels */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                <h3 className="text-lg font-black text-slate-800 mb-1">Canais de Recurso</h3>
-                <p className="text-xs text-slate-400 font-bold uppercase mb-8">Onde os pleitos serão submetidos</p>
+              <div className="panel p-6 md:p-8">
+                <h3 className="text-lg font-bold text-fg mb-1">Canais de Recurso</h3>
+                <p className="text-sm text-fg-3 mb-8">Onde os pleitos serão submetidos</p>
+                {resourceData.length === 0 ? (
+                  <p className="h-64 grid place-items-center text-center text-sm text-fg-3 px-6 border border-dashed border-line rounded-[10px]">Nenhum recurso registrado ainda. Os canais aparecem aqui quando um ticket for para recurso.</p>
+                ) : (
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={resourceData} layout="vertical" margin={{ right: 30, left: 0, top: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#283044" />
                       <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 900, fill: '#64748b' }} width={80} />
+                      <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 900, fill: '#AFB8C8' }} width={96} />
                       <Tooltip
-                        cursor={{ fill: '#f8fafc' }}
-                        contentStyle={{ borderRadius: '1rem', border: 'none', fontWeight: 900 }}
+                        cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+                        contentStyle={{ borderRadius: '10px', border: '1px solid #283044', background: '#1B2130', color: '#EEF2F8' }}
                         formatter={(value) => [value, 'Valor']}
                       />
                       <Bar dataKey="value" fill="#FFA600" radius={[0, 10, 10, 0]} barSize={20}>
@@ -479,13 +442,14 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
+                )}
               </div>
 
               {/* 6. Timeline */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden lg:col-span-1">
+              <div className="panel p-6 md:p-8 overflow-hidden lg:col-span-1">
                 <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-lg font-black text-slate-800">Time Line</h3>
-                  <p className="text-[10px] font-black text-slate-300 uppercase">Atividades Recentes</p>
+                  <h3 className="text-lg font-bold text-fg">Linha do tempo</h3>
+                  <p className="text-sm text-fg-3">Atividades recentes</p>
                 </div>
                 <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
                   {tickets.slice(0, 5).map((t, i) => (
@@ -506,19 +470,19 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                       </div>
                       <div className="flex-1 pb-2">
                         <div className="flex justify-between items-start mb-1">
-                          <h4 className="text-xs font-black text-slate-800 truncate max-w-[150px]">
+                          <h4 className="text-xs font-bold text-slate-800 truncate max-w-[150px]">
                             {t.companies?.user_type === 'cliente' ? t.cliente : (t.companies?.nome_fantasia || 'Integrador')}
                           </h4>
                           <div className="flex flex-col items-end gap-0.5">
-                            <span className="text-[9px] font-black text-slate-300 uppercase">{new Date(t.created_at).toLocaleDateString('pt-BR')}</span>
-                            <span className="text-[8px] font-black text-slate-300 flex items-center gap-1 uppercase">
+                            <span className="text-xs font-bold text-slate-300">{new Date(t.created_at).toLocaleDateString('pt-BR')}</span>
+                            <span className="text-xs font-bold text-slate-300 flex items-center gap-1">
                               <Clock className="w-2 h-2" /> {new Date(t.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <span className="px-2 py-0.5 bg-slate-50 text-slate-400 text-[8px] font-bold rounded-md border border-slate-100">{t.tipo_chamado}</span>
-                          {t.recurso && <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[8px] font-bold rounded-md border border-amber-100">{t.recurso}</span>}
+                          <span className="px-2 py-0.5 bg-slate-50 text-slate-400 text-xs font-bold rounded-md border border-slate-100">{t.tipo_chamado}</span>
+                          {t.recurso && <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-xs font-bold rounded-md border border-amber-100">{t.recurso}</span>}
                         </div>
                       </div>
                     </motion.div>
@@ -526,7 +490,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                 </div>
                 <button
                   onClick={() => navigate('/tickets/lista')}
-                  className="w-full mt-6 py-4 text-blue-500 font-black text-xs uppercase flex items-center justify-center gap-2 hover:bg-slate-50 rounded-2xl transition-all"
+                  className="w-full mt-6 py-4 text-blue-500 font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-50 rounded-2xl transition-all"
                 >
                   Ver Todos Registros <ChevronRight className="w-4 h-4" />
                 </button>
@@ -540,12 +504,12 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-8"
+                className="panel p-6 md:p-8 space-y-8"
               >
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                   <div>
-                    <h3 className="text-2xl font-black text-slate-800">Meus Tickets</h3>
-                    <p className="text-xs text-slate-400 font-bold uppercase">Gestão pessoal de registros</p>
+                    <h3 className="text-2xl font-bold text-slate-800">Meus Tickets</h3>
+                    <p className="text-sm text-fg-3">Gestão pessoal de registros</p>
                   </div>
                   <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     <div className="relative flex-1 md:w-64">
@@ -588,29 +552,29 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                   <table className="w-full text-left">
                     <thead>
                       <tr className="border-b border-slate-50">
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Ticket ID</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Assunto / Cliente</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Status Ticket</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Status Protocolo</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">UG / UC</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase">Última Atualização</th>
-                        <th className="pb-4 px-4 text-[10px] font-black text-slate-400 uppercase text-right">Ação</th>
+                        <th className="pb-4 px-4 text-xs font-bold text-slate-400">Ticket ID</th>
+                        <th className="pb-4 px-4 text-xs font-bold text-slate-400">Assunto / Cliente</th>
+                        <th className="pb-4 px-4 text-xs font-bold text-slate-400">Status Ticket</th>
+                        <th className="pb-4 px-4 text-xs font-bold text-slate-400">Status Protocolo</th>
+                        <th className="pb-4 px-4 text-xs font-bold text-slate-400">UG / UC</th>
+                        <th className="pb-4 px-4 text-xs font-bold text-slate-400">Última Atualização</th>
+                        <th className="pb-4 px-4 text-xs font-bold text-slate-400 text-right">Ação</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       {userTickets.map((t) => (
                         <tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
                           <td className="py-4 px-4">
-                            <span className="text-xs font-black text-slate-400">#{t.numero_ticket || t.id.slice(0, 4)}</span>
+                            <span className="text-xs font-bold text-slate-400">#{t.numero_ticket || t.id.slice(0, 4)}</span>
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex flex-col">
-                              <span className="text-sm font-black text-slate-700">{t.tipo_chamado}</span>
-                              <span className="text-[10px] font-bold text-slate-400">{t.cliente}</span>
+                              <span className="text-sm font-bold text-slate-700">{t.tipo_chamado}</span>
+                              <span className="text-xs font-bold text-slate-400">{t.cliente}</span>
                             </div>
                           </td>
                            <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                               t.status === 'Em Aberto' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
                               t.status === 'Respondido' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
                               t.status === 'Recorrer' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
@@ -622,7 +586,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                             </span>
                           </td>
                           <td className="py-4 px-4">
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${t.status_protocolo === 'Em Analise' ? 'bg-slate-100 text-slate-600' :
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${t.status_protocolo === 'Em Analise' ? 'bg-slate-100 text-slate-600' :
                               t.status_protocolo === 'Fechado Procedente' ? 'bg-green-50 text-[#198754]' :
                                 t.status_protocolo === 'Fechado Improcedente' ? 'bg-[#181818]/5 text-[#181818]' :
                                   'bg-slate-100 text-slate-400'
@@ -632,12 +596,12 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                           </td>
                           <td className="py-4 px-4">
                             <div className="flex flex-col">
-                              <span className="text-[10px] font-black text-slate-600">UG: {t.codigo_cliente_ug || '-'}</span>
-                              <span className="text-[9px] font-bold text-slate-400">UC: {t.codigo_cliente_uc?.join(', ') || '-'}</span>
+                              <span className="text-xs font-bold text-slate-600">UG: {t.codigo_cliente_ug || '-'}</span>
+                              <span className="text-xs font-bold text-slate-400">UC: {t.codigo_cliente_uc?.join(', ') || '-'}</span>
                             </div>
                           </td>
                           <td className="py-4 px-4">
-                            <span className="text-[10px] font-black text-slate-500 uppercase">
+                            <span className="text-xs font-bold text-slate-500">
                               {new Date(t.created_at).toLocaleDateString('pt-BR')}
                             </span>
                           </td>
@@ -650,7 +614,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
                       ))}
                       {userTickets.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="py-12 text-center text-slate-300 font-bold uppercase tracking-widest text-xs">
+                          <td colSpan={6} className="py-12 text-center text-slate-300 font-bold text-xs">
                             Nenhum ticket encontrado
                           </td>
                         </tr>
@@ -661,7 +625,7 @@ const TicketDashboard: React.FC<TicketDashboardProps> = ({ view = 'dashboard', i
               </motion.div>
             )}
             <footer className="text-center pb-12">
-              <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-2">Conselho Gestor de Qualidade FPGD</p>
+              <p className="text-xs font-bold text-slate-300 mb-2">Conselho Gestor de Qualidade FPGD</p>
               <div className="flex justify-center gap-4 text-slate-300">
                 <TrendingUp className="w-4 h-4 opacity-30" />
                 <ClipboardCheck className="w-4 h-4 opacity-30" />

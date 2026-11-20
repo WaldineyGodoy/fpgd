@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-19T00:00:00Z",
+  "title": "Design System: FPGD RN",
+  "extensions": {
+    "colorMeta": {
+      "bg": { "role": "neutral", "displayName": "Marinho Profundo", "canonical": "#0B0E17", "tonalRamp": ["#080B13", "#21242D", "#3C3F48", "#5A5D66", "#7D8088", "#A2A4AB", "#C8CAD0", "#EDEEF2"] },
+      "sunk": { "role": "neutral", "displayName": "Marinho Afundado", "canonical": "#090B12" },
+      "panel": { "role": "neutral", "displayName": "Painel", "canonical": "#141925", "tonalRamp": ["#070B15", "#1F2430", "#3B404B", "#595E69", "#7C808A", "#A1A5AD", "#C7CAD2", "#ECEEF4"] },
+      "raised": { "role": "neutral", "displayName": "Painel Elevado", "canonical": "#1B2130" },
+      "field": { "role": "neutral", "displayName": "Campo", "canonical": "#1F2636" },
+      "panel-over-photo": { "role": "neutral", "displayName": "Vidro Sobre Foto", "canonical": "rgb(14 19 32 / .85)" },
+      "line": { "role": "neutral", "displayName": "Linha", "canonical": "#283044", "tonalRamp": ["#060A19", "#1C2336", "#373F53", "#565D70", "#798092", "#9EA4B4", "#C5CAD8", "#EAEEFA"] },
+      "line-strong": { "role": "neutral", "displayName": "Linha Forte", "canonical": "#36405A" },
+      "fg": { "role": "neutral", "displayName": "Texto", "canonical": "#EEF2F8", "tonalRamp": ["#0A0B0C", "#232426", "#3E4042", "#5C5E61", "#7E8084", "#A2A5A9", "#C7CBD0", "#EBEFF5"] },
+      "fg-2": { "role": "neutral", "displayName": "Texto 2", "canonical": "#AFB8C8" },
+      "fg-3": { "role": "neutral", "displayName": "Texto 3", "canonical": "#7F899C" },
+      "primary": { "role": "primary", "displayName": "Azul Sinal", "canonical": "oklch(64.7% 0.191 256)", "tonalRamp": ["#000236", "#001E5E", "#003B89", "#045AB6", "#247EEA", "#51A5FF", "#83CDFF", "#B0F2FF"] },
+      "primary-hover": { "role": "primary", "displayName": "Azul Sinal Claro", "canonical": "#4C9DFF" },
+      "energy-stop-1": { "role": "primary", "displayName": "Degradê de Energia: verde-água", "canonical": "#1BFBB6" },
+      "energy-stop-2": { "role": "primary", "displayName": "Degradê de Energia: ciano", "canonical": "#00DEEA" },
+      "energy-stop-3": { "role": "primary", "displayName": "Degradê de Energia: azul", "canonical": "#2B7CFF" },
+      "on-energy": { "role": "neutral", "displayName": "Tinta Sobre Energia", "canonical": "#04131F" },
+      "energy": { "role": "secondary", "displayName": "Verde Energia", "canonical": "oklch(79.8% 0.161 165)", "tonalRamp": ["#001305", "#00301A", "#004F33", "#00714E", "#00986D", "#04C18E", "#48EAB2", "#88FFD8"] },
+      "cyan": { "role": "secondary", "displayName": "Ciano Cursor", "canonical": "oklch(79.5% 0.134 205)", "tonalRamp": ["#001117", "#002D34", "#004B55", "#006C78", "#0092A0", "#00BACB", "#44E2F3", "#85FFFF"] },
+      "st-inscrito": { "role": "data", "displayName": "Status: Inscrito", "canonical": "oklch(77.5% 0.135 234)", "tonalRamp": ["#000D20", "#002841", "#004666", "#06668D", "#268ABA", "#40B1E9", "#6DD8FF", "#9EFBFF"] },
+      "st-ativo": { "role": "data", "displayName": "Status: Ativo", "canonical": "oklch(78.8% 0.158 164)", "tonalRamp": ["#001304", "#003019", "#004F32", "#00714C", "#00986B", "#18C18C", "#53E9B1", "#8EFFD7"] },
+      "st-inadimplente": { "role": "data", "displayName": "Status: Inadimplente", "canonical": "oklch(79.3% 0.157 65)", "tonalRamp": ["#1C0300", "#3D1800", "#613200", "#884E00", "#B46D11", "#E28F2B", "#FFB454", "#FFDC89"] },
+      "st-inativo": { "role": "data", "displayName": "Status: Inativo", "canonical": "oklch(66.9% 0.030 265)", "tonalRamp": ["#080B12", "#20242D", "#3A404C", "#575E6C", "#788092", "#9CA5B7", "#C3CBDC", "#E7EFFE"] },
+      "st-cancelado": { "role": "data", "displayName": "Status: Cancelado", "canonical": "oklch(68.2% 0.177 18)", "tonalRamp": ["#260000", "#4C000E", "#741625", "#9F313D", "#D04E5A", "#FD717B", "#FF9FA5", "#FFC9CC"] },
+      "ok": { "role": "data", "displayName": "Feedback: sucesso (= Ativo)", "canonical": "#2BD99F" },
+      "warn": { "role": "data", "displayName": "Feedback: atenção (= Inadimplente)", "canonical": "#FFA43A" },
+      "danger": { "role": "data", "displayName": "Feedback: erro (= Cancelado)", "canonical": "#F2626E" },
+      "danger-text": { "role": "data", "displayName": "Texto de erro sobre fundo tingido", "canonical": "#FF8B95" },
+      "nps-5": { "role": "data", "displayName": "NPS 5 Excelente (média ≥ 4,5)", "canonical": "#198754" },
+      "nps-4": { "role": "data", "displayName": "NPS 4 Bom (≥ 3,5)", "canonical": "#84CC16" },
+      "nps-3": { "role": "data", "displayName": "NPS 3 Neutro (≥ 2,5)", "canonical": "#FACC15" },
+      "nps-2": { "role": "data", "displayName": "NPS 2 Ruim (≥ 1,5)", "canonical": "#F59E0B" },
+      "nps-1": { "role": "data", "displayName": "NPS 1 Péssimo (> 0)", "canonical": "#EF4444" }
+    },
+    "gradients": [
+      { "name": "energy", "value": "linear-gradient(112deg, #1BFBB6 0%, #00DEEA 38%, #2B7CFF 100%)", "purpose": "Botão primário, item ativo da navegação, barra de 3px da aba ativa, traço do logo. Nada mais." },
+      { "name": "energy-soft", "value": "linear-gradient(112deg, rgb(27 251 182 / .18) 0%, rgb(0 222 234 / .18) 38%, rgb(43 124 255 / .18) 100%)", "purpose": "Item ativo em subnavegação secundária." },
+      { "name": "glow-corner", "value": "radial-gradient(60% 80% at 100% 0%, rgb(34 221 164 / .16), transparent 60%), radial-gradient(50% 70% at 85% 0%, rgb(43 124 255 / .14), transparent 70%)", "purpose": "Brilho de canto em um ou dois painéis-chave por tela; o único efeito atmosférico." },
+      { "name": "photo-scrim-hero", "value": "linear-gradient(90deg, rgb(11 14 23 / .96) 0%, rgb(11 14 23 / .86) 38%, rgb(11 14 23 / .35) 70%, rgb(11 14 23 / .2) 100%)", "purpose": "Escurecimento à esquerda sobre a foto do hero, onde fica a manchete." }
+    ],
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Manchete do hero, uma por página, alinhada à esquerda, text-balance." },
+      "headline": { "displayName": "Headline", "purpose": "Título de seção do site público." },
+      "page-title": { "displayName": "Título de página", "purpose": "Título de página do CRM." },
+      "title": { "displayName": "Title", "purpose": "Título de painel, bloco ou modal lateral." },
+      "lede": { "displayName": "Lede", "purpose": "Parágrafo de abertura de seção pública, fg-2, 52–60ch." },
+      "body": { "displayName": "Body", "purpose": "Texto do CRM, tabelas, campos e botões (700)." },
+      "label": { "displayName": "Label", "purpose": "Rótulo acima de campo, fg-2." },
+      "caption": { "displayName": "Caption", "purpose": "Metadado, contagem, chip, grupo de navegação; caixa normal." }
+    },
+    "shadows": [
+      { "name": "overlay", "value": "0 12px 32px -8px rgb(0 0 0 / .6)", "purpose": "Toasts e camadas flutuantes temporárias." },
+      { "name": "segmented-thumb", "value": "0 1px 2px rgb(0 0 0 / .4)", "purpose": "Segmento ativo do controle segmentado; única micro-elevação dentro de superfície." },
+      { "name": "focus-field", "value": "0 0 0 3px rgb(47 140 255 / .2)", "purpose": "Anel de foco de campo junto à borda Azul Sinal." },
+      { "name": "modal-scrim", "value": "background: rgb(3 5 10 / .7)", "purpose": "Véu atrás do modal lateral." }
+    ],
+    "motion": [
+      { "name": "state", "value": "150ms ease", "purpose": "Cor, borda e fundo de botões, campos e itens." },
+      { "name": "press", "value": "transform: scale(.97) 100ms", "purpose": "Botão pressionado." },
+      { "name": "ease-out-sheet", "value": "cubic-bezier(.23, 1, .32, 1)", "purpose": "Entrada do modal lateral (240ms) e dos toasts (200ms)." },
+      { "name": "shimmer", "value": "1.4s ease-in-out infinite", "purpose": "Esqueleto de carregamento." },
+      { "name": "reduced-motion", "value": "prefers-reduced-motion: durações a .01ms", "purpose": "Respeitado globalmente." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ],
+    "compatibility": {
+      "legacyLayer": "src/styles/legacy.css (gerado por gen-legacy.mjs) e os seletores .legacy de src/index.css remapeiam a paleta clara/verde antiga para os tokens escuros dentro de .legacy. Camada de compatibilidade, não fonte de tokens."
+    }
+  },
+  "components": [
+    {
+      "name": "Botão primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação primária única da tela, em Degradê de Energia.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Quero me associar</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; height: 2.5rem; padding: 0 1rem; border: 0; border-radius: 10px; font-family: Manrope, system-ui, sans-serif; font-size: .875rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s, transform .1s, filter .15s; } .ds-btn:active { transform: scale(.97); } .ds-btn:focus-visible { outline: 2px solid #12D4E6; outline-offset: 2px; } .ds-btn-primary { background-image: linear-gradient(112deg, #1BFBB6 0%, #00DEEA 38%, #2B7CFF 100%); color: #04131F; } .ds-btn-primary:hover { filter: brightness(1.08); }"
+    },
+    {
+      "name": "Botão secundário",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ação alternativa sobre Painel Elevado com borda.",
+      "html": "<button class=\"ds-btn-secondary\">Registrar reclamação</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; height: 2.5rem; padding: 0 1rem; border-radius: 10px; background: #1B2130; color: #EEF2F8; border: 1px solid #283044; font-family: Manrope, system-ui, sans-serif; font-size: .875rem; font-weight: 700; cursor: pointer; transition: background-color .15s, border-color .15s, transform .1s; } .ds-btn-secondary:hover { border-color: #36405A; background: #222939; } .ds-btn-secondary:active { transform: scale(.97); } .ds-btn-secondary:focus-visible { outline: 2px solid #12D4E6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão ghost",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Ação discreta e botões de ícone.",
+      "html": "<button class=\"ds-btn-ghost\">Cancelar</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; height: 2.5rem; padding: 0 1rem; border: 0; border-radius: 10px; background: transparent; color: #AFB8C8; font-family: Manrope, system-ui, sans-serif; font-size: .875rem; font-weight: 700; cursor: pointer; transition: background-color .15s, color .15s; } .ds-btn-ghost:hover { color: #EEF2F8; background: #1B2130; } .ds-btn-ghost:focus-visible { outline: 2px solid #12D4E6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botão de perigo",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Ação destrutiva em vermelho tingido.",
+      "html": "<button class=\"ds-btn-danger\">Cancelar associação</button>",
+      "css": ".ds-btn-danger { display: inline-flex; align-items: center; height: 2.5rem; padding: 0 1rem; border-radius: 10px; background: rgb(242 98 110 / .12); color: #FF8B95; border: 1px solid rgb(242 98 110 / .3); font-family: Manrope, system-ui, sans-serif; font-size: .875rem; font-weight: 700; cursor: pointer; transition: background-color .15s; } .ds-btn-danger:hover { background: rgb(242 98 110 / .2); } .ds-btn-danger:focus-visible { outline: 2px solid #12D4E6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Campo com rótulo",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Input padrão sobre Campo, foco em Azul Sinal.",
+      "html": "<label class=\"ds-label\" for=\"ds-cnpj\">CNPJ da empresa</label><input id=\"ds-cnpj\" class=\"ds-field\" placeholder=\"00.000.000/0000-00\" />",
+      "css": ".ds-label { display: block; font-family: Manrope, system-ui, sans-serif; font-size: .8125rem; font-weight: 600; color: #AFB8C8; margin-bottom: .375rem; } .ds-field { width: 100%; background: #1F2636; border: 1px solid #283044; border-radius: 10px; color: #EEF2F8; padding: .625rem .875rem; font-family: Manrope, system-ui, sans-serif; font-size: .875rem; caret-color: #12D4E6; font-feature-settings: 'tnum' 1; transition: border-color .15s, box-shadow .15s; } .ds-field::placeholder { color: #7F899C; } .ds-field:hover { border-color: #36405A; } .ds-field:focus { outline: none; border-color: #2F8CFF; box-shadow: 0 0 0 3px rgb(47 140 255 / .2); }"
+    },
+    {
+      "name": "Chips de status",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pílula com borda currentColor e ponto, cor do status do associado.",
+      "html": "<span class=\"ds-chip\" style=\"color:#4CC3FF\"><i class=\"ds-dot\"></i>Inscrito</span> <span class=\"ds-chip\" style=\"color:#2BD99F\"><i class=\"ds-dot\"></i>Ativo</span> <span class=\"ds-chip\" style=\"color:#FFA43A\"><i class=\"ds-dot\"></i>Inadimplente</span> <span class=\"ds-chip\" style=\"color:#8C95A8\"><i class=\"ds-dot\"></i>Inativo</span> <span class=\"ds-chip\" style=\"color:#F2626E\"><i class=\"ds-dot\"></i>Cancelado</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: .375rem; height: 1.5rem; padding: 0 .625rem; border-radius: 999px; border: 1px solid currentColor; font-family: Manrope, system-ui, sans-serif; font-size: .75rem; font-weight: 700; white-space: nowrap; margin: 0 4px 6px 0; } .ds-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; display: inline-block; }"
+    },
+    {
+      "name": "Navegação lateral",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Barra do CRM em Marinho Afundado; item ativo em Degradê de Energia, raio só à direita.",
+      "html": "<nav class=\"ds-nav\"><p class=\"ds-nav-group\">CRM</p><a class=\"ds-nav-item is-active\" href=\"#\">Associados</a><a class=\"ds-nav-item\" href=\"#\">Configurações</a><a class=\"ds-nav-item\" href=\"#\">Tickets</a></nav>",
+      "css": ".ds-nav { width: 264px; background: #090B12; border-right: 1px solid #283044; padding: 8px 12px 8px 0; font-family: Manrope, system-ui, sans-serif; } .ds-nav-group { margin: 0; padding: 12px 20px 6px; font-size: .75rem; font-weight: 600; color: #7F899C; } .ds-nav-item { display: flex; align-items: center; height: 44px; padding: 0 12px 0 20px; border-radius: 0 10px 10px 0; font-size: .875rem; font-weight: 600; color: #AFB8C8; text-decoration: none; transition: color .15s, background-color .15s; } .ds-nav-item:hover { color: #EEF2F8; background: #1B2130; } .ds-nav-item.is-active { background-image: linear-gradient(112deg, #1BFBB6 0%, #00DEEA 38%, #2B7CFF 100%); color: #04131F; } .ds-nav-item:focus-visible { outline: 2px solid #12D4E6; outline-offset: 2px; }"
+    },
+    {
+      "name": "Painel com brilho de canto",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Painel 16px com borda Linha e o brilho de canto reservado a painéis-chave.",
+      "html": "<div class=\"ds-panel\"><h3 class=\"ds-panel-title\">Filtros</h3><p class=\"ds-panel-body\">128 associados · 14 inadimplentes</p></div>",
+      "css": ".ds-panel { position: relative; isolation: isolate; background: #141925; border: 1px solid #283044; border-radius: 16px; padding: 20px; font-family: Manrope, system-ui, sans-serif; transition: border-color .15s; } .ds-panel::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: radial-gradient(60% 80% at 100% 0%, rgb(34 221 164 / .16), transparent 60%), radial-gradient(50% 70% at 85% 0%, rgb(43 124 255 / .14), transparent 70%); pointer-events: none; } .ds-panel:hover { border-color: #36405A; } .ds-panel-title { margin: 0; font-size: 1.125rem; font-weight: 700; color: #EEF2F8; } .ds-panel-body { margin: 6px 0 0; font-size: .875rem; color: #AFB8C8; font-feature-settings: 'tnum' 1; }"
+    },
+    {
+      "name": "Termômetro NPS",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "Painel de dado com barras pílula na cor NPS da média por canal.",
+      "html": "<div class=\"ds-termo\"><div class=\"ds-termo-head\"><b>Termômetro da Cosern</b><span>212 tickets</span></div><ul><li><span>Agências</span><i><em style=\"width:84%;background:#84CC16\"></em></i><b>4,2</b></li><li><span>WhatsApp</span><i><em style=\"width:56%;background:#FACC15\"></em></i><b>2,8</b></li><li><span>Telefone</span><i><em style=\"width:36%;background:#F59E0B\"></em></i><b>1,8</b></li><li><span>Portal GD</span><i><em style=\"width:22%;background:#EF4444\"></em></i><b>1,1</b></li></ul></div>",
+      "css": ".ds-termo { max-width: 400px; background: #141925; border: 1px solid #283044; border-radius: 16px; padding: 20px; font-family: Manrope, system-ui, sans-serif; color: #EEF2F8; font-feature-settings: 'tnum' 1; } .ds-termo-head { display: flex; justify-content: space-between; align-items: baseline; font-size: .875rem; } .ds-termo-head span { font-size: .75rem; color: #7F899C; } .ds-termo ul { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 10px; } .ds-termo li { display: grid; grid-template-columns: 84px 1fr 34px; align-items: center; gap: 12px; font-size: .875rem; } .ds-termo li span { color: #AFB8C8; } .ds-termo li i { height: 8px; border-radius: 999px; background: #1B2130; overflow: hidden; } .ds-termo li em { display: block; height: 100%; border-radius: 999px; } .ds-termo li b { text-align: right; font-weight: 700; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A Sala de Controle da Usina",
+    "overview": "O sistema é um portal de energia escuro, preciso e calmo, no padrão da categoria (monitoramento solar) executado com a régua do portal elekeeper da SAJ. O chão é um azul-marinho profundo; tudo o que existe são painéis tonais um degrau mais claros, linhas finas e texto quase branco. A cor viva aparece pouco e com função: um único degradê de energia (verde-água, ciano, azul) marca onde o usuário está e o que ele deve fazer em seguida. O resto da informação cromática é dado — status de associado e notas NPS — e nunca se confunde com marca.\n\nO site público alterna fotografia real de usinas (Unsplash, procedência em `src/components/landing/media.ts`) com painéis de dado sobre ela; o CRM é denso, de tabela e Kanban, e reaproveita exatamente os mesmos tokens. As duas metades são o mesmo mundo: quem sai do termômetro da home e entra no CRM não percebe mudança de linguagem, só de densidade.\n\nTelas antigas (tickets, usinas, admin) entram neste mundo por uma camada de compatibilidade: dentro de `.legacy`, `src/styles/legacy.css` (gerado) reescreve a escala clara do Tailwind (slate/gray/green…) para os neutros escuros, e `index.css` troca os verdes e pretos antigos pelo degradê e pelos tokens. Essa camada não é fonte de tokens; superfícies novas usam só os tokens deste arquivo.\n\nProfundidade vem de camadas tonais e de um brilho de canto suave nos painéis-chave, não de sombras. Rejeições confirmadas pela direção: a manchete centralizada sobre foto com fileira de cards embaixo, e o visual claro/verde anterior.",
+    "keyCharacteristics": [
+      "Chão escuro `#0B0E17` com painéis tonais em três degraus (panel, raised, field) e bordas de 1px.",
+      "Um degradê de energia, só em item ativo e ação primária.",
+      "Manrope 400–800 com numerais tabulares ligados globalmente.",
+      "Painéis 16px, controles 10px, chips em pílula.",
+      "Cores de status e de NPS são cores de dado, com significado fixo.",
+      "Sem sombras em superfícies; brilho de canto é o único efeito atmosférico."
+    ],
+    "rules": [
+      { "name": "The Uma Corrente Rule", "body": "O degradê de energia aparece em no máximo dois papéis por tela: onde estou (item/aba ativa) e o que faço agora (ação primária). Nunca em dado, nunca em texto, nunca em ícone solto, nunca como fundo de seção.", "section": "colors" },
+      { "name": "The Dado Não É Marca Rule", "body": "Cores de status e de NPS têm significado fixo e só aparecem amarradas ao dado que representam. Não use o verde NPS-5 ou o verde de Ativo como acento decorativo.", "section": "colors" },
+      { "name": "The Degrau Tonal Rule", "body": "Hierarquia de superfície é bg → panel → raised → field, sempre clareando um degrau. Não invente cinzas intermediários.", "section": "colors" },
+      { "name": "The Numeral Tabular Rule", "body": "Todo número que se compara com outro (notas, contagens, valores, porcentagens) é tabular e em peso 700. Decimais em vírgula (`4,2`).", "section": "typography" },
+      { "name": "The Caixa Normal Rule", "body": "Rótulos, grupos de navegação e cabeçalhos de coluna ficam em caixa normal, sem tracking aberto. Hierarquia vem de peso e cor, não de versalete.", "section": "typography" },
+      { "name": "The Sem Sombra Rule", "body": "Superfícies em repouso não têm sombra. Sombra só existe em camada que flutua acima da página (toast, menu, overlay) e no polegar do controle segmentado.", "section": "elevation" },
+      { "name": "The Luz de Canto Rule", "body": "O brilho de canto é o único efeito atmosférico: sempre no canto, nunca um halo em volta, nunca em mais de um ou dois painéis por tela.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do usar o Degradê de Energia só no item ativo e na ação primária, com texto `#04131F` por cima.",
+      "Do construir hierarquia com o degrau tonal bg → panel → raised → field e bordas de 1px.",
+      "Do manter os três raios: 16px painéis, 10px controles, pílula para chips e barras.",
+      "Do escrever números tabulares em 700, decimais com vírgula.",
+      "Do usar as cores de status e NPS exatamente pelos seus limiares, e Texto 3 para ausência de dado.",
+      "Do pôr Vidro Sobre Foto (`#0E1320` a 85–90% com desfoque) em qualquer painel que flutue sobre fotografia.",
+      "Do usar fotos reais de usinas e instalações com a procedência registrada em `media.ts`."
+    ],
+    "donts": [
+      "Don't usar o degradê em dado, texto, ícone avulso ou fundo de seção.",
+      "Don't usar o verde NPS-5 (`#198754`) ou o verde de Ativo como cor de marca.",
+      "Don't pôr sombra em painel, cartão ou botão em repouso; sombra é só de sobreposição.",
+      "Don't aplicar brilho de canto como halo em volta do painel nem em mais de um ou dois painéis por tela.",
+      "Don't centralizar a manchete sobre foto com uma fileira de cards embaixo.",
+      "Don't usar rótulos em caixa alta com tracking aberto, nem sobretítulos acima de manchetes.",
+      "Don't voltar ao fundo claro ou à paleta verde antiga; telas legadas são adaptadas pela camada `.legacy`, não o contrário."
+    ]
+  }
+}

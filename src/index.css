@@ -1,41 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "./styles/legacy.css";
 
+/*
+  Sistema visual FPGD — portal de energia escuro (régua: elekeeper/SAJ).
+  Forma: painéis 16px, controles 10px, chips em pílula. Um único degradê de energia,
+  reservado a item ativo e ação primária.
+*/
 @theme {
-  --font-family-sans: 'Open Sans', sans-serif;
-  --color-primary: #198754;
-  --color-bg-main: #F8F6F2;
-  --color-sidebar: #262727;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-bg: #0B0E17;
+  --color-sunk: #090B12;
+  --color-panel: #141925;
+  --color-raised: #1B2130;
+  --color-field: #1F2636;
+  --color-line: #283044;
+  --color-line-strong: #36405A;
+
+  --color-fg: #EEF2F8;
+  --color-fg-2: #AFB8C8;
+  --color-fg-3: #7F899C;
+
+  --color-primary: #2F8CFF;
+  --color-primary-hover: #4C9DFF;
+  --color-energy: #22DDA4;
+  --color-cyan: #12D4E6;
+
+  --color-st-inscrito: #4CC3FF;
+  --color-st-ativo: #2BD99F;
+  --color-st-inadimplente: #FFA43A;
+  --color-st-inativo: #8C95A8;
+  --color-st-cancelado: #F2626E;
+
+  --color-danger: #F2626E;
+  --color-warn: #FFA43A;
+  --color-ok: #2BD99F;
+
+  --radius-panel: 16px;
+  --radius-control: 10px;
 }
 
 :root {
-  font-family: 'Open Sans', sans-serif;
+  color-scheme: dark;
+  font-family: var(--font-sans);
+  font-feature-settings: 'tnum' 1, 'cv11' 1;
   line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light;
+  --energy: linear-gradient(112deg, #1BFBB6 0%, #00DEEA 38%, #2B7CFF 100%);
+  --energy-soft: linear-gradient(112deg, rgb(27 251 182 / .18) 0%, rgb(0 222 234 / .18) 38%, rgb(43 124 255 / .18) 100%);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #F8F6F2;
-  color: #262727;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
+::selection { background: rgb(47 140 255 / .35); color: #fff; }
+input, textarea, select { caret-color: var(--color-cyan); }
+a { text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--color-cyan); outline-offset: 2px; border-radius: 6px; }
+
+* { scrollbar-width: thin; scrollbar-color: #2C3447 transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2C3447; border-radius: 999px; border: 3px solid var(--color-bg); }
+::-webkit-scrollbar-thumb:hover { background: #3A4359; }
+
+@utility bg-energy { background-image: var(--energy); }
+@utility bg-energy-soft { background-image: var(--energy-soft); }
+
+/* Brilho de canto, à moda dos painéis do elekeeper: luz suave, nunca halo em volta. */
+@utility glow-corner {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background:
+      radial-gradient(60% 80% at 100% 0%, rgb(34 221 164 / .16), transparent 60%),
+      radial-gradient(50% 70% at 85% 0%, rgb(43 124 255 / .14), transparent 70%);
+    pointer-events: none;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* ---------- Componentes base ---------- */
+@layer components {
+  .panel { background: var(--color-panel); border: 1px solid var(--color-line); border-radius: var(--radius-panel); }
+  .field {
+    width: 100%;
+    background: var(--color-field);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-control);
+    color: var(--color-fg);
+    padding: .625rem .875rem;
+    font-size: .875rem;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field::placeholder { color: var(--color-fg-3); }
+  .field:hover { border-color: var(--color-line-strong); }
+  .field:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgb(47 140 255 / .2); }
+  .field:disabled { opacity: .55; cursor: not-allowed; }
+  .label { display: block; font-size: .8125rem; font-weight: 600; color: var(--color-fg-2); margin-bottom: .375rem; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    height: 2.5rem; padding: 0 1rem; border-radius: var(--radius-control);
+    font-size: .875rem; font-weight: 700; white-space: nowrap;
+    transition: background-color .15s, border-color .15s, color .15s, transform .1s, filter .15s;
+  }
+  .btn:active:not(:disabled) { transform: scale(.97); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background-image: var(--energy); color: #04131F; }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-secondary { background: var(--color-raised); color: var(--color-fg); border: 1px solid var(--color-line); }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--color-line-strong); background: #222939; }
+  .btn-ghost { color: var(--color-fg-2); }
+  .btn-ghost:hover:not(:disabled) { color: var(--color-fg); background: var(--color-raised); }
+  .btn-danger { background: rgb(242 98 110 / .12); color: #FF8B95; border: 1px solid rgb(242 98 110 / .3); }
+  .btn-danger:hover:not(:disabled) { background: rgb(242 98 110 / .2); }
+  .btn-sm { height: 2rem; padding: 0 .75rem; font-size: .8125rem; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: .375rem; height: 1.5rem; padding: 0 .625rem;
+    border-radius: 999px; border: 1px solid currentColor; font-size: .75rem; font-weight: 700; white-space: nowrap;
+  }
+  .skeleton { background: linear-gradient(90deg, #1B2130 0%, #232A3B 50%, #1B2130 100%); background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite; border-radius: 8px; }
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+/* Página exibida dentro de um iframe do próprio site: o container é quem embute. */
+html.embedded, html.embedded body, html.embedded #root .bg-bg { background: transparent !important; }
+
+/* ---------- Telas antigas dentro do novo tema ---------- */
+.legacy .text-white, .legacy [class*="text-white/"], .legacy [class*="hover:text-white"]:hover { color: #fff; }
+.legacy [class~="bg-[#F8F6F2]"] { background-color: var(--color-bg); }
+.legacy [class~="text-[#262727]"], .legacy [class~="text-[#181818]"], .legacy [class~="text-[#002D5E]"] { color: var(--color-fg); }
+.legacy [class~="bg-[#262727]"], .legacy [class~="bg-[#181818]"] { background-color: var(--color-raised); }
+.legacy [class~="bg-[#198754]"], .legacy [class~="bg-[#157347]"], .legacy [class~="bg-[#002D5E]"], .legacy [class~="bg-[#003366]"] {
+  background-color: transparent; background-image: var(--energy); color: #04131F;
 }
+.legacy [class~="bg-[#198754]"] .text-white, .legacy [class~="bg-[#198754]"].text-white { color: #04131F; }
+.legacy [class~="text-[#198754]"], .legacy [class~="text-[#157347]"] { color: var(--color-energy); }
+.legacy [class~="border-[#198754]"] { border-color: var(--color-energy); }
+.legacy [class~="ring-[#198754]"] { --tw-ring-color: var(--color-energy); }
+.legacy input:not([type=checkbox]):not([type=radio]):not([type=range]), .legacy textarea, .legacy select { color: var(--color-fg); }
+.legacy input::placeholder, .legacy textarea::placeholder { color: var(--color-fg-3); }
+.legacy [class*="shadow-"] { --tw-shadow-color: rgb(0 0 0 / .35); }

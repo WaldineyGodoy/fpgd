@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { IMaskInput } from 'react-imask';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff, Send, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Send, CheckCircle2, X, Wrench, Home, ArrowRight } from 'lucide-react';
+import Logo from '../components/Logo';
+import { PHOTOS } from '../components/landing/media';
+import { useTicketsEnabled } from '../crm/settings';
 
 interface Company {
   id: string;
@@ -24,6 +25,7 @@ const LoginPage: React.FC = () => {
   const [showSignupModal, setShowSignupModal] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+  const tickets = useTicketsEnabled() === true;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ const LoginPage: React.FC = () => {
       });
 
       if (error) throw error;
-      navigate('/tickets');
+      navigate('/inicio');
     } catch (err: any) {
       setError('Credenciais inválidas ou erro no login.');
     } finally {
@@ -70,199 +72,97 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="relative">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md p-10 bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(30,64,175,0.2)] border border-white/50"
-      >
-        <motion.h1
-          initial={{ y: -20 }}
-          animate={{ y: 0 }}
-          className="text-4xl font-black text-center text-slate-800 mb-10 pb-6 border-b border-slate-100 flex justify-center items-center gap-2 uppercase tracking-tighter"
-        >
-          <motion.span
-            animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1.2, 1] }}
-            transition={{ repeat: Infinity, duration: 3 }}
-            className="text-blue-600"
-          >
-            ✦
-          </motion.span>
-          Login <span className="text-blue-600">FPGD</span>
-        </motion.h1>
+    <div className="min-h-screen bg-bg text-fg grid lg:grid-cols-[1.15fr_1fr]">
+      <div className="relative hidden lg:block overflow-hidden">
+        <img src={PHOTOS.usinaCampo(1800)} alt="Usina solar em campo aberto" className="absolute inset-0 size-full object-cover" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(11_14_23/.55)_0%,rgb(11_14_23/.15)_45%,rgb(11_14_23/.85)_100%)]" />
+        <a href="#/" className="absolute left-10 top-8"><Logo /></a>
+        <p className="absolute left-10 bottom-10 right-10 max-w-[30ch] text-[28px] font-extrabold leading-[1.15] tracking-[-0.02em]">
+          A Frente dos integradores solares do RN, num só lugar.
+        </p>
+      </div>
 
-        <AnimatePresence mode="wait">
+      <div className="relative flex flex-col justify-center px-6 py-12 sm:px-12 xl:px-20">
+        <div className="absolute inset-0 -z-0 pointer-events-none bg-[radial-gradient(60%_40%_at_100%_0%,rgb(34_221_164/.10),transparent_70%)]" />
+        <div className="relative w-full max-w-[400px] mx-auto">
+          <a href="#/" className="lg:hidden inline-block mb-10"><Logo /></a>
+          <h1 className="text-[28px] font-extrabold tracking-tight">Entrar</h1>
+          <p className="mt-1.5 text-sm text-fg-2">Acesse com o e-mail cadastrado na FPGD.</p>
+
           {error && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="p-4 mb-6 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm font-medium text-center">
-                {error}
-              </div>
-            </motion.div>
+            <div role="alert" className="mt-6 rounded-[10px] border border-danger/40 bg-danger/10 px-3.5 py-3 text-sm text-[#FFB3B9]">{error}</div>
           )}
-        </AnimatePresence>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">E-mail</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-5 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all placeholder-slate-300 text-lg font-black text-slate-700 shadow-inner"
-              placeholder="exemplo@email.com"
-              required
-            />
+          <form onSubmit={handleLogin} className="mt-8 space-y-5">
+            <label className="block">
+              <span className="label">E-mail</span>
+              <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                className="field !h-12 !text-[15px]" placeholder="voce@empresa.com.br" required />
+            </label>
+            <label className="block">
+              <span className="flex items-center justify-between">
+                <span className="label">Senha</span>
+                <button type="button" onClick={handleForgotPassword} className="text-[13px] font-semibold text-primary hover:text-primary-hover mb-1.5">Esqueci a senha</button>
+              </span>
+              <span className="relative block">
+                <input type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={password}
+                  onChange={(e) => setPassword(e.target.value)} className="field !h-12 !text-[15px] !pr-12" required />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-fg-3 hover:text-fg">
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </span>
+            </label>
+            <button type="submit" disabled={loading} className="btn btn-primary w-full !h-12 !text-[15px]">
+              {loading ? 'Entrando…' : 'Entrar'}
+            </button>
+          </form>
+
+          <div className="mt-10 pt-6 border-t border-line flex items-center justify-between gap-4 text-sm">
+            <span className="text-fg-2">Ainda não tem acesso?</span>
+            <button onClick={() => setShowSignupModal(true)} className="btn btn-secondary">Criar cadastro</button>
           </div>
-
-          <div className="space-y-2">
-            <div className="flex justify-between items-center px-1">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Senha</label>
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-[10px] font-black text-blue-600 hover:text-indigo-700 transition-colors uppercase tracking-widest"
-              >
-                Esqueci a senha
-              </button>
-            </div>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-5 pr-14 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-lg font-black text-slate-700 shadow-inner"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
-              >
-                {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
-              </button>
-            </div>
-          </div>
-
-          <motion.button
-            whileHover={{ scale: 1.02, backgroundColor: '#2563eb' }}
-            whileTap={{ scale: 0.98 }}
-            type="submit"
-            disabled={loading}
-            className="w-full py-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xl rounded-2xl shadow-2xl shadow-blue-200 transition-all duration-200 disabled:opacity-50 uppercase tracking-[0.2em] border-b-4 border-blue-800"
-          >
-            {loading ? 'Acessando...' : 'ENTRAR NO SISTEMA ✦'}
-          </motion.button>
-        </form>
-
-        <div className="mt-10 pt-8 border-t border-slate-100 flex flex-col items-center gap-5">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Ainda não tem acesso?</p>
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setShowSignupModal(true)}
-            className="px-10 py-4 bg-white text-blue-600 border-2 border-blue-500 font-black rounded-2xl hover:bg-blue-50 transition-all shadow-[0_4px_20px_-4px_rgba(37,99,235,0.3)] uppercase text-xs tracking-[0.2em]"
-          >
-            CADASTRE-SE AGORA
-          </motion.button>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Registration Selection Modal */}
-      <AnimatePresence>
-        {showSignupModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 20 }}
-              className="bg-white p-10 rounded-[3rem] max-w-md w-full shadow-inner relative"
-            >
-              <button 
-                onClick={() => setShowSignupModal(false)}
-                className="absolute top-6 right-6 p-2 text-gray-300 hover:text-gray-500 transition-colors"
-              >
-                <motion.span whileHover={{ scale: 1.2 }}>✕</motion.span>
+      {showSignupModal && (
+        <div className="fixed inset-0 z-50 grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Novo cadastro">
+          <div className="absolute inset-0 bg-[rgb(3_5_10/.75)]" onClick={() => setShowSignupModal(false)} />
+          <div className="relative panel w-full max-w-[440px] p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-lg font-bold">Novo cadastro</h2>
+                <p className="text-sm text-fg-2 mt-0.5">Qual é o seu perfil?</p>
+              </div>
+              <button onClick={() => setShowSignupModal(false)} className="btn btn-ghost !px-2 -mr-2 -mt-1" aria-label="Fechar"><X size={18} /></button>
+            </div>
+            <div className="mt-5 space-y-2.5">
+              <button onClick={() => navigate('/cadastro')} className="w-full text-left rounded-[12px] border border-line bg-raised hover:border-line-strong p-4 flex items-center gap-4 transition-colors">
+                <Wrench size={20} className="text-cyan shrink-0" />
+                <span className="flex-1"><span className="block font-semibold">Sou integrador</span><span className="block text-sm text-fg-2">Empresa que instala sistemas solares</span></span>
+                <ArrowRight size={16} className="text-fg-3" />
               </button>
+              {tickets && <button onClick={() => navigate('/cadastro_cliente')} className="w-full text-left rounded-[12px] border border-line bg-raised hover:border-line-strong p-4 flex items-center gap-4 transition-colors">
+                <Home size={20} className="text-cyan shrink-0" />
+                <span className="flex-1"><span className="block font-semibold">Sou cliente</span><span className="block text-sm text-fg-2">Tenho energia solar no meu imóvel</span></span>
+                <ArrowRight size={16} className="text-fg-3" />
+              </button>}
+            </div>
+          </div>
+        </div>
+      )}
 
-              <h3 className="text-3xl font-black text-gray-800 text-center mb-2">Novo Cadastro</h3>
-              <p className="text-gray-400 font-bold text-center mb-10 text-xs uppercase tracking-widest">Selecione seu perfil</p>
-              
-              <div className="space-y-4">
-                <motion.button
-                  whileHover={{ scale: 1.02, x: 5, borderColor: '#3b82f6' }}
-                  onClick={() => navigate('/cadastro_cliente')}
-                  className="w-full flex items-center justify-between p-7 bg-slate-50 border-2 border-slate-100 rounded-3xl text-left group transition-all"
-                >
-                  <div>
-                    <span className="block text-xl font-black text-slate-800">Sou Cliente</span>
-                    <span className="block text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">Gestão e acompanhamento fpgd</span>
-                  </div>
-                  <div className="p-4 bg-white rounded-2xl shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all ring-4 ring-blue-50">👤</div>
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.02, x: 5, borderColor: '#3b82f6' }}
-                  onClick={() => navigate('/cadastro')}
-                  className="w-full flex items-center justify-between p-7 bg-slate-50 border-2 border-slate-100 rounded-3xl text-left group transition-all"
-                >
-                  <div>
-                    <span className="block text-xl font-black text-slate-800">Sou Integrador</span>
-                    <span className="block text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">Instalador técnico parceiro</span>
-                  </div>
-                  <div className="p-4 bg-white rounded-2xl shadow-sm text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all ring-4 ring-blue-50">🛠️</div>
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Success Modal for Forgot Password */}
-      <AnimatePresence>
-        {showSuccessModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-[60]"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 20 }}
-              className="bg-white p-10 rounded-[3rem] max-w-sm w-full shadow-2xl relative text-center"
-            >
-              <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-blue-100 ring-8 ring-blue-50/50 border-2 border-blue-100/50">
-                <Send className="w-12 h-12" />
-              </div>
-              
-              <h3 className="text-3xl font-black text-slate-800 mb-4 tracking-tighter uppercase">E-mail Enviado!</h3>
-              <p className="text-slate-400 font-bold text-sm leading-relaxed mb-10 px-4">
-                As instruções para redefinir sua senha foram enviadas para o seu e-mail cadastrado.
-              </p>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowSuccessModal(false)}
-                className="w-full py-4 bg-green-600 text-white font-black rounded-2xl shadow-xl shadow-green-100 hover:bg-green-700 transition-all flex items-center justify-center gap-2"
-              >
-                <CheckCircle2 size={18} /> ENTENDI
-              </motion.button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[60] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="E-mail enviado">
+          <div className="absolute inset-0 bg-[rgb(3_5_10/.75)]" onClick={() => setShowSuccessModal(false)} />
+          <div className="relative panel w-full max-w-[400px] p-6 text-center">
+            <Send className="mx-auto text-energy" size={28} />
+            <h2 className="mt-4 text-lg font-bold">Confira seu e-mail</h2>
+            <p className="mt-2 text-sm text-fg-2">Enviamos as instruções para redefinir a senha de {email}.</p>
+            <button onClick={() => setShowSuccessModal(false)} className="btn btn-primary w-full mt-6"><CheckCircle2 size={16} /> Entendi</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

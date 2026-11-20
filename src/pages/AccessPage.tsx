@@ -1,63 +1,34 @@
+import React from 'react';
+import { ArrowRight, Search, UserPlus } from 'lucide-react';
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+/**
+ * Consulta de habilitação para o agendamento Cosern. Também é exibida dentro do iframe
+ * da seção de agendamento da home, por isso os links abrem na janela principal (_top).
+ */
+const embedded = typeof window !== 'undefined' && window.self !== window.top;
 
-const AccessPage: React.FC = () => {
-    const navigate = useNavigate();
-    const [cnpj, setCnpj] = useState<string>('');
+const AccessPage: React.FC = () => (
+  <div className={`w-full max-w-[480px] ${embedded ? 'p-2' : 'panel glow-corner p-7 sm:p-9'}`}>
+    <header>
+      <Search size={24} className="text-cyan" />
+      <h1 className="mt-4 text-2xl font-extrabold tracking-tight">Consulta FPGD</h1>
+      <p className="mt-1.5 text-sm text-fg-2">
+        Para consultar sua situação ou fazer um novo agendamento, entre com a conta da sua empresa.
+      </p>
+    </header>
 
-    return (
-        <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="w-full max-w-xl p-10 bg-white/80 backdrop-blur-lg rounded-[2.5rem] shadow-2xl border border-white/20"
-        >
-            <header className="mb-10 text-center">
-                <motion.div
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ repeat: Infinity, duration: 4 }}
-                    className="text-5xl mb-4"
-                >
-                    🔍
-                </motion.div>
-                <h1 className="text-4xl font-black text-gray-800">
-                    Consulta <span className="text-green-600">FPGD</span>
-                </h1>
-                <p className="text-gray-400 font-bold mt-2 tracking-widest uppercase text-xs">Consulta de Habilitação</p>
-            </header>
+    <a href="#/login" target="_top" className="btn btn-primary w-full !h-12 mt-7">
+      Ir para a área de acesso <ArrowRight size={16} />
+    </a>
 
-            <div className="space-y-8">
-                <div className="p-6 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-200 text-center">
-                    <p className="text-gray-500 font-medium mb-6">
-                        Para consultar sua situação ou realizar um novo agendamento, identifique-se abaixo.
-                    </p>
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => navigate('/login')}
-                        className="w-full py-5 bg-gray-800 text-white font-black text-lg rounded-2xl shadow-xl hover:bg-black transition-all"
-                    >
-                        IR PARA ÁREA DE ACESSO ➜
-                    </motion.button>
-                </div>
+    <div className="my-6 flex items-center gap-3 text-xs text-fg-3">
+      <span className="h-px flex-1 bg-line" /> ainda não tem cadastro? <span className="h-px flex-1 bg-line" />
+    </div>
 
-                <div className="relative flex items-center justify-center py-4">
-                    <div className="absolute w-full border-t border-gray-100"></div>
-                    <span className="relative px-4 bg-white text-gray-300 font-bold text-xs uppercase tracking-widest">OU</span>
-                </div>
-
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate('/cadastro')}
-                    className="w-full py-5 bg-green-100 text-green-700 font-black text-lg rounded-2xl border-2 border-green-200 hover:bg-green-200 transition-all flex items-center justify-center gap-2"
-                >
-                    QUERO ME CADASTRAR ✦
-                </motion.button>
-            </div>
-        </motion.div>
-    );
-};
+    <a href="#/cadastro" target="_top" className="btn btn-secondary w-full !h-12">
+      <UserPlus size={16} /> Cadastrar minha empresa
+    </a>
+  </div>
+);
 
 export default AccessPage;

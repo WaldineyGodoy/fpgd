@@ -12,28 +12,30 @@ import TicketDashboard from './pages/TicketDashboard';
 import TicketForm from './pages/TicketForm';
 import TicketDetails from './pages/TicketDetails';
 import HomePage from './pages/HomePage';
-import AppLayout from './components/AppLayout';
+import AppLayout, { HomeRedirect } from './components/AppLayout';
+import PagamentosPage from './pages/PagamentosPage';
+import MinhaAssociacaoPage from './pages/MinhaAssociacaoPage';
+import { useTicketsEnabled } from './crm/settings';
 import KanbanBoard from './components/KanbanBoard';
 import AdminPage from './pages/AdminPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import UsinasList from './pages/UsinasList';
 import UsinaForm from './pages/UsinaForm';
 import UsinaDetails from './pages/UsinaDetails';
+import CrmPage from './pages/CrmPage';
+import CrmConfigPage from './pages/CrmConfigPage';
+import { ToastProvider } from './crm/ui';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location} key={location.pathname.startsWith('/crm') ? '/crm' : location.pathname}>
         {/* Redirect root to login for the new system */}
         <Route path="/" element={<HomePage />} />
 
-        <Route path="/login" element={
-          <PageWrapper>
-            <LoginPage />
-          </PageWrapper>
-        } />
+        <Route path="/login" element={<LoginPage />} />
 
 
         <Route path="/consulta_cadastro" element={
@@ -44,7 +46,7 @@ const AnimatedRoutes = () => {
         
         <Route path="/reclame" element={
           <PageWrapper>
-            <TicketDashboard isPublic={true} />
+            <TicketsGate><TicketDashboard isPublic={true} /></TicketsGate>
           </PageWrapper>
         } />
 
@@ -74,37 +76,37 @@ const AnimatedRoutes = () => {
 
         {/* Tickets Area */}
         <Route path="/tickets" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <TicketDashboard view="dashboard" />
           </AppLayout>
         } />
 
         <Route path="/tickets/lista" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <TicketDashboard view="list" />
           </AppLayout>
         } />
 
         <Route path="/tickets/kanban" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <KanbanBoard />
           </AppLayout>
         } />
 
         <Route path="/tickets/novo" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <TicketForm />
           </AppLayout>
         } />
 
         <Route path="/admin" element={
-          <AppLayout>
+          <AppLayout access="root">
             <AdminPage />
           </AppLayout>
         } />
 
         <Route path="/tickets/:id" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <TicketDetails />
           </AppLayout>
         } />
@@ -115,27 +117,58 @@ const AnimatedRoutes = () => {
           </PageWrapper>
         } />
 
+        {/* CRM de associados */}
+        <Route path="/crm" element={
+          <AppLayout access="staff">
+            <CrmPage />
+          </AppLayout>
+        } />
+
+        <Route path="/crm/pagamentos" element={
+          <AppLayout access="staff">
+            <PagamentosPage />
+          </AppLayout>
+        } />
+
+        <Route path="/associacao" element={
+          <AppLayout>
+            <MinhaAssociacaoPage />
+          </AppLayout>
+        } />
+
+        <Route path="/inicio" element={
+          <AppLayout>
+            <HomeRedirect />
+          </AppLayout>
+        } />
+
+        <Route path="/crm/configuracoes" element={
+          <AppLayout access="staff">
+            <CrmConfigPage />
+          </AppLayout>
+        } />
+
         {/* Usinas Area */}
         <Route path="/usinas" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <UsinasList />
           </AppLayout>
         } />
 
         <Route path="/usinas/nova" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <UsinaForm />
           </AppLayout>
         } />
 
         <Route path="/usinas/:id/editar" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <UsinaForm />
           </AppLayout>
         } />
 
         <Route path="/usinas/:id/detalhes" element={
-          <AppLayout>
+          <AppLayout feature="tickets">
             <UsinaDetails />
           </AppLayout>
         } />
@@ -144,13 +177,20 @@ const AnimatedRoutes = () => {
   );
 };
 
+/** Página pública do sistema de tickets: some quando ele está oculto. */
+const TicketsGate: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const enabled = useTicketsEnabled();
+  if (enabled === null) return null;
+  return enabled ? <>{children}</> : <Navigate to="/" replace />;
+};
+
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <motion.div
-    initial={{ opacity: 0, scale: 0.98 }}
-    animate={{ opacity: 1, scale: 1 }}
-    exit={{ opacity: 0, scale: 1.02 }}
-    transition={{ duration: 0.3, ease: "easeInOut" }}
-    className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 flex items-center justify-center p-4 py-12"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+    className="legacy w-full min-h-screen bg-bg text-fg flex items-center justify-center p-4 py-12"
   >
     {children}
   </motion.div>
@@ -159,9 +199,11 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 function App() {
   return (
     <HashRouter>
-      <div className="w-full min-h-screen overflow-x-hidden">
-        <AnimatedRoutes />
-      </div>
+      <ToastProvider>
+        <div className="w-full min-h-screen overflow-x-hidden">
+          <AnimatedRoutes />
+        </div>
+      </ToastProvider>
     </HashRouter>
   );
 }

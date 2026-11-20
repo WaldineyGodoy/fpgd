@@ -19,6 +19,10 @@ const ResetPasswordPage: React.FC = () => {
       // With HashRouter, the URL looks like /#/reset-password#access_token=...
       // We need to parse the second part of the hash
       const hash = window.location.hash;
+      if (hash.includes('error_code=')) {
+        setError('Este link de recuperação expirou ou já foi usado. Volte ao login e peça um novo em "Esqueci a senha".');
+        return;
+      }
       if (hash.includes('access_token=')) {
         const params = new URLSearchParams(hash.split('#')[2]); // Get the part after the second #
         const accessToken = params.get('access_token');

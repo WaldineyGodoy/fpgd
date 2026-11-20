@@ -1,88 +1,105 @@
+import React, { useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { supabase } from '../../supabaseClient';
+import { PHOTOS } from './media';
+import JoinForm from './JoinForm';
 
-import React from 'react';
-import { ArrowRight, ShieldCheck, Zap, Calendar } from 'lucide-react';
+const CANAIS = [
+  { key: 'agencias', label: 'Agências' },
+  { key: 'whatsapp', label: 'WhatsApp' },
+  { key: 'telefone', label: 'Telefone' },
+  { key: 'portal_gd', label: 'Portal GD' },
+  { key: 'equipe_campo_vistoria', label: 'Vistorias' },
+];
 
-interface HeroProps {
-  onAgendamentoClick: () => void;
-  onAdesaoClick: () => void;
-}
+// Escala NPS 1–5 padronizada do projeto (cores de dado, não de marca)
+const npsColor = (v: number) => (v >= 4.5 ? '#198754' : v >= 3.5 ? '#84cc16' : v >= 2.5 ? '#facc15' : v >= 1.5 ? '#f59e0b' : '#ef4444');
 
-const Hero: React.FC<HeroProps> = ({ onAgendamentoClick, onAdesaoClick }) => {
+interface Termo { total: number; desacordo: number | null; canais: { label: string; media: number | null; n: number }[] }
+
+const Termometro: React.FC = () => {
+  const [t, setT] = useState<Termo | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    supabase.from('tickets').select('nps_data, esta_de_acordo').then(({ data, error }) => {
+      if (error || !data) { setFailed(true); return; }
+      const avaliados = data.filter((d) => d.esta_de_acordo !== null);
+      setT({
+        total: data.length,
+        desacordo: avaliados.length ? Math.round((avaliados.filter((d) => d.esta_de_acordo === false).length / avaliados.length) * 100) : null,
+        canais: CANAIS.map((c) => {
+          const notas = data.map((d) => Number(d.nps_data?.[c.key])).filter((n) => n >= 1 && n <= 5);
+          return { label: c.label, n: notas.length, media: notas.length ? notas.reduce((a, b) => a + b, 0) / notas.length : null };
+        }),
+      });
+    });
+  }, []);
+
+  if (failed) return null;
+
   return (
-    <section id="home" className="relative pt-12 pb-24 lg:pt-20 lg:pb-32 overflow-hidden bg-white">
-      <div className="absolute top-0 right-0 -mr-20 -mt-20 opacity-20">
-        <div className="w-[500px] h-[500px] bg-[#198754]/20 rounded-full blur-[120px] animate-pulse"></div>
+    <a href="#/reclame" className="group block panel glow-corner !bg-[#0E1320]/85 backdrop-blur-md p-5 w-full max-w-[400px] hover:border-line-strong transition-colors">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="text-sm font-bold">Termômetro da Cosern</h2>
+        <span className="text-xs text-fg-3 tabular-nums">{t ? `${t.total} tickets` : '…'}</span>
       </div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
-          <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-7 lg:text-left">
-            <div className="inline-flex items-center space-x-2 px-6 py-2 rounded-full bg-green-50 text-[#198754] border border-green-100 text-[10px] font-black uppercase tracking-[0.2em] mb-10 shadow-sm">
-              <Zap className="w-3.5 h-3.5 fill-[#198754]" />
-              <span>Fortalecendo o Setor Renovável no RN fpgd</span>
-            </div>
-            <h1 className="text-5xl tracking-tighter font-black text-[#262727] sm:text-6xl md:text-7xl lg:text-6xl xl:text-7xl mb-8 leading-[0.9] uppercase">
-              A união que gera <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#198754] to-[#157347]">Energia e Representação.</span>
-            </h1>
-            <p className="text-lg text-slate-500 sm:text-xl lg:text-lg xl:text-xl mb-12 leading-relaxed font-medium max-w-xl">
-              Frente Potiguar de Geração Distribuída (FPGD RN). Defendendo os interesses de empresas e trabalhadores perante a Cosern.
-            </p>
-            <div className="flex flex-col sm:flex-row sm:justify-center lg:justify-start gap-4">
-              <button
-                onClick={onAgendamentoClick}
-                className="inline-flex items-center justify-center px-10 py-6 border-2 border-slate-100 text-[11px] font-black uppercase tracking-widest rounded-2xl text-slate-400 opacity-60 bg-white hover:bg-slate-50 shadow-xl shadow-slate-200 transition-all md:text-xs group min-w-[200px]"
-              >
-                Agendamento Cosern
-                <Calendar className="ml-3 w-5 h-5 group-hover:scale-110 transition-transform" />
-              </button>
-              <a
-                href="/#/reclame"
-                className="inline-flex items-center justify-center px-10 py-6 border-2 border-red-500 text-[11px] font-black uppercase tracking-widest rounded-2xl text-white bg-red-600 hover:bg-red-700 shadow-2xl shadow-red-200 transition-all md:text-xs group relative overflow-hidden min-w-[200px]"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                Reclame AGORA
-                <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="/#/login"
-                className="inline-flex items-center justify-center px-10 py-6 border-2 border-[#198754] text-[11px] font-black uppercase tracking-widest rounded-2xl text-white bg-[#198754] hover:bg-[#157347] shadow-2xl shadow-green-200 transition-all md:text-xs min-w-[200px]"
-              >
-                Acessar Login
-                <ShieldCheck className="ml-3 w-5 h-5" />
-              </a>
-            </div>
-            
-            <div className="mt-12 flex items-center justify-center lg:justify-start space-x-8 text-slate-400">
-              <div className="flex items-center space-x-2">
-                <ShieldCheck className="w-5 h-5 text-[#198754]" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Sem Fins Lucrativos</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Zap className="w-5 h-5 text-amber-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Energias Limpas</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="mt-16 lg:mt-0 lg:col-span-5 relative">
-            <div className="relative mx-auto w-full aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-[3.5rem] shadow-[0_48px_80px_-16px_rgba(25,135,84,0.2)] overflow-hidden group border-[12px] border-white ring-1 ring-slate-100">
-              <img
-                src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
-                alt="Instalação de painéis solares"
-                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-1000"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#262727]/90 via-[#262727]/20 to-transparent"></div>
-              <div className="absolute bottom-0 left-0 p-12 text-white">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#198754] mb-3">Impacto RN fpgd</p>
-                <h3 className="text-4xl font-black leading-tight tracking-tighter uppercase">Crescimento <br/>sustentável e justo.</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      <p className="text-xs text-fg-3 mt-1">Nota média de 1 a 5 dada por associados e clientes, por canal de atendimento.</p>
+      <ul className="mt-4 space-y-2.5">
+        {(t?.canais || CANAIS.map((c) => ({ label: c.label, media: null, n: 0 }))).map((c) => (
+          <li key={c.label} className="grid grid-cols-[84px_1fr_34px] items-center gap-3 text-sm">
+            <span className="text-fg-2">{c.label}</span>
+            <span className="h-2 rounded-full bg-raised overflow-hidden">
+              {t ? (
+                <span className="block h-full rounded-full transition-[width] duration-700 ease-out"
+                  style={{ width: c.media ? `${(c.media / 5) * 100}%` : '0%', background: c.media ? npsColor(c.media) : undefined }} />
+              ) : <span className="block h-full skeleton" />}
+            </span>
+            <span className="text-right font-bold tabular-nums">{c.media ? c.media.toFixed(1).replace('.', ',') : '–'}</span>
+          </li>
+        ))}
+      </ul>
+      {t?.desacordo != null && (
+        <p className="mt-4 pt-4 border-t border-line text-sm text-fg-2">
+          <b className="text-fg tabular-nums">{t.desacordo}%</b> discordam da resposta da distribuidora.
+        </p>
+      )}
+      <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary group-hover:text-primary-hover">
+        Ver o painel completo <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </a>
   );
 };
+
+const Hero: React.FC<{ tickets: boolean }> = ({ tickets }) => (
+  <section className="relative isolate -mt-[72px] pt-[72px] min-h-[min(100svh,920px)] flex items-end overflow-hidden">
+    <img src={PHOTOS.usinaCeu()} alt="Fileiras de painéis solares de uma usina sob céu aberto" className="absolute inset-0 -z-20 size-full object-cover object-[60%_center]" fetchPriority="high" />
+    <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(11_14_23/.96)_0%,rgb(11_14_23/.86)_38%,rgb(11_14_23/.35)_70%,rgb(11_14_23/.2)_100%)]" />
+    <div className="absolute inset-x-0 bottom-0 h-40 -z-10 bg-gradient-to-t from-bg to-transparent" />
+
+    <div className="w-full max-w-[1280px] mx-auto px-5 md:px-8 pb-16 md:pb-24 pt-16 grid lg:grid-cols-[minmax(0,1fr)_400px] gap-12 items-end">
+      <div className="max-w-[720px]">
+        <h1 className="text-[clamp(2.25rem,5vw,4.25rem)] font-extrabold leading-[1.04] tracking-[-0.03em] text-balance">
+          Integrador do RN não negocia sozinho com a Cosern.
+        </h1>
+        <p className="mt-6 text-lg leading-relaxed text-fg-2 max-w-[560px]">
+          A Frente Potiguar de Geração Distribuída reúne integradores e instaladores de energia solar do Rio Grande do Norte para cobrar a distribuidora com dados, pauta e representação coletiva.
+        </p>
+        <JoinForm id="cnpj-hero" className="mt-8 max-w-[560px]" />
+        {tickets && (
+          <p className="mt-4 text-sm text-fg-3">
+            Teve crédito que não compensou ou protocolo sem resposta?{' '}
+            <a href="#/reclame" className="font-semibold text-fg-2 underline decoration-line-strong hover:text-fg hover:decoration-fg">Registre a reclamação</a>
+          </p>
+        )}
+      </div>
+      {tickets && (
+        <div className="lg:justify-self-end w-full flex lg:block justify-start">
+          <Termometro />
+        </div>
+      )}
+    </div>
+  </section>
+);
 
 export default Hero;

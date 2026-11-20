@@ -1,100 +1,62 @@
-
 import React from 'react';
-import { FileCheck, MessageSquare, Scale, HelpCircle } from 'lucide-react';
+import { FileCheck, MessageSquare, Scale, ShieldCheck, Check } from 'lucide-react';
+import { PHOTOS } from './media';
 
-const Commission: React.FC = () => {
-  const demands = [
-    {
-      title: 'Agilidade em Pareceres',
-      description: 'Redução dos prazos de análise e liberação de projetos de Geração Distribuída.',
-      icon: <FileCheck className="w-5 h-5" />,
-    },
-    {
-      title: 'Canal Direto com Cosern',
-      description: 'Estabelecimento de um diálogo técnico e fluido para resolução de impasses normativos.',
-      icon: <MessageSquare className="w-5 h-5" />,
-    },
-    {
-      title: 'Transparência nas Regras',
-      description: 'Garantia de que as normas aplicadas pela distribuidora sigam rigorosamente a legislação da ANEEL.',
-      icon: <Scale className="w-5 h-5" />,
-    },
-    {
-      title: 'Defesa do Integrador',
-      description: 'Apoio técnico e jurídico para empresas integradoras em casos de exigências indevidas.',
-      icon: <HelpCircle className="w-5 h-5" />,
-    },
-  ];
+const DEMANDAS = [
+  { icon: FileCheck, title: 'Agilidade em pareceres', text: 'Redução dos prazos de análise e liberação de projetos de geração distribuída.' },
+  { icon: MessageSquare, title: 'Canal direto com a Cosern', text: 'Diálogo técnico e fluido para resolver impasses normativos.' },
+  { icon: Scale, title: 'Transparência nas regras', text: 'Normas aplicadas pela distribuidora seguindo rigorosamente a legislação da ANEEL.' },
+  { icon: ShieldCheck, title: 'Defesa do integrador', text: 'Apoio técnico e jurídico em casos de exigências indevidas.' },
+];
 
-  return (
-    <section id="comissao" className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="lg:flex lg:items-center lg:gap-16">
-          <div className="lg:w-1/2 mb-12 lg:mb-0">
-            <h2 className="text-base font-semibold text-green-600 tracking-wide uppercase mb-3">Objetivo Central</h2>
-            <h3 className="text-3xl font-extrabold text-slate-900 sm:text-4xl mb-6">
-              Comissão de Representação Setorial <span className="text-green-600">Cosern</span>
-            </h3>
-            <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-              O momento exige união. Estamos formando uma comissão técnica e política para levar as demandas reais do mercado de energia solar do RN diretamente à mesa de decisão da Cosern (Neoenergia).
-            </p>
-            
-            <div className="space-y-6">
-              {demands.map((item, index) => (
-                <div key={index} className="flex items-start">
-                  <div className="flex-shrink-0 mt-1">
-                    <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
-                      {item.icon}
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <h4 className="text-lg font-bold text-slate-900">{item.title}</h4>
-                    <p className="text-slate-600">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="lg:w-1/2">
-            <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-green-600/20 blur-3xl rounded-full"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-green-600/10 blur-3xl rounded-full"></div>
-              
-              <div className="relative z-10">
-                <h4 className="text-2xl font-bold mb-6">Por que participar?</h4>
-                <ul className="space-y-6">
-                  <li className="flex items-center space-x-4">
-                    <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0 text-slate-900 font-bold text-xs">1</div>
-                    <p className="text-slate-200">Influencie as políticas locais da distribuidora.</p>
-                  </li>
-                  <li className="flex items-center space-x-4">
-                    <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0 text-slate-900 font-bold text-xs">2</div>
-                    <p className="text-slate-200">Acesso a informações privilegiadas sobre regulação.</p>
-                  </li>
-                  <li className="flex items-center space-x-4">
-                    <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0 text-slate-900 font-bold text-xs">3</div>
-                    <p className="text-slate-200">Fortalecimento institucional da sua empresa.</p>
-                  </li>
-                  <li className="flex items-center space-x-4">
-                    <div className="w-6 h-6 rounded-full bg-green-600 flex items-center justify-center flex-shrink-0 text-slate-900 font-bold text-xs">4</div>
-                    <p className="text-slate-200">Unificação da linguagem técnica do setor.</p>
-                  </li>
-                </ul>
-                
-                <div className="mt-12 p-6 bg-white/5 rounded-2xl border border-white/10">
-                  <p className="text-sm italic text-slate-300">
-                    "A fragmentação do setor é o que permite que dificuldades persistam. Unidos, somos um player impossível de ignorar."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+const MOTIVOS = [
+  'Influencie as políticas locais da distribuidora.',
+  'Acesso a informações sobre regulação em primeira mão.',
+  'Fortalecimento institucional da sua empresa.',
+  'Unificação da linguagem técnica do setor.',
+];
+
+const Commission: React.FC = () => (
+  <section id="comissao" className="scroll-mt-20 relative isolate overflow-hidden py-24 md:py-32">
+    <img src={PHOTOS.aerea()} alt="" loading="lazy" className="absolute inset-0 -z-20 size-full object-cover opacity-30" />
+    <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,var(--color-bg)_0%,rgb(11_14_23/.82)_30%,rgb(11_14_23/.82)_70%,var(--color-bg)_100%)]" />
+
+    <div className="max-w-[1280px] mx-auto px-5 md:px-8">
+      <div className="max-w-[760px]">
+        <h2 className="text-[clamp(1.875rem,3.4vw,2.75rem)] font-extrabold leading-[1.1] tracking-[-0.025em] text-balance">
+          Comissão de Representação Setorial na Cosern
+        </h2>
+        <p className="mt-5 text-lg leading-relaxed text-fg-2">
+          O momento exige união. A comissão técnica e política da Frente leva as demandas reais do mercado solar do RN direto à mesa de decisão da Cosern (Neoenergia).
+        </p>
+      </div>
+
+      <div className="mt-14 grid lg:grid-cols-[1.4fr_1fr] gap-6">
+        <ul className="grid sm:grid-cols-2 gap-px bg-line border border-line rounded-[16px] overflow-hidden">
+          {DEMANDAS.map((d) => (
+            <li key={d.title} className="p-6 md:p-7 bg-panel/95">
+              <d.icon size={22} className="text-energy" />
+              <h3 className="mt-4 font-bold text-lg">{d.title}</h3>
+              <p className="mt-1.5 text-[15px] leading-relaxed text-fg-2">{d.text}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="panel glow-corner !bg-raised/90 backdrop-blur p-6 md:p-8 flex flex-col">
+          <h3 className="text-lg font-bold">Por que participar</h3>
+          <ul className="mt-5 space-y-4">
+            {MOTIVOS.map((m) => (
+              <li key={m} className="flex gap-3 text-[15px] text-fg-2">
+                <Check size={18} className="text-energy shrink-0 mt-0.5" /> {m}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-auto pt-8 text-[15px] leading-relaxed text-fg font-semibold border-t border-line">
+            A fragmentação do setor é o que permite que as dificuldades persistam. Unidos, somos um player impossível de ignorar.
+          </p>
         </div>
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default Commission;
