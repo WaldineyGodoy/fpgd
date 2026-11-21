@@ -50,6 +50,32 @@ Deno.serve(async (req) => {
       return ok();
     }
 
+    // Asaas do próprio associado (CRM white label): ?src=tenant-asaas&t=<company_id>
+    if (src === 'tenant-asaas') {
+      const t = url.searchParams.get('t') || '';
+      const { data: row } = await db.from('tenant_config').select('valor').eq('company_id', t).eq('chave', 'asaas').maybeSingle();
+      const token = (row?.valor as Record<string, any> | undefined)?.webhook_token;
+      if (!token || req.headers.get('asaas-access-token') !== token) return deny();
+      const p = payload.payment;
+      if (!p?.id) return ok();
+      const { data: cb } = await db.from('tenant_cobrancas').select('id, cliente_id, company_id').eq('asaas_payment_id', p.id).maybeSingle();
+      if (cb && cb.company_id !== t) return deny(); // pagamento de outro associado: nunca sobrescrever
+      let clienteId = cb?.cliente_id ?? null;
+      if (!clienteId && p.externalReference) {
+        const { data: cli } = await db.from('tenant_clientes').select('id').eq('company_id', t).eq('id', p.externalReference).maybeSingle();
+        clienteId = cli?.id ?? null;
+      }
+      await db.from('tenant_cobrancas').upsert({
+        company_id: t, cliente_id: clienteId, asaas_payment_id: p.id, descricao: p.description ?? null,
+        valor: Number(p.value || 0), forma: p.billingType ?? null, status: p.status, vencimento: p.dueDate,
+        pago_em: p.clientPaymentDate || p.paymentDate || null, invoice_url: p.invoiceUrl ?? null, updated_at: new Date().toISOString(),
+      }, { onConflict: 'asaas_payment_id' });
+      if (clienteId && PAGO.includes(payload.event)) {
+        await db.from('tenant_eventos').insert({ company_id: t, cliente_id: clienteId, tipo: 'pagamento', descricao: `Pagamento de R$ ${Number(p.value || 0).toFixed(2).replace('.', ',')} confirmado.` });
+      }
+      return ok();
+    }
+
     if (src === 'autentique') {
       const cfg = await getConfig(db, 'autentique');
       if (!cfg.webhook_token || url.searchParams.get('token') !== cfg.webhook_token) return deny();

@@ -126,11 +126,25 @@ export async function evolutionSendText(cfg: Record<string, any>, number: string
   return r.json().catch(() => ({}));
 }
 
-export async function resendSend(cfg: Record<string, any>, to: string, subject: string, html: string) {
+/** Envia um PDF como documento pelo WhatsApp (Evolution API). */
+export async function evolutionSendDocument(cfg: Record<string, any>, number: string, base64: string, fileName: string, caption = '') {
+  const base = String(cfg.base_url || '').replace(/\/+$/, '');
+  const r = await fetch(`${base}/message/sendMedia/${encodeURIComponent(cfg.instance)}`, {
+    method: 'POST',
+    headers: { apikey: cfg.api_key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ number, mediatype: 'document', mimetype: 'application/pdf', media: base64, fileName, caption }),
+  });
+  if (!r.ok) throw new HttpError(502, `Evolution: ${r.status} ${(await r.text()).slice(0, 200)}`);
+  return r.json().catch(() => ({}));
+}
+
+export type Anexo = { filename: string; content: string }; // content em base64
+
+export async function resendSend(cfg: Record<string, any>, to: string, subject: string, html: string, attachments?: Anexo[]) {
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${cfg.api_key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: cfg.from, to: [to], subject, html, reply_to: cfg.reply_to || undefined }),
+    body: JSON.stringify({ from: cfg.from, to: [to], subject, html, reply_to: cfg.reply_to || undefined, attachments }),
   });
   const body = await r.json().catch(() => ({}));
   if (!r.ok) throw new HttpError(502, `Resend: ${body.message || r.statusText}`);
@@ -151,3 +165,11 @@ export async function asaas(cfg: Record<string, any>, path: string, init: { meth
   if (!r.ok) throw new HttpError(502, `Asaas: ${body.errors?.[0]?.description || r.statusText}`);
   return body;
 }
+
+export function toBase64(bytes: Uint8Array) {
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+export const maskSecret = (v: string) => (v.length <= 4 ? '••••' : `••••${v.slice(-4)}`);

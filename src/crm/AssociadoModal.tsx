@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  X, Save, FileText, Send, RefreshCw, ExternalLink, MessageCircle, Mail, CreditCard, History, Building2, Copy, Ban, ShieldCheck,
+  Save, FileText, Send, RefreshCw, ExternalLink, MessageCircle, Mail, CreditCard, History, Building2, Copy, Ban, ShieldCheck, LayoutPanelLeft,
 } from 'lucide-react';
+import TenantCrmTab from '../tenant/TenantCrmTab';
 import { supabase } from '../supabaseClient';
 import {
   ASSOCIADO_COLS, STATUS, ASAAS_STATUS, CICLO_LABEL, DEFAULT_CONTRATO, brl, callFn, dataBR, formatCnpj, formatPhone,
@@ -10,12 +11,14 @@ import {
 } from './data';
 import { Field, StatusChip, contratoMeta, useToast } from './ui';
 import { useSession } from '../components/AppLayout';
+import Shell from './Sheet';
 
-type Tab = 'dados' | 'contrato' | 'cobranca' | 'historico';
+type Tab = 'dados' | 'contrato' | 'cobranca' | 'crm' | 'historico';
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: 'dados', label: 'Dados', icon: Building2 },
   { id: 'contrato', label: 'Contrato', icon: FileText },
   { id: 'cobranca', label: 'Cobrança', icon: CreditCard },
+  { id: 'crm', label: 'CRM do associado', icon: LayoutPanelLeft },
   { id: 'historico', label: 'Histórico', icon: History },
 ];
 
@@ -167,6 +170,8 @@ const AssociadoModal: React.FC<Props> = ({ id, planos, onClose, onChanged }) => 
           <ContratoTab a={a} planos={planos} contratos={contratos} busy={busy} setBusy={setBusy} reload={async () => { await load(); onChanged(); }} />
         ) : tab === 'cobranca' ? (
           <CobrancaTab a={a} planos={planos} fin={fin} busy={busy} setBusy={setBusy} reload={async () => { await load(); onChanged(); }} canCancel={canManage} />
+        ) : tab === 'crm' ? (
+          <TenantCrmTab a={a} reload={async () => { await load(); onChanged(); }} />
         ) : (
           <div className="p-6">
             {eventos.length === 0 ? (
@@ -198,26 +203,6 @@ const AssociadoModal: React.FC<Props> = ({ id, planos, onClose, onChanged }) => 
     </Shell>
   );
 };
-
-// ---------- Moldura do modal (painel lateral) ----------
-const Shell: React.FC<{ title: string; subtitle?: React.ReactNode; onClose: () => void; panelRef: React.RefObject<HTMLDivElement | null>; children: React.ReactNode }> =
-  ({ title, subtitle, onClose, panelRef, children }) => (
-    <div className="fixed inset-0 z-[60] flex justify-end" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-[rgb(3_5_10/.7)] animate-[fade_.15s_ease-out]" onClick={onClose} />
-      <div ref={panelRef} tabIndex={-1}
-        className="relative w-full max-w-[760px] h-full bg-panel border-l border-line flex flex-col outline-none animate-[sheet_.24s_cubic-bezier(.23,1,.32,1)]">
-        <header className="glow-corner px-6 pt-5 pb-4 flex items-start gap-4">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-extrabold tracking-tight truncate">{title}</h2>
-            {subtitle && <div className="mt-2 text-xs text-fg-3">{subtitle}</div>}
-          </div>
-          <button className="btn btn-ghost !px-2 -mr-2" onClick={onClose} aria-label="Fechar"><X size={20} /></button>
-        </header>
-        {children}
-      </div>
-      <style>{`@keyframes sheet{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}@keyframes fade{from{opacity:0}}`}</style>
-    </div>
-  );
 
 // ---------- Contrato ----------
 const ContratoTab: React.FC<{

@@ -47,6 +47,7 @@ export interface Associado {
   status_alterado_em: string | null;
   observacoes_crm: string | null;
   is_admin: boolean;
+  crm_habilitado: boolean;
 }
 
 export interface Contrato {
@@ -83,7 +84,7 @@ export interface Evento {
 }
 
 export const ASSOCIADO_COLS =
-  'id, cnpj, razao_social, nome_fantasia, email, telefone, contato_nome, cep, logradouro, numero, bairro, municipio, uf, created_at, status_associado, plano_id, matricula, data_adesao, status_alterado_em, observacoes_crm, is_admin';
+  'id, cnpj, razao_social, nome_fantasia, email, telefone, contato_nome, cep, logradouro, numero, bairro, municipio, uf, created_at, status_associado, plano_id, matricula, data_adesao, status_alterado_em, observacoes_crm, is_admin, crm_habilitado';
 
 export const nomeAssociado = (a: Pick<Associado, 'nome_fantasia' | 'razao_social'>) =>
   a.nome_fantasia || a.razao_social || 'Sem nome';

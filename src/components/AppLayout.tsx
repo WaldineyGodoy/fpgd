@@ -15,17 +15,18 @@ export interface Session {
   isStaff: boolean;      // canManage ou mediador: CRM
   companyId: string | null;
   userName: string;
+  crmHabilitado: boolean; // associado com CRM próprio (white label)
 }
 const SessionContext = createContext<Session>({
-  role: 'cliente', isAdmin: false, canManage: false, isStaff: false, companyId: null, userName: '',
+  role: 'cliente', isAdmin: false, canManage: false, isStaff: false, companyId: null, userName: '', crmHabilitado: false,
 });
 export const useSession = () => useContext(SessionContext);
 
-export type Access = 'staff' | 'manage' | 'root';
+export type Access = 'staff' | 'manage' | 'root' | 'tenant';
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  /** Quem acessa: equipe (CRM), gestão (superadmin/admin) ou só o superadmin. Sem valor = qualquer usuário logado. */
+  /** Quem acessa: equipe (CRM), gestão (superadmin/admin), só o superadmin, ou o associado com CRM próprio (tenant). Sem valor = qualquer usuário logado. */
   access?: Access;
   /** Rota pertence ao sistema de tickets (some quando ele está oculto). */
   feature?: 'tickets';
@@ -33,7 +34,7 @@ interface AppLayoutProps {
 
 /** Para onde mandar cada perfil ao entrar. */
 export const homeFor = (s: Session, ticketsEnabled: boolean) =>
-  s.isStaff ? '/crm' : ticketsEnabled ? '/tickets' : '/associacao';
+  s.isStaff ? '/crm' : s.crmHabilitado ? '/meu-crm' : ticketsEnabled ? '/tickets' : '/associacao';
 
 const AppLayout: React.FC<AppLayoutProps> = ({ children, access, feature }) => {
   const [session, setSession] = useState<Session | null>(null);
@@ -48,7 +49,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, access, feature }) => {
       if (!s) { navigate('/login'); return; }
       const { data: company } = await supabase
         .from('companies')
-        .select('id, user_type, is_admin, nome_fantasia, razao_social')
+        .select('id, user_type, is_admin, nome_fantasia, razao_social, crm_habilitado')
         .eq('auth_user_id', s.user.id)
         .maybeSingle();
       if (!alive) return;
@@ -60,6 +61,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, access, feature }) => {
         isStaff: canManage || role === 'mediador',
         companyId: company?.id ?? null,
         userName: company?.nome_fantasia || company?.razao_social || s.user.email?.split('@')[0] || 'Usuário',
+        crmHabilitado: company?.crm_habilitado === true,
       });
     })();
     return () => { alive = false; };
@@ -83,7 +85,8 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, access, feature }) => {
   const allowed = !access
     || (access === 'staff' && session.isStaff)
     || (access === 'manage' && session.canManage)
-    || (access === 'root' && session.role === 'superadmin');
+    || (access === 'root' && session.role === 'superadmin')
+    || (access === 'tenant' && (session.crmHabilitado || session.role === 'superadmin'));
 
   return (
     <SessionContext.Provider value={session}>

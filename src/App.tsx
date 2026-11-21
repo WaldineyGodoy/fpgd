@@ -25,13 +25,17 @@ import UsinaDetails from './pages/UsinaDetails';
 import CrmPage from './pages/CrmPage';
 import CrmConfigPage from './pages/CrmConfigPage';
 import { ToastProvider } from './crm/ui';
+import ClientesPage from './tenant/ClientesPage';
+import PropostasPage from './tenant/PropostasPage';
+const PropostaStudio = React.lazy(() => import('./tenant/PropostaStudio'));
+import MeuCrmConfigPage from './tenant/MeuCrmConfigPage';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname.startsWith('/crm') ? '/crm' : location.pathname}>
+      <Routes location={location} key={location.pathname.startsWith('/crm') ? '/crm' : location.pathname.startsWith('/meu-crm') ? '/meu-crm' : location.pathname}>
         {/* Redirect root to login for the new system */}
         <Route path="/" element={<HomePage />} />
 
@@ -127,6 +131,30 @@ const AnimatedRoutes = () => {
         <Route path="/crm/pagamentos" element={
           <AppLayout access="staff">
             <PagamentosPage />
+          </AppLayout>
+        } />
+
+        {/* CRM próprio do associado (white label) */}
+        <Route path="/meu-crm" element={
+          <AppLayout access="tenant">
+            <ClientesPage />
+          </AppLayout>
+        } />
+        <Route path="/meu-crm/propostas" element={
+          <AppLayout access="tenant">
+            <PropostasPage />
+          </AppLayout>
+        } />
+        <Route path="/meu-crm/proposta/:id" element={
+          <AppLayout access="tenant">
+            <React.Suspense fallback={<div className="space-y-4"><div className="skeleton h-8 w-64" /><div className="skeleton h-96" /></div>}>
+              <PropostaStudio />
+            </React.Suspense>
+          </AppLayout>
+        } />
+        <Route path="/meu-crm/configuracoes" element={
+          <AppLayout access="tenant">
+            <MeuCrmConfigPage />
           </AppLayout>
         } />
 

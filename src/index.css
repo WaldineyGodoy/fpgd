@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "./styles/legacy.css";
+@import "./styles/solar.css";
 
 /*
   Sistema visual FPGD — portal de energia escuro (régua: elekeeper/SAJ).
@@ -33,9 +34,32 @@
   --color-st-inativo: #8C95A8;
   --color-st-cancelado: #F2626E;
 
+  /* Funil do CRM do associado (dado, não marca) */
+  --color-et-novo: #4CC3FF;
+  --color-et-contato: #12D4E6;
+  --color-et-visita: #7FA8FF;
+  --color-et-proposta: #B08CFF;
+  --color-et-negociacao: #FFA43A;
+  --color-et-ganho: #2BD99F;
+  --color-et-perdido: #F2626E;
+
   --color-danger: #F2626E;
+  --color-danger-text: #FF8B95;
   --color-warn: #FFA43A;
   --color-ok: #2BD99F;
+
+  /* Escala "ink" usada pelo motor solar portado (src/tenant/solar), mapeada para os neutros da FPGD. */
+  --color-ink-50: #EEF2F8;
+  --color-ink-100: #DCE2EC;
+  --color-ink-200: #C3CBD8;
+  --color-ink-300: #AFB8C8;
+  --color-ink-400: #7F899C;
+  --color-ink-500: #5D6679;
+  --color-ink-600: #36405A;
+  --color-ink-700: #36405A;
+  --color-ink-800: #283044;
+  --color-ink-900: #141925;
+  --color-ink-950: #1F2636;
 
   --radius-panel: 16px;
   --radius-control: 10px;
@@ -133,6 +157,7 @@ a { text-underline-offset: 3px; }
   .skeleton { background: linear-gradient(90deg, #1B2130 0%, #232A3B 50%, #1B2130 100%); background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite; border-radius: 8px; }
 }
 
+@keyframes sheet-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
 @media (prefers-reduced-motion: reduce) {

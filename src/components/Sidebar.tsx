@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Ticket, Kanban, Sun, Users, Settings, Shield, LogOut, Plus, X, Wallet, BadgeCheck,
+  LayoutDashboard, Ticket, Kanban, Sun, Users, Settings, Shield, LogOut, Plus, X, Wallet, BadgeCheck, Contact, FileBarChart, Calculator, SlidersHorizontal,
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import Logo from './Logo';
@@ -18,7 +18,8 @@ const ROLE_LABEL: Record<Session['role'], string> = {
 
 const Sidebar: React.FC<SidebarProps> = ({ session, ticketsEnabled, open, onClose }) => {
   const navigate = useNavigate();
-  const { isStaff, role, isAdmin, userName } = session;
+  const { isStaff, role, isAdmin, userName, crmHabilitado } = session;
+  const tenant = crmHabilitado && !isStaff;
 
   const logout = async () => {
     await supabase.auth.signOut();
@@ -27,7 +28,16 @@ const Sidebar: React.FC<SidebarProps> = ({ session, ticketsEnabled, open, onClos
 
   const groups: Group[] = [
     {
-      title: 'CRM',
+      title: 'Meu CRM',
+      items: [
+        { label: 'Clientes', icon: Contact, path: '/meu-crm', end: true, show: tenant },
+        { label: 'Propostas', icon: FileBarChart, path: '/meu-crm/propostas', show: tenant },
+        { label: 'Dimensionamento', icon: Calculator, path: '/meu-crm/proposta/nova', show: tenant },
+        { label: 'Configurações', icon: SlidersHorizontal, path: '/meu-crm/configuracoes', show: tenant },
+      ],
+    },
+    {
+      title: tenant ? 'FPGD' : 'CRM',
       items: [
         { label: 'Associados', icon: Users, path: '/crm', end: true, show: isStaff },
         { label: 'Pagamentos', icon: Wallet, path: '/crm/pagamentos', show: isStaff },
