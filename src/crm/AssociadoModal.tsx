@@ -252,7 +252,7 @@ const ContratoTab: React.FC<{
     try {
       const r = await callFn<{ link: string | null; enviado_whatsapp: boolean; enviado_email: boolean; avisos: string[] }>('crm-contrato', { action: 'enviar', contrato_id: atual.id, canais });
       const via = [r.enviado_whatsapp && 'WhatsApp', r.enviado_email && 'e-mail'].filter(Boolean).join(' e ');
-      toast('ok', via ? `Contrato enviado para assinatura por ${via}.` : 'Contrato criado no Autentique. Nenhuma mensagem foi enviada; copie o link abaixo.');
+      toast('ok', via ? `Contrato enviado para assinatura por ${via}.` : 'Contrato criado no Documenso. Nenhuma mensagem foi enviada; copie o link abaixo.');
       r.avisos?.forEach((m) => toast('error', m));
     } catch (e) {
       toast('error', (e as Error).message);
@@ -266,7 +266,7 @@ const ContratoTab: React.FC<{
     setBusy('verificar');
     try {
       const r = await callFn<{ status: Contrato['status'] }>('crm-contrato', { action: 'verificar', contrato_id: atual.id });
-      toast('ok', `Situação no Autentique: ${contratoMeta(r.status).label.toLowerCase()}.`);
+      toast('ok', `Situação da assinatura: ${contratoMeta(r.status).label.toLowerCase()}.`);
     } catch (e) { toast('error', (e as Error).message); }
     setBusy(null);
     await reload();
@@ -329,7 +329,7 @@ const ContratoTab: React.FC<{
           {editavel && (
             <div className="rounded-[16px] bg-raised border border-line p-4">
               <p className="text-sm font-bold">Enviar para assinatura</p>
-              <p className="text-xs text-fg-3 mt-0.5">O PDF vai para o Autentique e o link de assinatura segue pelos canais marcados.</p>
+              <p className="text-xs text-fg-3 mt-0.5">O PDF vai para o Documenso. Por e-mail, o convite sai do próprio Documenso; pelo WhatsApp, enviamos o link de assinatura. O associado precisa ter e-mail cadastrado.</p>
               <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm">
                 <label className={`inline-flex items-center gap-2 ${!a.telefone ? 'opacity-50' : ''}`}>
                   <input type="checkbox" className="accent-[#2F8CFF] size-4" checked={canais.whatsapp && !!a.telefone} disabled={!a.telefone} onChange={(e) => setCanais((c) => ({ ...c, whatsapp: e.target.checked }))} />
@@ -342,7 +342,7 @@ const ContratoTab: React.FC<{
               </div>
               <div className="mt-4 flex justify-end gap-2">
                 <button className="btn btn-secondary" onClick={salvar} disabled={texto === atual.conteudo || busy === 'salvar'}><Save size={15} /> Salvar rascunho</button>
-                <button className="btn btn-primary" onClick={enviar} disabled={busy === 'enviar' || (!a.email && !a.telefone)}>
+                <button className="btn btn-primary" onClick={enviar} disabled={busy === 'enviar' || !a.email}>
                   <Send size={15} /> {busy === 'enviar' ? 'Enviando…' : 'Enviar para assinatura'}
                 </button>
               </div>

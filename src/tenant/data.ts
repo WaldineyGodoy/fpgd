@@ -70,6 +70,8 @@ export interface ContratoCliente {
   status: 'rascunho' | 'enviado' | 'assinado' | 'recusado' | 'cancelado';
   enviado_em: string | null;
   assinado_em: string | null;
+  documenso_document_id?: string | null;
+  link_assinatura?: string | null;
   created_at: string;
 }
 

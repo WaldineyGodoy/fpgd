@@ -7,12 +7,11 @@ import { CICLO_LABEL, CONTRATO_VARS, DEFAULT_CONTRATO, brl, callFn, type Plano }
 import { Field, PageHeader, useToast } from '../crm/ui';
 import { useSession } from '../components/AppLayout';
 
-type SectionId = 'sistema' | 'planos' | 'contrato' | 'autentique' | 'evolution' | 'resend' | 'asaas';
+type SectionId = 'sistema' | 'planos' | 'contrato' | 'evolution' | 'resend' | 'asaas';
 const SECTIONS: { id: SectionId; label: string; desc: string }[] = [
   { id: 'sistema', label: 'Sistema e acessos', desc: 'Módulo de tickets e administradores' },
   { id: 'planos', label: 'Planos e valores', desc: 'Mensalidades oferecidas aos associados' },
-  { id: 'contrato', label: 'Modelo de contrato', desc: 'Texto base do contrato de adesão' },
-  { id: 'autentique', label: 'Autentique', desc: 'Assinatura eletrônica' },
+  { id: 'contrato', label: 'Contrato e assinatura', desc: 'Modelo do contrato e Documenso' },
   { id: 'evolution', label: 'Evolution', desc: 'WhatsApp' },
   { id: 'resend', label: 'Resend', desc: 'E-mail transacional' },
   { id: 'asaas', label: 'Asaas', desc: 'Cobrança recorrente' },
@@ -20,7 +19,7 @@ const SECTIONS: { id: SectionId; label: string; desc: string }[] = [
 
 type Cfg = Record<string, any>;
 /** Credenciais e API keys: visíveis e editáveis só pelo superadmin. */
-const CREDENCIAIS: SectionId[] = ['autentique', 'evolution', 'resend', 'asaas'];
+const CREDENCIAIS: SectionId[] = ['evolution', 'resend', 'asaas'];
 
 const CrmConfigPage: React.FC = () => {
   const { role, canManage } = useSession();
@@ -48,7 +47,7 @@ const CrmConfigPage: React.FC = () => {
         <nav className="panel p-2 lg:sticky lg:top-4 flex lg:flex-col gap-1 overflow-x-auto" aria-label="Seções">
           {SECTIONS.filter((s) => role === 'superadmin' || !CREDENCIAIS.includes(s.id)).map((s) => {
             const active = section === s.id;
-            const ok = !['planos', 'contrato', 'sistema'].includes(s.id) && cfg && isConfigured(s.id, cfg[s.id]);
+            const ok = !['planos', 'sistema'].includes(s.id) && cfg && isConfigured(s.id, cfg[s.id === 'contrato' ? 'documenso' : s.id]);
             return (
               <button key={s.id} onClick={() => setSection(s.id)}
                 className={`text-left rounded-[10px] px-3 py-2.5 shrink-0 transition-colors ${active ? 'bg-energy-soft text-fg' : 'text-fg-2 hover:bg-raised hover:text-fg'}`}>
@@ -68,17 +67,21 @@ const CrmConfigPage: React.FC = () => {
           )}
           {section === 'sistema' && <SistemaSection readOnly={readOnly} isRoot={role === 'superadmin'} />}
           {section === 'planos' && <PlanosSection readOnly={readOnly} />}
-          {section === 'contrato' && cfg && <ContratoSection cfg={cfg.contrato} readOnly={readOnly} onSaved={loadCfg} />}
-          {section === 'autentique' && cfg && (
-            <IntegrationSection chave="autentique" title="Autentique" readOnly={readOnly} cfg={cfg.autentique} onSaved={loadCfg}
-              intro={<>Gere o token em <b>Autentique › Configurações › API</b>. Com o modo sandbox ligado os documentos não têm validade jurídica.</>}
-              webhook={cfg.webhooks?.autentique} webhookParam="token"
-              fields={[
-                { key: 'token', label: 'Token da API', secret: true },
-                { key: 'sandbox', label: 'Modo sandbox (testes)', type: 'toggle' },
-                { key: 'mensagem', label: 'Mensagem para o signatário', type: 'textarea', placeholder: 'Contrato de adesão à Frente Potiguar de Geração Distribuída.' },
-                { key: 'webhook_token', label: 'Token do webhook', secret: true, hint: 'Invente uma senha longa. Ela vai no final da URL do webhook abaixo.' },
-              ]} />
+          {section === 'contrato' && cfg && (
+            <div className="space-y-6">
+              <ContratoSection cfg={cfg.contrato} readOnly={readOnly} onSaved={loadCfg} />
+              {role === 'superadmin' && (
+                <IntegrationSection chave="documenso" title="Assinatura eletrônica · Documenso" readOnly={readOnly} cfg={cfg.documenso} onSaved={loadCfg}
+                  intro={<>Os contratos de adesão saem pelo Documenso da FPGD em <b>docs.b2wenergia.com.br</b>. Gere o token em <b>Documenso › Configurações › Tokens de API</b>. Em <b>Webhooks</b>, cadastre a URL abaixo com os eventos “Documento concluído” e “Documento recusado” e o mesmo segredo informado aqui. Integradores sem conta própria também enviam os contratos dos clientes por esta conta.</>}
+                  webhook={cfg.webhooks?.documenso}
+                  fields={[
+                    { key: 'base_url', label: 'Endereço do Documenso', placeholder: 'https://docs.b2wenergia.com.br' },
+                    { key: 'api_token', label: 'Token da API', secret: true },
+                    { key: 'mensagem', label: 'Mensagem do convite', type: 'textarea', placeholder: 'Contrato de adesão à Frente Potiguar de Geração Distribuída. Leia e assine pelo botão abaixo.' },
+                    { key: 'webhook_secret', label: 'Segredo do webhook', secret: true, hint: 'Invente uma senha longa e cole a mesma no campo Secret do webhook no Documenso.' },
+                  ]} />
+              )}
+            </div>
           )}
           {section === 'evolution' && cfg && (
             <IntegrationSection chave="evolution" title="Evolution API" readOnly={readOnly} cfg={cfg.evolution} onSaved={loadCfg}
@@ -118,7 +121,7 @@ const CrmConfigPage: React.FC = () => {
 
 function isConfigured(id: string, c?: Cfg) {
   if (!c) return false;
-  if (id === 'autentique') return c.token__set;
+  if (id === 'contrato') return c.api_token__set;
   if (id === 'evolution') return c.api_key__set && c.base_url && c.instance;
   if (id === 'resend') return c.api_key__set && c.from;
   if (id === 'asaas') return c.api_key__set;

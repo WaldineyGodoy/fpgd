@@ -36,7 +36,7 @@ export async function requireStaff(req: Request, onlySuperadmin = false) {
 }
 
 /** Credenciais e API keys: somente o superadmin. */
-export const CREDENTIAL_KEYS = ['autentique', 'evolution', 'resend', 'asaas'];
+export const CREDENTIAL_KEYS = ['documenso', 'autentique', 'evolution', 'resend', 'asaas'];
 
 /** Espelha um pagamento do Asaas na tabela cobrancas. */
 export async function upsertCobranca(db: SupabaseClient, p: Record<string, any>, companyId?: string | null) {
@@ -59,6 +59,7 @@ export async function upsertCobranca(db: SupabaseClient, p: Record<string, any>,
 }
 
 export const SECRET_FIELDS: Record<string, string[]> = {
+  documenso: ['api_token', 'webhook_secret'],
   autentique: ['token', 'webhook_token'],
   evolution: ['api_key'],
   resend: ['api_key'],
@@ -173,3 +174,61 @@ export function toBase64(bytes: Uint8Array) {
 }
 
 export const maskSecret = (v: string) => (v.length <= 4 ? '••••' : `••••${v.slice(-4)}`);
+
+// ---------- Documenso (API v1 da instância própria) ----------
+export const DOCUMENSO_URL = 'https://docs.b2wenergia.com.br';
+const documensoBase = (cfg: Record<string, any>) => String(cfg.base_url || DOCUMENSO_URL).replace(/\/+$/, '');
+
+export async function documenso(cfg: Record<string, any>, path: string, init: { method?: string; body?: unknown } = {}) {
+  const r = await fetch(`${documensoBase(cfg)}/api/v1${path}`, {
+    method: init.method || 'GET',
+    headers: { Authorization: cfg.api_token, 'Content-Type': 'application/json' },
+    body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+  });
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new HttpError(502, `Documenso: ${body.message || body.error || r.status + ' ' + r.statusText}`);
+  return body;
+}
+
+export interface DocumensoEnvio {
+  titulo: string; pdf: Uint8Array; externalId: string;
+  signatario: { nome: string; email: string };
+  campo: { page: number; x: number; y: number; w: number; h: number } | null;
+  assunto?: string; mensagem?: string; enviarEmail: boolean;
+}
+
+/** Cria o documento, sobe o PDF, posiciona a assinatura e distribui. Devolve id e link de assinatura. */
+export async function documensoEnviar(cfg: Record<string, any>, e: DocumensoEnvio) {
+  const created = await documenso(cfg, '/documents', {
+    method: 'POST',
+    body: {
+      title: e.titulo, externalId: e.externalId,
+      recipients: [{ name: e.signatario.nome, email: e.signatario.email, role: 'SIGNER' }],
+      meta: {
+        subject: e.assunto || e.titulo, message: e.mensagem || undefined,
+        language: 'pt-BR', timezone: 'America/Fortaleza', dateFormat: 'dd/MM/yyyy HH:mm',
+        distributionMethod: e.enviarEmail ? 'EMAIL' : 'NONE',
+      },
+    },
+  });
+  const up = await fetch(created.uploadUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: e.pdf });
+  if (!up.ok) throw new HttpError(502, `Documenso: falha ao enviar o PDF (${up.status}).`);
+  const rec = created.recipients?.[0];
+  const c = e.campo || { page: 1, x: 10, y: 80, w: 40, h: 8 };
+  await documenso(cfg, `/documents/${created.documentId}/fields`, {
+    method: 'POST',
+    body: { recipientId: rec.recipientId, type: 'SIGNATURE', pageNumber: c.page, pageX: c.x, pageY: c.y, pageWidth: c.w, pageHeight: c.h },
+  });
+  await documenso(cfg, `/documents/${created.documentId}/send`, { method: 'POST', body: { sendEmail: e.enviarEmail, sendCompletionEmails: true } });
+  return { documentId: String(created.documentId), link: rec?.signingUrl as string | null };
+}
+
+/** Situação do documento no Documenso: assinado, recusado ou enviado. */
+export async function documensoStatus(cfg: Record<string, any>, documentId: string) {
+  const d = await documenso(cfg, `/documents/${documentId}`);
+  const st = String(d.status || '').toUpperCase();
+  const recs = (d.recipients || []) as any[];
+  if (st === 'REJECTED' || recs.some((r) => String(r.signingStatus).toUpperCase() === 'REJECTED')) return 'recusado';
+  if (st === 'COMPLETED') return 'assinado';
+  return 'enviado';
+}

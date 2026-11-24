@@ -168,7 +168,7 @@ CLÁUSULA 6 — DA PROTEÇÃO DE DADOS
 CLÁUSULA 7 — DO FORO
 7.1. Fica eleito o foro da Comarca de Natal/RN para dirimir quaisquer questões oriundas deste contrato.
 
-As partes assinam eletronicamente este contrato, por meio da plataforma Autentique, em {{data}}.`;
+As partes assinam eletronicamente este contrato, por meio da plataforma Documenso, em {{data}}.`;
 
 export const CONTRATO_VARS = [
   'matricula', 'razao_social', 'nome_fantasia', 'cnpj', 'endereco', 'contato_nome', 'email', 'telefone',

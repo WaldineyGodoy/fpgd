@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  ChevronDown, Palette, MessageCircle, Mail, CreditCard, FileText, Sparkles, Plug, Save, Zap, CheckCircle2, AlertTriangle, Copy, KeyRound,
+  ChevronDown, PenLine, Palette, MessageCircle, Mail, CreditCard, FileText, Sparkles, Plug, Save, Zap, CheckCircle2, AlertTriangle, Copy, KeyRound,
 } from 'lucide-react';
 import { tenantFn, DEFAULT_CONTRATO_CLIENTE, CONTRATO_CLIENTE_VARS } from './data';
 import { useToast } from '../crm/ui';
@@ -17,7 +17,7 @@ interface SectionDef {
   fields: FieldDef[];
   required: string[];
   test?: boolean;
-  webhook?: boolean;
+  webhook?: 'asaas' | 'documenso';
 }
 
 const SECTIONS: SectionDef[] = [
@@ -53,7 +53,7 @@ const SECTIONS: SectionDef[] = [
     ],
   },
   {
-    id: 'asaas', title: 'Cobrança · Asaas', icon: CreditCard, test: true, webhook: true,
+    id: 'asaas', title: 'Cobrança · Asaas', icon: CreditCard, test: true, webhook: 'asaas',
     desc: 'Conta Asaas do associado para cobrar os próprios clientes por Pix, boleto ou cartão.',
     required: ['api_key'],
     fields: [
@@ -68,6 +68,16 @@ const SECTIONS: SectionDef[] = [
     desc: 'Modelo do contrato que o associado assina com o cliente final. Preenchido com os dados do cliente e da proposta.',
     required: ['template'],
     fields: [],
+  },
+  {
+    id: 'documenso', title: 'Assinatura eletrônica · Documenso', icon: PenLine, test: true, webhook: 'documenso',
+    desc: 'Os contratos dos clientes são assinados pelo Documenso (docs.b2wenergia.com.br). Sem token próprio, o envio usa a conta da FPGD.',
+    required: [],
+    fields: [
+      { k: 'api_token', label: 'Token da API (opcional)', secret: true, hint: 'Só se o associado tiver usuário ou time próprio no Documenso. Peça a conta à FPGD.' },
+      { k: 'mensagem', label: 'Mensagem do convite', type: 'textarea', placeholder: 'Olá! Segue o contrato para assinatura eletrônica.' },
+      { k: 'webhook_secret', label: 'Segredo do webhook', secret: true, hint: 'Só com token próprio: cadastre a URL abaixo nos Webhooks do Documenso com este segredo.' },
+    ],
   },
   {
     id: 'openrouter', title: 'Assistente · OpenRouter', icon: Sparkles, test: true,
@@ -94,6 +104,7 @@ const SECTIONS: SectionDef[] = [
 type Config = Record<string, Record<string, any>>;
 
 const isSet = (sec: SectionDef, v: Record<string, any> = {}) =>
+  sec.id === 'documenso' ? Boolean(v.api_token__set || v.__fpgd_disponivel) :
   sec.required.every((k) => (v[`${k}__set`] !== undefined ? v[`${k}__set`] : Boolean(v[k])));
 
 const TenantConfigPanel: React.FC<{ companyId: string; onSaved?: (chave: string) => void; initialOpen?: string }> = ({ companyId, onSaved, initialOpen }) => {
@@ -131,7 +142,7 @@ const TenantConfigPanel: React.FC<{ companyId: string; onSaved?: (chave: string)
       <ul className="rounded-[16px] border border-line divide-y divide-line overflow-hidden">
         {SECTIONS.map((s) => (
           <Section key={s.id} sec={s} value={cfg[s.id] || {}} open={open === s.id}
-            webhookUrl={s.webhook ? cfg.webhooks?.asaas : undefined}
+            webhookUrl={s.webhook ? cfg.webhooks?.[s.webhook] : undefined}
             onToggle={() => setOpen((o) => (o === s.id ? null : s.id))}
             onSave={async (valor, limpar) => {
               const r = await tenantFn<{ valor: Record<string, any> }>(companyId, 'config_save', { chave: s.id, valor, limpar });
@@ -260,7 +271,7 @@ const Section: React.FC<{
 
           {webhookUrl && (
             <div className="mt-3 rounded-[10px] bg-field border border-line p-3">
-              <p className="text-xs font-semibold text-fg-2">URL do webhook (cole no painel do Asaas)</p>
+              <p className="text-xs font-semibold text-fg-2">URL do webhook (cole no painel {sec.webhook === 'documenso' ? 'do Documenso' : 'do Asaas'})</p>
               <div className="mt-1.5 flex items-center gap-2">
                 <code className="flex-1 min-w-0 truncate text-xs text-fg tabular-nums">{webhookUrl}</code>
                 <button type="button" className="btn btn-ghost btn-sm !px-2" onClick={() => { navigator.clipboard?.writeText(webhookUrl); toast('ok', 'URL copiada.'); }} aria-label="Copiar URL do webhook"><Copy size={14} /></button>

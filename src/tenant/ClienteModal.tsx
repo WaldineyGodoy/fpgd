@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import {
   Save, User, FileBarChart, FileText, CreditCard, MessageSquareText, History, Plus, ArrowUpRight, Send, Sparkles,
-  RefreshCw, ExternalLink, CheckCircle2, MessageCircle, Mail, Trash2,
+  RefreshCw, ExternalLink, CheckCircle2, MessageCircle, Mail, Trash2, Copy,
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { ASAAS_STATUS, brl, dataBR, formatPhone } from '../crm/data';
@@ -375,8 +375,19 @@ const ContratoTab: React.FC<{
     setBusy('enviar');
     try {
       const r = await tenantFn<{ enviados: string[]; falhas: string[] }>(tenant.companyId!, 'contrato_enviar', { contrato_id: atual.id, canais });
-      toast('ok', `Contrato enviado por ${r.enviados.join(' e ')}.`);
+      toast('ok', `Contrato enviado para assinatura no Documenso por ${r.enviados.join(' e ')}.`);
       if (r.falhas.length) toast('error', `Não foi: ${r.falhas.join(' · ')}`);
+      await reload();
+    } catch (e) { toast('error', (e as Error).message); }
+    setBusy(null);
+  };
+
+  const verificar = async () => {
+    if (!atual) return;
+    setBusy('verificar');
+    try {
+      const r = await tenantFn<{ status: ContratoCliente['status'] }>(tenant.companyId!, 'contrato_verificar', { contrato_id: atual.id });
+      toast('ok', `Situação da assinatura: ${CONTRATO_META[r.status].label.toLowerCase()}.`);
       await reload();
     } catch (e) { toast('error', (e as Error).message); }
     setBusy(null);
@@ -421,10 +432,18 @@ const ContratoTab: React.FC<{
         {atual.assinado_em && <span className="text-xs text-fg-3 tabular-nums">Assinado em {dataBR(atual.assinado_em)}</span>}
         <button className="btn btn-ghost btn-sm ml-auto" onClick={gerar} disabled={busy !== null}><RefreshCw size={14} /> Gerar de novo</button>
       </div>
+      {atual.link_assinatura && atual.status === 'enviado' && (
+        <div className="flex items-center gap-2 rounded-[10px] bg-field border border-line p-2 pl-3">
+          <span className="text-xs text-fg-3 shrink-0">Link de assinatura</span>
+          <a className="text-sm text-primary truncate flex-1 hover:underline" href={atual.link_assinatura} target="_blank" rel="noreferrer">{atual.link_assinatura}</a>
+          <button className="btn btn-ghost btn-sm" onClick={() => { navigator.clipboard?.writeText(atual.link_assinatura!); toast('ok', 'Link copiado.'); }}><Copy size={14} /> Copiar</button>
+        </div>
+      )}
       <textarea className="field min-h-[340px] leading-relaxed text-[13px]" value={texto} onChange={(e) => setTexto(e.target.value)} disabled={atual.status === 'assinado'} />
       {atual.status !== 'assinado' && (
         <div className="rounded-[10px] bg-field border border-line p-4">
-          <p className="text-sm font-semibold">Enviar ao cliente em PDF</p>
+          <p className="text-sm font-semibold">Enviar para assinatura eletrônica</p>
+          <p className="text-xs text-fg-3 mt-0.5">O contrato vai para o Documenso. O convite chega por e-mail; no WhatsApp, enviamos o link de assinatura. O cliente precisa ter e-mail cadastrado.</p>
           <div className="mt-2 flex flex-wrap gap-4 text-sm">
             <label className={`inline-flex items-center gap-2 ${c.telefone ? '' : 'opacity-50'}`}>
               <input type="checkbox" className="accent-[#2F8CFF] size-4" checked={canais.whatsapp} disabled={!c.telefone} onChange={(e) => setCanais((x) => ({ ...x, whatsapp: e.target.checked }))} />
@@ -441,13 +460,14 @@ const ContratoTab: React.FC<{
         {atual.status === 'enviado' && (
           <>
             <button className="btn btn-ghost btn-sm mr-auto" onClick={() => marcar('recusado')} disabled={busy !== null}>Cliente recusou</button>
+            {atual.documenso_document_id && <button className="btn btn-secondary btn-sm" onClick={verificar} disabled={busy !== null}><RefreshCw size={14} /> {busy === 'verificar' ? 'Consultando…' : 'Verificar assinatura'}</button>}
             <button className="btn btn-secondary btn-sm" onClick={() => marcar('assinado')} disabled={busy !== null}><CheckCircle2 size={14} /> Marcar como assinado</button>
           </>
         )}
         {atual.status !== 'assinado' && (
           <>
             <button className="btn btn-secondary btn-sm" onClick={salvar} disabled={busy !== null || texto === atual.conteudo}><Save size={14} /> Salvar</button>
-            <button className="btn btn-primary btn-sm" onClick={enviar} disabled={busy !== null || (!canais.whatsapp && !canais.email)}>
+            <button className="btn btn-primary btn-sm" onClick={enviar} disabled={busy !== null || !c.email}>
               <Send size={14} /> {busy === 'enviar' ? 'Enviando…' : atual.status === 'enviado' ? 'Reenviar' : 'Enviar contrato'}
             </button>
           </>

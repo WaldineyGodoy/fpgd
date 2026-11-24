@@ -1,6 +1,6 @@
 import {
   handler, json, requireStaff, HttpError, SECRET_FIELDS, getConfig,
-  autentiqueGql, asaas, requireFields, CREDENTIAL_KEYS,
+  autentiqueGql, asaas, requireFields, CREDENTIAL_KEYS, documenso,
 } from '../_shared/crm.ts';
 
 const KEYS = Object.keys(SECRET_FIELDS);
@@ -31,7 +31,7 @@ Deno.serve(handler(async (req) => {
       result[k] = { ...redact(k, row?.valor || {}), __updated_at: row?.updated_at || null };
     }
     const fnBase = `${Deno.env.get('SUPABASE_URL')}/functions/v1/crm-webhooks`;
-    if (root) result.webhooks = { asaas: `${fnBase}?src=asaas`, autentique: `${fnBase}?src=autentique` };
+    if (root) result.webhooks = { asaas: `${fnBase}?src=asaas`, documenso: `${fnBase}?src=documenso`, autentique: `${fnBase}?src=autentique` };
     return json(result);
   }
 
@@ -61,6 +61,11 @@ Deno.serve(handler(async (req) => {
     if (!root) throw new HttpError(403, 'Só o superadmin testa credenciais.');
     const chave = body.chave as string;
     const cfg = await getConfig(db, chave);
+    if (chave === 'documenso') {
+      requireFields(cfg, ['api_token'], 'Documenso');
+      const r = await documenso(cfg, '/documents?page=1&perPage=1');
+      return json({ ok: true, detalhe: `Conectado ao Documenso (${r.totalPages ?? 0} página(s) de documentos)` });
+    }
     if (chave === 'autentique') {
       requireFields(cfg, ['token'], 'Autentique');
       const d = await autentiqueGql(cfg, 'query { me { name email } }');

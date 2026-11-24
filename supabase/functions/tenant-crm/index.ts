@@ -1,10 +1,11 @@
 // CRM próprio do associado (white label). Cada associado usa as próprias credenciais.
 // Acesso: o próprio associado (com CRM habilitado) ou o superadmin da FPGD (manutenção).
 // Segredos nunca voltam ao navegador: só máscara e "preenchido".
-import { renderPdf } from '../_shared/pdf.ts';
+import { renderPdfComAssinatura } from '../_shared/pdf.ts';
 import {
   admin, handler, json, HttpError, asaas, onlyDigits, phoneBR, requireFields,
-  evolutionSendText, evolutionSendDocument, resendSend, toBase64, maskSecret,
+  evolutionSendText, resendSend, maskSecret,
+  getConfig, documenso, documensoEnviar, documensoStatus,
 } from '../_shared/crm.ts';
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2.93.3';
 
@@ -14,6 +15,7 @@ const TENANT_SECRETS: Record<string, string[]> = {
   resend: ['api_key'],
   asaas: ['api_key', 'webhook_token'],
   contrato: [],
+  documenso: ['api_token', 'webhook_secret'],
   openrouter: ['api_key'],
   mcp: ['token'],
 };
@@ -48,6 +50,15 @@ function redact(chave: string, valor: Record<string, any>) {
     out[`${f}__mask`] = valor[f] ? maskSecret(String(valor[f])) : '';
   }
   return out;
+}
+
+/** Conta do Documenso do associado; sem token próprio, usa a conta da FPGD. */
+async function documensoDoTenant(db: SupabaseClient, companyId: string) {
+  const own = await getTenantConfig(db, companyId, 'documenso');
+  if (own.api_token) return { cfg: own, propria: true };
+  const fpgd = await getConfig(db, 'documenso');
+  requireFields(fpgd, ['api_token'], 'Documenso da FPGD');
+  return { cfg: fpgd, propria: false };
 }
 
 async function logT(db: SupabaseClient, company_id: string, cliente_id: string | null, tipo: string, descricao: string, autor?: string) {
@@ -120,7 +131,12 @@ Deno.serve(handler(async (req) => {
       const row = data?.find((r) => r.chave === k);
       result[k] = { ...redact(k, row?.valor || {}), __updated_at: row?.updated_at || null };
     }
-    result.webhooks = { asaas: `${Deno.env.get('SUPABASE_URL')}/functions/v1/crm-webhooks?src=tenant-asaas&t=${cid}` };
+    result.webhooks = {
+      asaas: `${Deno.env.get('SUPABASE_URL')}/functions/v1/crm-webhooks?src=tenant-asaas&t=${cid}`,
+      documenso: `${Deno.env.get('SUPABASE_URL')}/functions/v1/crm-webhooks?src=documenso&tenant=${cid}`,
+    };
+    const fpgdDoc = await getConfig(db, 'documenso');
+    result.documenso.__fpgd_disponivel = Boolean(fpgdDoc.api_token);
     return json(result);
   }
 
@@ -164,6 +180,11 @@ Deno.serve(handler(async (req) => {
       requireFields(cfg, ['api_key'], 'Asaas');
       const b = await asaas(cfg, '/myAccount/commercialInfo');
       return json({ ok: true, detalhe: `Conta ${b.name || b.companyName || 'Asaas'} (${cfg.ambiente === 'producao' ? 'produção' : 'sandbox'})` });
+    }
+    if (chave === 'documenso') {
+      const { cfg: dc, propria } = await documensoDoTenant(db, cid);
+      const r = await documenso(dc, '/documents?page=1&perPage=1');
+      return json({ ok: true, detalhe: `${propria ? 'Conta própria' : 'Conta da FPGD'} no Documenso conectada (${r.totalPages ?? 0} página(s) de documentos)` });
     }
     if (chave === 'openrouter') {
       requireFields(cfg, ['api_key'], 'OpenRouter');
@@ -222,36 +243,57 @@ Deno.serve(handler(async (req) => {
     const cli = await getCliente(db, cid, ct.cliente_id);
     const marca = await getTenantConfig(db, cid, 'marca');
     const empresa = marca.nome_exibicao || company.nome_fantasia || company.razao_social || 'Integradora';
-    const pdf = await renderPdf(`Contrato — ${empresa}`, ct.conteudo);
-    const b64 = toBase64(pdf);
-    const fileName = `contrato-${onlyDigits(cli.documento) || cli.id.slice(0, 8)}.pdf`;
-    const enviados: string[] = [];
-    const falhas: string[] = [];
-
-    if (body.canais?.email) {
-      try {
-        const cfg = await getTenantConfig(db, cid, 'resend');
-        requireFields(cfg, ['api_key', 'from'], 'Resend');
-        if (!cli.email) throw new HttpError(400, 'cliente sem e-mail');
-        const msg = `Olá, ${cli.nome}.\n\nSegue em anexo o contrato da ${empresa} para sua análise e assinatura.\n\nQualquer dúvida, responda este e-mail.`;
-        await resendSend(cfg, cli.email, `Contrato — ${empresa}`, textToHtml(msg, marca), [{ filename: fileName, content: b64 }]);
-        enviados.push('e-mail');
-      } catch (e) { falhas.push(`e-mail: ${(e as Error).message}`); }
+    if (!cli.email) throw new HttpError(400, 'Cadastre o e-mail do cliente: o Documenso identifica o signatário pelo e-mail.');
+    const { cfg: dc } = await documensoDoTenant(db, cid);
+    const contCfg = await getTenantConfig(db, cid, 'documenso');
+    // reenvio: apaga o envelope anterior para o cliente não ficar com dois links válidos
+    if (ct.documenso_document_id && ct.status === 'enviado') {
+      await documenso(dc, `/documents/${ct.documenso_document_id}`, { method: 'DELETE' }).catch(() => {});
     }
+
+    const titulo = `Contrato — ${empresa} — ${cli.nome}`;
+    const { bytes, campo } = await renderPdfComAssinatura(`Contrato — ${empresa}`, ct.conteudo, cli.nome);
+    const querEmail = body.canais?.email !== false;
+    const env = await documensoEnviar(dc, {
+      titulo, pdf: bytes, campo, externalId: `tenant:contrato:${ct.id}`,
+      signatario: { nome: cli.nome, email: cli.email },
+      assunto: `Contrato da ${empresa} para assinatura`,
+      mensagem: contCfg.mensagem || `Olá, ${cli.nome}. Segue o contrato da ${empresa} para assinatura eletrônica.`,
+      enviarEmail: querEmail,
+    });
+
+    const enviados: string[] = querEmail ? ['e-mail (Documenso)'] : [];
+    const falhas: string[] = [];
     if (body.canais?.whatsapp) {
       try {
         const cfg = await getTenantConfig(db, cid, 'evolution');
         requireFields(cfg, ['base_url', 'instance', 'api_key'], 'Evolution');
         const numero = phoneBR(cli.telefone);
         if (!numero) throw new HttpError(400, 'cliente sem telefone');
-        await evolutionSendDocument(cfg, numero, b64, fileName, `Olá, ${cli.nome}. Segue o contrato da ${empresa}.`);
+        await evolutionSendText(cfg, numero, `Olá, ${cli.nome}. O contrato da ${empresa} está pronto para assinatura eletrônica: ${env.link}`);
         enviados.push('WhatsApp');
       } catch (e) { falhas.push(`WhatsApp: ${(e as Error).message}`); }
     }
-    if (!enviados.length) throw new HttpError(502, falhas.join(' · ') || 'Escolha ao menos um canal.');
-    await db.from('tenant_contratos').update({ status: 'enviado', enviado_em: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', ct.id);
-    await logT(db, cid, cli.id, 'contrato', `Contrato enviado por ${enviados.join(' e ')}.`, user.id);
-    return json({ ok: true, enviados, falhas });
+    await db.from('tenant_contratos').update({
+      status: 'enviado', documenso_document_id: env.documentId, link_assinatura: env.link,
+      enviado_em: new Date().toISOString(), updated_at: new Date().toISOString(),
+    }).eq('id', ct.id);
+    await logT(db, cid, cli.id, 'contrato', `Contrato enviado para assinatura no Documenso${enviados.length ? ` por ${enviados.join(' e ')}` : ''}.`, user.id);
+    return json({ ok: true, enviados: enviados.length ? enviados : ['link do Documenso'], falhas, link: env.link });
+  }
+
+  if (action === 'contrato_verificar') {
+    const { data: ct } = await db.from('tenant_contratos').select('*').eq('id', body.contrato_id).eq('company_id', cid).maybeSingle();
+    if (!ct?.documenso_document_id) throw new HttpError(400, 'Contrato ainda não foi enviado pelo Documenso.');
+    const { cfg: dc } = await documensoDoTenant(db, cid);
+    const status = await documensoStatus(dc, ct.documenso_document_id);
+    if (status !== ct.status) {
+      const agora = new Date().toISOString();
+      await db.from('tenant_contratos').update({ status, assinado_em: status === 'assinado' ? agora : null, updated_at: agora }).eq('id', ct.id);
+      if (status === 'assinado') await db.from('tenant_clientes').update({ etapa: 'ganho', updated_at: agora }).eq('id', ct.cliente_id);
+      await logT(db, cid, ct.cliente_id, 'contrato', status === 'assinado' ? 'Contrato assinado no Documenso.' : status === 'recusado' ? 'Cliente recusou o contrato no Documenso.' : 'Contrato aguardando assinatura.', user.id);
+    }
+    return json({ ok: true, status });
   }
 
   // ---------- Cobrança no Asaas do associado ----------

@@ -1,7 +1,8 @@
-import { renderPdf } from '../_shared/pdf.ts';
+// Contrato de adesão: assinatura eletrônica pelo Documenso (Autentique só para contratos antigos).
+import { renderPdfComAssinatura } from '../_shared/pdf.ts';
 import {
   handler, json, requireStaff, HttpError, getConfig, requireFields, logEvento,
-  evolutionSendText, resendSend, phoneBR, autentiqueGql,
+  evolutionSendText, phoneBR, autentiqueGql, documensoEnviar, documensoStatus,
 } from '../_shared/crm.ts';
 
 Deno.serve(handler(async (req) => {
@@ -14,8 +15,19 @@ Deno.serve(handler(async (req) => {
     .select('id, razao_social, nome_fantasia, email, telefone, contato_nome, matricula')
     .eq('id', contrato.company_id).single();
 
+  if (body.action === 'verificar' && contrato.documenso_document_id) {
+    const cfg = await getConfig(db, 'documenso');
+    requireFields(cfg, ['api_token'], 'Documenso');
+    const status = await documensoStatus(cfg, contrato.documenso_document_id);
+    if (status !== contrato.status) {
+      await db.from('contratos').update({ status, assinado_em: status === 'assinado' ? new Date().toISOString() : null }).eq('id', contrato.id);
+      await logEvento(db, contrato.company_id, 'contrato', status === 'assinado' ? 'Contrato de adesão assinado (Documenso).' : status === 'recusado' ? 'Contrato de adesão recusado (Documenso).' : 'Contrato aguardando assinatura.', user.id);
+    }
+    return json({ ok: true, status });
+  }
+
   if (body.action === 'verificar') {
-    if (!contrato.autentique_document_id) throw new HttpError(400, 'Contrato ainda não foi enviado ao Autentique.');
+    if (!contrato.autentique_document_id) throw new HttpError(400, 'Contrato ainda não foi enviado para assinatura.');
     const cfg = await getConfig(db, 'autentique');
     requireFields(cfg, ['token'], 'Autentique');
     const d = await autentiqueGql(cfg, `query($id: UUID!) { document(id: $id) { id signatures { public_id action { name } signed { created_at } rejected { created_at } } } }`, { id: contrato.autentique_document_id });
@@ -35,48 +47,29 @@ Deno.serve(handler(async (req) => {
   if (body.action !== 'enviar') throw new HttpError(400, 'Ação inválida.');
   const canais = { whatsapp: body.canais?.whatsapp !== false, email: body.canais?.email !== false };
 
-  const aut = await getConfig(db, 'autentique');
-  requireFields(aut, ['token'], 'Autentique');
-  if (!c.email && !c.telefone) throw new HttpError(400, 'O associado precisa de e-mail ou telefone para assinar.');
+  const doc = await getConfig(db, 'documenso');
+  requireFields(doc, ['api_token'], 'Documenso');
+  if (!c.email) throw new HttpError(400, 'O associado precisa de e-mail: o Documenso identifica o signatário pelo e-mail.');
 
   const nome = c.nome_fantasia || c.razao_social || 'Associado';
+  const signatario = c.contato_nome || nome;
   const titulo = `Contrato de adesão FPGD — ${nome}`;
-  const pdfBytes = await renderPdf(titulo, contrato.conteudo);
+  const { bytes, campo } = await renderPdfComAssinatura(titulo, contrato.conteudo, `${signatario} — ${c.razao_social || nome}`);
 
-  // Upload multipart (GraphQL multipart request spec)
-  const signer = c.email
-    ? { email: c.email, action: 'SIGN', name: c.contato_nome || nome }
-    : { name: c.contato_nome || nome, action: 'SIGN', phone: `+${phoneBR(c.telefone)}`, delivery_method: 'DELIVERY_METHOD_LINK' };
-  const operations = {
-    query: `mutation($document: DocumentInput!, $signers: [SignerInput!]!, $file: Upload!, $sandbox: Boolean) {
-      createDocument(document: $document, signers: $signers, file: $file, sandbox: $sandbox) {
-        id name signatures { public_id name email action { name } link { short_link } }
-      }
-    }`,
-    variables: {
-      document: { name: titulo, message: aut.mensagem || 'Contrato de adesão à Frente Potiguar de Geração Distribuída.' },
-      signers: [signer],
-      file: null,
-      sandbox: aut.sandbox === true || aut.sandbox === 'true',
-    },
-  };
-  const form = new FormData();
-  form.append('operations', JSON.stringify(operations));
-  form.append('map', JSON.stringify({ file: ['variables.file'] }));
-  form.append('file', new Blob([pdfBytes], { type: 'application/pdf' }), `contrato-fpgd-${c.matricula ?? c.id}.pdf`);
-  const r = await fetch('https://api.autentique.com.br/v2/graphql', {
-    method: 'POST', headers: { Authorization: `Bearer ${aut.token}` }, body: form,
+  const env = await documensoEnviar(doc, {
+    titulo, pdf: bytes, campo, externalId: `fpgd:contrato:${contrato.id}`,
+    signatario: { nome: signatario, email: c.email },
+    assunto: 'Seu contrato de adesão à FPGD RN',
+    mensagem: doc.mensagem || 'Contrato de adesão à Frente Potiguar de Geração Distribuída. Leia e assine pelo botão abaixo.',
+    enviarEmail: canais.email,
   });
-  const res = await r.json().catch(() => ({}));
-  if (!r.ok || res.errors) throw new HttpError(502, `Autentique: ${res.errors?.[0]?.message || r.statusText}`);
-  const doc = res.data.createDocument;
-  const sig = (doc.signatures || []).find((s: any) => s.action?.name === 'SIGN') || doc.signatures?.[0];
-  const link = sig?.link?.short_link || null;
+  const link = env.link;
 
   const avisos: string[] = [];
-  let enviado_whatsapp = false, enviado_email = false;
+  let enviado_whatsapp = false;
+  const enviado_email = canais.email;
   const saudacao = c.contato_nome ? `Olá, ${c.contato_nome.split(' ')[0]}!` : 'Olá!';
-  const msg = `${saudacao} Seu contrato de adesão à FPGD RN está pronto para assinatura: ${link ?? '(link enviado pelo Autentique)'}`;
+  const msg = `${saudacao} Seu contrato de adesão à FPGD RN está pronto para assinatura eletrônica: ${link ?? '(link enviado por e-mail)'}`;
 
   if (canais.whatsapp && c.telefone) {
     try {
@@ -86,27 +79,13 @@ Deno.serve(handler(async (req) => {
       enviado_whatsapp = true;
     } catch (e) { avisos.push((e as Error).message); }
   }
-  if (canais.email && c.email) {
-    try {
-      const rs = await getConfig(db, 'resend');
-      requireFields(rs, ['api_key', 'from'], 'Resend');
-      await resendSend(rs, c.email, 'Seu contrato de adesão à FPGD RN', `
-        <div style="font-family:Arial,sans-serif;font-size:15px;color:#0B1F3A;line-height:1.5">
-          <p>${saudacao}</p>
-          <p>O contrato de adesão da <b>${nome}</b> à Frente Potiguar de Geração Distribuída está pronto para assinatura eletrônica.</p>
-          ${link ? `<p><a href="${link}" style="background:#1747A6;color:#fff;padding:12px 20px;text-decoration:none;display:inline-block">Assinar contrato</a></p>` : ''}
-          <p style="color:#4b5a70;font-size:13px">FPGD RN · Natal/RN</p>
-        </div>`);
-      enviado_email = true;
-    } catch (e) { avisos.push((e as Error).message); }
-  }
 
   await db.from('contratos').update({
-    status: 'enviado', autentique_document_id: doc.id, link_assinatura: link,
+    status: 'enviado', provedor: 'documenso', documenso_document_id: env.documentId, link_assinatura: link,
     enviado_whatsapp, enviado_email, enviado_em: new Date().toISOString(),
   }).eq('id', contrato.id);
-  const via = [enviado_whatsapp && 'WhatsApp', enviado_email && 'e-mail'].filter(Boolean).join(' e ') || 'Autentique';
-  await logEvento(db, contrato.company_id, 'contrato', `Contrato enviado para assinatura via ${via}.`, user.id);
+  const via = [enviado_whatsapp && 'WhatsApp', enviado_email && 'e-mail'].filter(Boolean).join(' e ') || 'link do Documenso';
+  await logEvento(db, contrato.company_id, 'contrato', `Contrato enviado para assinatura no Documenso via ${via}.`, user.id);
 
   return json({ ok: true, link, enviado_whatsapp, enviado_email, avisos });
 }));

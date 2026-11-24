@@ -2,10 +2,20 @@ import { PDFDocument, StandardFonts, rgb } from 'npm:pdf-lib@1.17.1';
 
 // WinAnsi (fontes padrão do PDF) cobre o português; troca o que estiver fora dela.
 const winAnsi = (s: string) =>
-  s.replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-')
-    .replace(/[^\x09\x0A\x0D\x20-\x7E -ÿ•]/g, '');
+  s.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[\u2013\u2014]/g, '-')
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\u00FF\u2022]/g, '');
+
+export interface CampoAssinatura { page: number; x: number; y: number; w: number; h: number }
 
 export async function renderPdf(title: string, text: string) {
+  return (await renderPdfComAssinatura(title, text)).bytes;
+}
+
+/**
+ * Gera o PDF e, se `assinante` vier, reserva no fim um bloco de assinatura.
+ * Devolve a posição do bloco em % da página (formato dos campos do Documenso).
+ */
+export async function renderPdfComAssinatura(title: string, text: string, assinante?: string) {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -39,5 +49,21 @@ export async function renderPdf(title: string, text: string) {
     }
     if (isHeading) y -= 2;
   }
-  return pdf.save();
+
+  let campo: CampoAssinatura | null = null;
+  if (assinante) {
+    const boxH = 70, boxW = 240;
+    if (y - 40 - boxH - 30 < M) newPage();
+    y -= 40;
+    const top = y;
+    page.drawLine({ start: { x: M, y: top - boxH }, end: { x: M + boxW, y: top - boxH }, thickness: 0.8, color: rgb(0.3, 0.3, 0.3) });
+    page.drawText(winAnsi(assinante), { x: M, y: top - boxH - 14, size: 9.5, font: bold, color: rgb(0.1, 0.1, 0.1) });
+    page.drawText('Assinatura eletronica', { x: M, y: top - boxH - 27, size: 8.5, font, color: rgb(0.4, 0.4, 0.4) });
+    campo = {
+      page: pdf.getPageCount(),
+      x: (M / W) * 100, y: ((H - top) / H) * 100,
+      w: (boxW / W) * 100, h: ((boxH - 4) / H) * 100,
+    };
+  }
+  return { bytes: await pdf.save(), campo };
 }

@@ -1,4 +1,4 @@
-// Webhooks públicos (verify_jwt desligado): Asaas e Autentique.
+// Webhooks públicos (verify_jwt desligado): Asaas, Documenso e Autentique (legado).
 // Autenticação por token guardado em Configurações.
 import { admin, cors, getConfig, logEvento, upsertCobranca } from '../_shared/crm.ts';
 
@@ -73,6 +73,50 @@ Deno.serve(async (req) => {
       if (clienteId && PAGO.includes(payload.event)) {
         await db.from('tenant_eventos').insert({ company_id: t, cliente_id: clienteId, tipo: 'pagamento', descricao: `Pagamento de R$ ${Number(p.value || 0).toFixed(2).replace('.', ',')} confirmado.` });
       }
+      return ok();
+    }
+
+    if (src === 'documenso') {
+      // ?tenant=<company_id> quando o associado usa a própria conta do Documenso
+      const tenant = url.searchParams.get('tenant');
+      let secret: string | undefined;
+      if (tenant) {
+        const { data } = await db.from('tenant_config').select('valor').eq('company_id', tenant).eq('chave', 'documenso').maybeSingle();
+        secret = (data?.valor as any)?.webhook_secret;
+      } else secret = (await getConfig(db, 'documenso')).webhook_secret;
+      if (!secret || req.headers.get('x-documenso-secret') !== secret) return deny();
+
+      const event = String(payload.event || '').toUpperCase();
+      const d = payload.payload || {};
+      const ext = String(d.externalId || '');
+      const docId = d.id != null ? String(d.id) : '';
+      const recs = (d.recipients || d.Recipient || []) as any[];
+      const rejected = event === 'DOCUMENT_REJECTED' || String(d.status).toUpperCase() === 'REJECTED'
+        || recs.some((r) => String(r.signingStatus).toUpperCase() === 'REJECTED');
+      const completed = event === 'DOCUMENT_COMPLETED' || String(d.status).toUpperCase() === 'COMPLETED';
+      if (!rejected && !completed) return ok();
+      const status = rejected ? 'recusado' : 'assinado';
+      const agora = new Date().toISOString();
+
+      if (ext.startsWith('tenant:contrato:') || tenant) {
+        let q = db.from('tenant_contratos').select('id, company_id, cliente_id, status');
+        q = ext.startsWith('tenant:contrato:') ? q.eq('id', ext.slice('tenant:contrato:'.length)) : q.eq('documenso_document_id', docId);
+        if (tenant) q = q.eq('company_id', tenant);
+        const { data: ct } = await q.maybeSingle();
+        if (!ct || ct.status === status) return ok();
+        await db.from('tenant_contratos').update({ status, assinado_em: status === 'assinado' ? agora : null, updated_at: agora }).eq('id', ct.id);
+        if (status === 'assinado') await db.from('tenant_clientes').update({ etapa: 'ganho', updated_at: agora }).eq('id', ct.cliente_id);
+        await db.from('tenant_eventos').insert({ company_id: ct.company_id, cliente_id: ct.cliente_id, tipo: 'contrato',
+          descricao: status === 'assinado' ? 'Contrato assinado no Documenso. Cliente movido para Fechado.' : 'Cliente recusou o contrato no Documenso.' });
+        return ok();
+      }
+
+      let q = db.from('contratos').select('id, company_id, status');
+      q = ext.startsWith('fpgd:contrato:') ? q.eq('id', ext.slice('fpgd:contrato:'.length)) : q.eq('documenso_document_id', docId);
+      const { data: ct } = await q.maybeSingle();
+      if (!ct || ct.status === status) return ok();
+      await db.from('contratos').update({ status, assinado_em: status === 'assinado' ? agora : null }).eq('id', ct.id);
+      await logEvento(db, ct.company_id, 'contrato', status === 'assinado' ? 'Contrato de adesão assinado (Documenso).' : 'Contrato de adesão recusado (Documenso).');
       return ok();
     }
 

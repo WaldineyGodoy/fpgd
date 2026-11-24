@@ -5,7 +5,7 @@ import JoinForm from './JoinForm';
 
 const PASSOS = [
   { title: 'Cadastro da empresa', text: 'Informe o CNPJ: buscamos razão social e endereço automaticamente.' },
-  { title: 'Contrato digital', text: 'Você recebe o contrato de adesão por WhatsApp e e-mail e assina pelo Autentique.' },
+  { title: 'Contrato digital', text: 'Você recebe o contrato de adesão por WhatsApp e e-mail e assina eletronicamente, sem precisar imprimir.' },
   { title: 'Mensalidade', text: 'A cobrança chega por Pix, boleto ou cartão. Com o primeiro pagamento, você já é associado ativo.' },
 ];
 
