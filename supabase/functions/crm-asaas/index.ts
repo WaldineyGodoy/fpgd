@@ -1,5 +1,5 @@
 import {
-  handler, json, requireStaff, HttpError, getConfig, requireFields, logEvento, asaas, onlyDigits, upsertCobranca,
+  handler, json, requireStaff, HttpError, getConfig, requireAsaas, logEvento, asaas, onlyDigits, upsertCobranca,
 } from '../_shared/crm.ts';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -15,7 +15,7 @@ Deno.serve(handler(async (req) => {
   const body = await req.json().catch(() => ({}));
   const { db, user } = await requireStaff(req);
   const cfg = await getConfig(db, 'asaas');
-  requireFields(cfg, ['api_key'], 'Asaas');
+  requireAsaas(cfg);
 
   // ---------- Ações globais (página Pagamentos) ----------
   if (body.action === 'saldo') {

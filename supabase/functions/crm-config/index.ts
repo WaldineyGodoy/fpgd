@@ -1,6 +1,6 @@
 import {
   handler, json, requireStaff, HttpError, SECRET_FIELDS, getConfig,
-  autentiqueGql, asaas, requireFields, CREDENTIAL_KEYS, documenso,
+  autentiqueGql, asaas, requireFields, requireAsaas, CREDENTIAL_KEYS, documenso, normalizeConfig,
 } from '../_shared/crm.ts';
 
 const KEYS = Object.keys(SECRET_FIELDS);
@@ -28,7 +28,7 @@ Deno.serve(handler(async (req) => {
     // credenciais (mesmo mascaradas) só chegam ao superadmin
     for (const k of KEYS.filter((k) => root || !CREDENTIAL_KEYS.includes(k))) {
       const row = data?.find((r) => r.chave === k);
-      result[k] = { ...redact(k, row?.valor || {}), __updated_at: row?.updated_at || null };
+      result[k] = { ...redact(k, normalizeConfig(k, row?.valor)), __updated_at: row?.updated_at || null };
     }
     const fnBase = `${Deno.env.get('SUPABASE_URL')}/functions/v1/crm-webhooks`;
     if (root) result.webhooks = { asaas: `${fnBase}?src=asaas`, documenso: `${fnBase}?src=documenso`, autentique: `${fnBase}?src=autentique` };
@@ -88,7 +88,7 @@ Deno.serve(handler(async (req) => {
       return json({ ok: true, detalhe: `${n} domínio(s) na conta` });
     }
     if (chave === 'asaas') {
-      requireFields(cfg, ['api_key'], 'Asaas');
+      requireAsaas(cfg);
       const b = await asaas(cfg, '/myAccount/commercialInfo');
       return json({ ok: true, detalhe: `Conta ${b.name || b.companyName || 'Asaas'} (${cfg.ambiente === 'producao' ? 'produção' : 'sandbox'})` });
     }

@@ -103,11 +103,12 @@ const CrmConfigPage: React.FC = () => {
           )}
           {section === 'asaas' && cfg && (
             <IntegrationSection chave="asaas" title="Asaas" readOnly={readOnly} cfg={cfg.asaas} onSaved={loadCfg}
-              intro={<>Crie a chave em <b>Asaas › Integrações › Chave de API</b>. No webhook, marque os eventos de cobrança (pagamento recebido, confirmado e vencido) e use o token abaixo como “token de autenticação”.</>}
+              intro={<>Cada ambiente guarda a própria chave; o seletor Ambiente escolhe qual o CRM usa. Crie as chaves em <b>Asaas › Integrações › Chave de API</b> (sandbox.asaas.com para testes). No webhook, marque os eventos de cobrança (pagamento recebido, confirmado e vencido) e use o token abaixo como “token de autenticação”.</>}
               webhook={cfg.webhooks?.asaas}
               fields={[
                 { key: 'ambiente', label: 'Ambiente', type: 'select', options: [['sandbox', 'Sandbox (testes)'], ['producao', 'Produção']] },
-                { key: 'api_key', label: 'Chave de API', secret: true },
+                { key: 'api_key_sandbox', label: 'Chave de API · Sandbox', secret: true, hint: 'Começa com $aact_hmlg_. Usada quando o ambiente é Sandbox.' },
+                { key: 'api_key_producao', label: 'Chave de API · Produção', secret: true, hint: 'Começa com $aact_prod_. Usada quando o ambiente é Produção.' },
                 { key: 'billing_type', label: 'Forma de pagamento padrão', type: 'select', options: [['UNDEFINED', 'Associado escolhe'], ['PIX', 'Pix'], ['BOLETO', 'Boleto'], ['CREDIT_CARD', 'Cartão de crédito']] },
                 { key: 'webhook_token', label: 'Token do webhook', secret: true, hint: 'O mesmo valor informado no painel do Asaas.' },
               ]} />
@@ -124,7 +125,7 @@ function isConfigured(id: string, c?: Cfg) {
   if (id === 'contrato') return c.api_token__set;
   if (id === 'evolution') return c.api_key__set && c.base_url && c.instance;
   if (id === 'resend') return c.api_key__set && c.from;
-  if (id === 'asaas') return c.api_key__set;
+  if (id === 'asaas') return c.ambiente === 'producao' ? c.api_key_producao__set : c.api_key_sandbox__set;
   return false;
 }
 

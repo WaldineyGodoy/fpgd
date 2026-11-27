@@ -63,13 +63,23 @@ export const SECRET_FIELDS: Record<string, string[]> = {
   autentique: ['token', 'webhook_token'],
   evolution: ['api_key'],
   resend: ['api_key'],
-  asaas: ['api_key', 'webhook_token'],
+  asaas: ['api_key_sandbox', 'api_key_producao', 'webhook_token'],
   contrato: [],
 };
 
 export async function getConfig<T = Record<string, any>>(db: SupabaseClient, chave: string): Promise<T> {
   const { data } = await db.from('crm_config').select('valor').eq('chave', chave).maybeSingle();
-  return (data?.valor || {}) as T;
+  return normalizeConfig(chave, data?.valor) as T;
+}
+
+/** Asaas: a chave antiga única (era a de produção) passa a ser api_key_producao. */
+export function normalizeConfig(chave: string, valor?: Record<string, any> | null) {
+  const v = { ...(valor || {}) } as Record<string, any>;
+  if (chave === 'asaas') {
+    if (v.api_key && !v.api_key_producao) v.api_key_producao = v.api_key;
+    delete v.api_key;
+  }
+  return v;
 }
 
 export function requireFields(cfg: Record<string, any>, fields: string[], label: string) {
@@ -152,6 +162,18 @@ export async function resendSend(cfg: Record<string, any>, to: string, subject: 
   return body;
 }
 
+/** Chave do Asaas do ambiente escolhido (cada ambiente guarda a sua). CRM do associado usa api_key. */
+export function asaasKey(cfg: Record<string, any>) {
+  const k = cfg.ambiente === 'producao' ? cfg.api_key_producao : cfg.api_key_sandbox;
+  return (k || cfg.api_key) as string | undefined;
+}
+
+export function requireAsaas(cfg: Record<string, any>) {
+  if (!asaasKey(cfg)) {
+    throw new HttpError(400, `Asaas: configure a chave de ${cfg.ambiente === 'producao' ? 'produção' : 'sandbox'} em Configurações.`);
+  }
+}
+
 export function asaasBase(cfg: Record<string, any>) {
   return cfg.ambiente === 'producao' ? 'https://api.asaas.com/v3' : 'https://api-sandbox.asaas.com/v3';
 }
@@ -159,7 +181,7 @@ export function asaasBase(cfg: Record<string, any>) {
 export async function asaas(cfg: Record<string, any>, path: string, init: { method?: string; body?: unknown } = {}) {
   const r = await fetch(`${asaasBase(cfg)}${path}`, {
     method: init.method || 'GET',
-    headers: { access_token: cfg.api_key, 'Content-Type': 'application/json', 'User-Agent': 'fpgd-crm' },
+    headers: { access_token: asaasKey(cfg) as string, 'Content-Type': 'application/json', 'User-Agent': 'fpgd-crm' },
     body: init.body ? JSON.stringify(init.body) : undefined,
   });
   const body = await r.json().catch(() => ({}));
