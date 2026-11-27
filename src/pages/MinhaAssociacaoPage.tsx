@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ExternalLink, FileSignature, Mail } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { useSession } from '../components/AppLayout';
-import { CICLO_LABEL, brl, dataBR, matriculaLabel, nomeAssociado, type Associado, type Contrato, type Plano } from '../crm/data';
+import { CICLO_LABEL, brl, callFn, dataBR, matriculaLabel, nomeAssociado, type Associado, type Contrato, type Plano } from '../crm/data';
 import { PageHeader, StatusChip, contratoMeta } from '../crm/ui';
 
 interface Cob { id: string; valor: number; vencimento: string; status: string; pago_em: string | null; invoice_url: string | null; descricao: string | null }
@@ -14,10 +14,11 @@ const MinhaAssociacaoPage: React.FC = () => {
   const [plano, setPlano] = useState<Plano | null>(null);
   const [contrato, setContrato] = useState<Contrato | null>(null);
   const [cobs, setCobs] = useState<Cob[] | null>(null);
+  const [preparando, setPreparando] = useState(false);
 
-  useEffect(() => {
-    if (!companyId) { setCobs([]); return; }
-    (async () => {
+  const load = useCallback(async () => {
+    if (!companyId) { setCobs([]); return null; }
+    {
       const { data: c } = await supabase.from('companies').select('*').eq('id', companyId).maybeSingle();
       setA(c as Associado);
       if (c?.plano_id) {
@@ -30,8 +31,23 @@ const MinhaAssociacaoPage: React.FC = () => {
       const { data: cb } = await supabase.from('cobrancas').select('id, valor, vencimento, status, pago_em, invoice_url, descricao')
         .eq('company_id', companyId).order('vencimento', { ascending: false }).limit(24);
       setCobs((cb || []) as Cob[]);
-    })();
+      return { status: c?.status_associado as string | undefined, temContrato: Boolean(ct?.length), temCobranca: Boolean(cb?.length) };
+    }
   }, [companyId]);
+
+  // Primeiro acesso de um inscrito: o servidor gera e envia o termo de adesão e o 1º boleto.
+  useEffect(() => {
+    (async () => {
+      const r = await load();
+      if (role !== 'integrador' || !r || r.status !== 'inscrito' || (r.temContrato && r.temCobranca)) return;
+      const chave = `fpgd-onboarding-${companyId}`;
+      try { if (sessionStorage.getItem(chave)) return; sessionStorage.setItem(chave, '1'); } catch { /* sem storage: segue */ }
+      setPreparando(true);
+      try { await callFn('crm-onboarding', {}); } catch { /* a equipe vê a pendência no histórico */ }
+      setPreparando(false);
+      await load();
+    })();
+  }, [load, role, companyId]);
 
   if (role !== 'integrador') {
     return (
@@ -43,10 +59,14 @@ const MinhaAssociacaoPage: React.FC = () => {
   }
 
   const aberta = cobs?.find((c) => c.status === 'OVERDUE') || cobs?.find((c) => c.status === 'PENDING');
+  const aviso = preparando ? (
+    <div className="panel p-4 mb-4 text-sm text-fg-2" role="status">Preparando seu termo de adesão e o boleto da 1ª mensalidade…</div>
+  ) : null;
 
   return (
     <div className="max-w-[960px]">
       <PageHeader title="Minha associação" description="Situação da sua empresa na Frente Potiguar de Geração Distribuída." />
+      {aviso}
 
       {!a ? <div className="skeleton h-40" /> : (
         <section className="panel glow-corner p-6">

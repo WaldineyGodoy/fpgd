@@ -19,6 +19,7 @@ import { useTicketsEnabled } from './crm/settings';
 import KanbanBoard from './components/KanbanBoard';
 import AdminPage from './pages/AdminPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import AuthConfirmadoPage from './pages/AuthConfirmadoPage';
 import UsinasList from './pages/UsinasList';
 import UsinaForm from './pages/UsinaForm';
 import UsinaDetails from './pages/UsinaDetails';
@@ -40,6 +41,7 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<HomePage />} />
 
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/confirmado" element={<AuthConfirmadoPage />} />
 
 
         <Route path="/consulta_cadastro" element={

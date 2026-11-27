@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '../../supabaseClient';
+import { cadastrar } from '../../lib/cadastro';
 import { IMaskInput } from 'react-imask';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -92,26 +93,9 @@ const LoginFramework: React.FC<LoginFrameworkProps> = ({ onSuccess, onRegisterRe
         setError('');
 
         try {
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    emailRedirectTo: window.location.origin + window.location.pathname
-                }
-            });
-
-            if (authError || !authData.user) throw authError || new Error('Signup failed');
-
-            // Update company with user ID
-            const { error: updateError } = await supabase
-                .from('companies')
-                .update({
-                    auth_user_id: authData.user.id,
-                    email: email
-                })
-                .eq('id', company.id);
-
-            if (updateError) throw updateError;
+            // A empresa é vinculada no servidor (só se o e-mail bater com o cadastrado).
+            const authData = await cadastrar(email, password, { cnpj: company.cnpj, user_type: 'integrador' });
+            if (!authData.user) throw new Error('Signup failed');
 
             if (authData.session) {
                 onSuccess(authData.user);

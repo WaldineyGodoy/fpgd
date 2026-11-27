@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { cadastrar, mensagemSituacao, situacaoCnpj } from '../lib/cadastro';
 import BuscaCNPJ from './BuscaCNPJ';
 import { IMaskInput } from 'react-imask';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -71,14 +71,9 @@ const RegistrationForm: React.FC = () => {
     };
 
     const checkExistingCnpj = async (cnpj: string) => {
-        const { data } = await supabase
-            .from('companies')
-            .select('cnpj, auth_user_id')
-            .eq('cnpj', cnpj)
-            .maybeSingle();
-
-        if (data && data.auth_user_id) {
-            setCnpjError('Este CNPJ já possui um login associado. Recupere sua senha ou use outro e-mail.');
+        const s = await situacaoCnpj(cnpj).catch(() => null);
+        if (s?.situacao === 'tem_login') {
+            setCnpjError(mensagemSituacao(s));
             setCnpjChecked(false);
         } else {
             setCnpjError(null);
@@ -96,31 +91,9 @@ const RegistrationForm: React.FC = () => {
         setLoading(true);
 
         try {
-            // 1. Create Login at Supabase Auth
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: formData.email,
-                password: formData.password!,
-                options: {
-                    data: {
-                        nome: formData.nome_fantasia || formData.razao_social,
-                        user_type: formData.user_type
-                    }
-                }
-            });
-
-            if (authError) throw authError;
-            if (!authData.user) throw new Error("Erro ao criar usuário.");
-
-            // 2. Save Company Data linked to Auth User (UPSERT if CNPJ exists without auth_user_id)
+            // Login + empresa: a empresa é criada/vinculada no servidor (perfil e status definidos lá).
             const { password, ...companyData } = formData;
-            const { error: dbError } = await supabase
-                .from('companies')
-                .upsert([{
-                    ...companyData,
-                    auth_user_id: authData.user.id
-                }], { onConflict: 'cnpj' });
-
-            if (dbError) throw dbError;
+            await cadastrar(formData.email, password!, { ...companyData, user_type: 'integrador' });
             setShowModal(true);
         } catch (error: any) {
             alert('Erro ao realizar cadastro: ' + (error.message || 'Erro desconhecido'));

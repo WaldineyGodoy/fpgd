@@ -9,7 +9,7 @@ import { useSession } from '../components/AppLayout';
 
 type SectionId = 'sistema' | 'planos' | 'contrato' | 'evolution' | 'resend' | 'asaas';
 const SECTIONS: { id: SectionId; label: string; desc: string }[] = [
-  { id: 'sistema', label: 'Sistema e acessos', desc: 'Módulo de tickets e administradores' },
+  { id: 'sistema', label: 'Sistema e automação', desc: 'Adesão automática, tickets e admins' },
   { id: 'planos', label: 'Planos e valores', desc: 'Mensalidades oferecidas aos associados' },
   { id: 'contrato', label: 'Contrato e assinatura', desc: 'Modelo do contrato e Documenso' },
   { id: 'evolution', label: 'Evolution', desc: 'WhatsApp' },
@@ -65,7 +65,12 @@ const CrmConfigPage: React.FC = () => {
           {cfgError && !['planos', 'sistema'].includes(section) && (
             <div className="panel p-4 mb-4 text-sm">Não foi possível ler as configurações: {cfgError}</div>
           )}
-          {section === 'sistema' && <SistemaSection readOnly={readOnly} isRoot={role === 'superadmin'} />}
+          {section === 'sistema' && (
+            <div className="space-y-6">
+              <AutomacaoSection cfg={cfg?.automacao} readOnly={readOnly} onSaved={loadCfg} />
+              <SistemaSection readOnly={readOnly} isRoot={role === 'superadmin'} />
+            </div>
+          )}
           {section === 'planos' && <PlanosSection readOnly={readOnly} />}
           {section === 'contrato' && cfg && (
             <div className="space-y-6">
@@ -218,6 +223,65 @@ const SistemaSection: React.FC<{ readOnly: boolean; isRoot: boolean }> = ({ read
         {!isRoot && <p className="px-5 pb-5 text-xs text-fg-3">Só o superadmin promove ou remove administradores.</p>}
       </section>
     </div>
+  );
+};
+
+// ---------- Automação da adesão ----------
+const AutomacaoSection: React.FC<{ cfg?: Cfg; readOnly: boolean; onSaved: () => void }> = ({ cfg, readOnly, onSaved }) => {
+  const toast = useToast();
+  const [planos, setPlanos] = useState<Plano[]>([]);
+  const [f, setF] = useState({ ativo: true, plano_id: '', dias_vencimento_adesao: 3, email_equipe: '' });
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    supabase.from('planos').select('*').eq('ativo', true).order('valor').then(({ data }) => setPlanos((data || []) as Plano[]));
+  }, []);
+  useEffect(() => {
+    if (!cfg) return;
+    setF({ ativo: cfg.ativo !== false, plano_id: cfg.plano_id || '', dias_vencimento_adesao: Number(cfg.dias_vencimento_adesao) || 3, email_equipe: cfg.email_equipe || '' });
+  }, [cfg]);
+  const save = async () => {
+    setSaving(true);
+    try { await callFn('crm-config', { action: 'save', chave: 'automacao', valor: f }); toast('ok', 'Automação salva.'); onSaved(); }
+    catch (e) { toast('error', (e as Error).message); }
+    setSaving(false);
+  };
+  return (
+    <section className="panel">
+      <header className="p-5 border-b border-line glow-corner rounded-t-[16px]">
+        <h2 className="font-bold">Adesão automática</h2>
+        <p className="text-sm text-fg-2 mt-1 max-w-2xl">
+          No primeiro acesso de um integrador inscrito, o sistema gera e envia o termo de adesão (Documenso, por e-mail e WhatsApp) e o boleto da 1ª mensalidade (Asaas, por WhatsApp e e-mail).
+          Quando esse boleto é pago, o associado vira Ativo e a cobrança mensal recorrente é ligada no Asaas; cada nova mensalidade é enviada por WhatsApp e e-mail.
+        </p>
+      </header>
+      <div className="p-5 grid sm:grid-cols-2 gap-4">
+        <label className={`sm:col-span-2 flex items-center justify-between gap-4 rounded-[10px] bg-field border border-line px-4 h-14 ${readOnly ? 'opacity-70' : 'cursor-pointer'}`}>
+          <span>
+            <span className="block text-sm font-semibold">Adesão automática ligada</span>
+            <span className="block text-xs text-fg-3">{f.ativo ? 'Termo e boleto saem sozinhos' : 'A equipe envia termo e boleto pelo modal do associado'}</span>
+          </span>
+          <input type="checkbox" role="switch" className="accent-[#2F8CFF] size-5" checked={f.ativo} disabled={readOnly} onChange={(e) => setF({ ...f, ativo: e.target.checked })} />
+        </label>
+        <Field label="Plano padrão da adesão" hint="Sem escolha, usa o plano ativo de menor valor.">
+          <select className="field" value={f.plano_id} disabled={readOnly} onChange={(e) => setF({ ...f, plano_id: e.target.value })}>
+            <option value="">Plano ativo de menor valor</option>
+            {planos.map((p) => <option key={p.id} value={p.id}>{p.nome} · {brl(Number(p.valor))}</option>)}
+          </select>
+        </Field>
+        <Field label="Vencimento do 1º boleto" hint="Dias depois do cadastro.">
+          <input className="field tabular-nums" type="number" min={1} max={30} value={f.dias_vencimento_adesao} readOnly={readOnly}
+            onChange={(e) => setF({ ...f, dias_vencimento_adesao: Number(e.target.value) })} />
+        </Field>
+        <Field label="Avisar a equipe no e-mail" className="sm:col-span-2" hint="Recebe um aviso a cada novo associado (usa o Resend). Deixe em branco para não avisar.">
+          <input className="field" type="email" value={f.email_equipe} placeholder="contato@fpgd.site" readOnly={readOnly} onChange={(e) => setF({ ...f, email_equipe: e.target.value })} />
+        </Field>
+      </div>
+      {!readOnly && (
+        <footer className="px-5 pb-5 flex justify-end">
+          <button className="btn btn-primary" onClick={save} disabled={saving}><Save size={16} /> {saving ? 'Salvando…' : 'Salvar'}</button>
+        </footer>
+      )}
+    </section>
   );
 };
 

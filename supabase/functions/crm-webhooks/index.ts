@@ -1,6 +1,6 @@
 // Webhooks públicos (verify_jwt desligado): Asaas, Documenso e Autentique (legado).
 // Autenticação por token guardado em Configurações.
-import { admin, cors, getConfig, logEvento, upsertCobranca } from '../_shared/crm.ts';
+import { admin, cors, getConfig, logEvento, upsertCobranca, notificarCobranca, ativarRecorrencia } from '../_shared/crm.ts';
 
 const ok = () => new Response('ok', { headers: cors });
 const deny = () => new Response('forbidden', { status: 403, headers: cors });
@@ -22,9 +22,15 @@ Deno.serve(async (req) => {
       const p = payload.payment;
       if (!p) return ok();
       await upsertCobranca(db, p);
-      const { data: fin } = await db.from('associado_financeiro').select('company_id')
-        .or(`asaas_customer_id.eq.${p.customer},asaas_subscription_id.eq.${p.subscription}`).maybeSingle();
+      const { data: fin } = await db.from('associado_financeiro').select('company_id, adesao_payment_id, asaas_subscription_id')
+        .or(`asaas_customer_id.eq.${p.customer},asaas_subscription_id.eq.${p.subscription},adesao_payment_id.eq.${p.id}`).maybeSingle();
       if (!fin) return ok();
+
+      // Mensalidade nova da assinatura: envia o boleto por WhatsApp e e-mail (uma vez por cobrança).
+      if (event === 'PAYMENT_CREATED' && p.subscription) {
+        await notificarCobranca(db, p, fin.company_id).catch((e) => console.error('notificar', e));
+        return ok();
+      }
       const { data: c } = await db.from('companies').select('status_associado, data_adesao').eq('id', fin.company_id).single();
 
       await db.from('associado_financeiro').update({
@@ -39,6 +45,11 @@ Deno.serve(async (req) => {
         if (['inscrito', 'inadimplente'].includes(c.status_associado)) {
           await db.from('companies').update({ status_associado: 'ativo', data_adesao: c.data_adesao || new Date().toLocaleDateString('en-CA', { timeZone: 'America/Fortaleza' }) }).eq('id', fin.company_id);
           await logEvento(db, fin.company_id, 'status', 'Status alterado para ativo após pagamento.');
+        }
+        // 1º boleto (adesão) pago: liga a cobrança recorrente mensal no Asaas.
+        if (p.id === fin.adesao_payment_id && !fin.asaas_subscription_id) {
+          try { await ativarRecorrencia(db, fin.company_id); }
+          catch (e) { await logEvento(db, fin.company_id, 'cobranca', `Falha ao ligar a recorrência: ${(e as Error).message}`); }
         }
       } else if (event === 'PAYMENT_OVERDUE') {
         await logEvento(db, fin.company_id, 'pagamento', `Mensalidade de ${valor} venceu sem pagamento.`);

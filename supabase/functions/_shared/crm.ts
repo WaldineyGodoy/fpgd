@@ -64,6 +64,7 @@ export const SECRET_FIELDS: Record<string, string[]> = {
   evolution: ['api_key'],
   resend: ['api_key'],
   asaas: ['api_key_sandbox', 'api_key_producao', 'webhook_token'],
+  automacao: [],
   contrato: [],
 };
 
@@ -253,4 +254,131 @@ export async function documensoStatus(cfg: Record<string, any>, documentId: stri
   if (st === 'REJECTED' || recs.some((r) => String(r.signingStatus).toUpperCase() === 'REJECTED')) return 'recusado';
   if (st === 'COMPLETED') return 'assinado';
   return 'enviado';
+}
+
+// ---------- Automação da adesão ----------
+
+/** Data de hoje (AAAA-MM-DD) no fuso do RN. */
+export const hojeRN = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Fortaleza' });
+
+export function somarDias(iso: string, dias: number) {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + dias);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Próximo dia `dia` do mês que caia pelo menos `folga` dias depois de hoje. */
+export function proximoVencimento(dia: number, folga = 0) {
+  const limite = somarDias(hojeRN(), folga);
+  const [y, m] = hojeRN().split('-').map(Number);
+  for (let i = 0; i < 3; i++) {
+    const iso = new Date(Date.UTC(y, m - 1 + i, Math.min(dia, 28))).toISOString().slice(0, 10);
+    if (iso > limite) return iso;
+  }
+  return somarDias(limite, 30);
+}
+
+const brlFmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const dataFmt = (iso: string) => iso.slice(0, 10).split('-').reverse().join('/');
+
+/** Cliente do associado no Asaas (reaproveita, busca pelo CNPJ ou cria). */
+export async function asaasCliente(cfg: Record<string, any>, c: Record<string, any>, existente?: string | null, notificar = false) {
+  if (existente) return existente;
+  const doc = onlyDigits(c.cnpj);
+  const found = await asaas(cfg, `/customers?cpfCnpj=${doc}`);
+  if (found.data?.[0]?.id) return found.data[0].id as string;
+  const created = await asaas(cfg, '/customers', {
+    method: 'POST',
+    body: {
+      name: c.razao_social || c.nome_fantasia, cpfCnpj: doc, email: c.email || undefined,
+      mobilePhone: onlyDigits(c.telefone) || undefined, postalCode: onlyDigits(c.cep) || undefined,
+      address: c.logradouro || undefined, addressNumber: c.numero || undefined, province: c.bairro || undefined,
+      externalReference: c.id, notificationDisabled: !notificar,
+    },
+  });
+  return created.id as string;
+}
+
+/**
+ * Envia o boleto/fatura ao associado pelo WhatsApp (Evolution) e e-mail (Resend).
+ * Marca cobrancas.notificado_em para nunca mandar a mesma cobrança duas vezes.
+ */
+export async function notificarCobranca(db: SupabaseClient, p: Record<string, any>, companyId: string, primeira = false) {
+  const { data: cb } = await db.from('cobrancas').select('id, notificado_em').eq('asaas_payment_id', p.id).maybeSingle();
+  if (cb?.notificado_em) return { enviados: [] as string[], avisos: [] as string[] };
+  const { data: c } = await db.from('companies').select('nome_fantasia, razao_social, contato_nome, email, telefone').eq('id', companyId).single();
+  const nome = c.nome_fantasia || c.razao_social || 'associado';
+  const ola = c.contato_nome ? `Olá, ${String(c.contato_nome).split(' ')[0]}!` : 'Olá!';
+  const valor = brlFmt(Number(p.value || 0));
+  const venc = dataFmt(String(p.dueDate));
+  const link = p.invoiceUrl as string;
+  const boleto = (p.bankSlipUrl as string) || null;
+  const assunto = primeira ? `Boleto de adesão à FPGD RN — ${valor}` : `Mensalidade FPGD RN — vence em ${venc}`;
+  const texto = primeira
+    ? `${ola} Bem-vindo à FPGD RN. O boleto da adesão (1ª mensalidade) de ${valor} vence em ${venc}. Assim que for pago, sua associação fica ativa. Pague por aqui: ${link}`
+    : `${ola} Sua mensalidade da FPGD RN de ${valor} vence em ${venc}. Pague por aqui: ${link}`;
+  const enviados: string[] = [];
+  const avisos: string[] = [];
+
+  if (c.telefone) {
+    try {
+      const evo = await getConfig(db, 'evolution');
+      requireFields(evo, ['base_url', 'instance', 'api_key'], 'Evolution');
+      await evolutionSendText(evo, phoneBR(c.telefone), texto);
+      enviados.push('WhatsApp');
+    } catch (e) { avisos.push((e as Error).message); }
+  }
+  if (c.email) {
+    try {
+      const rs = await getConfig(db, 'resend');
+      requireFields(rs, ['api_key', 'from'], 'Resend');
+      const corpo = primeira
+        ? `Bem-vindo à <b>FPGD RN</b>. O boleto da adesão da <b>${nome}</b> (1ª mensalidade) está disponível. Assim que for pago, a associação fica ativa e as próximas mensalidades passam a chegar todo mês.`
+        : `A mensalidade da <b>${nome}</b> à FPGD RN está disponível.`;
+      await resendSend(rs, c.email, assunto, `
+        <div style="font-family:Arial,sans-serif;font-size:15px;color:#0B1F3A;line-height:1.55">
+          <p>${ola}</p>
+          <p>${corpo}</p>
+          <p style="font-size:17px"><b>${valor}</b> · vence em <b>${venc}</b></p>
+          <p><a href="${link}" style="background:#1747A6;color:#fff;padding:12px 20px;text-decoration:none;display:inline-block">Pagar agora</a></p>
+          ${boleto ? `<p style="font-size:13px"><a href="${boleto}">Baixar o boleto em PDF</a></p>` : ''}
+          <p style="color:#4b5a70;font-size:13px">FPGD RN · Frente Potiguar de Geração Distribuída</p>
+        </div>`);
+      enviados.push('e-mail');
+    } catch (e) { avisos.push((e as Error).message); }
+  }
+  if (enviados.length) {
+    await db.from('cobrancas').update({ notificado_em: new Date().toISOString() }).eq('asaas_payment_id', p.id);
+    await logEvento(db, companyId, 'cobranca', `${primeira ? 'Boleto de adesão' : 'Mensalidade'} de ${valor} (vence ${venc}) enviado por ${enviados.join(' e ')}.`);
+  } else {
+    await logEvento(db, companyId, 'cobranca', `Cobrança de ${valor} criada, mas não foi enviada: ${avisos.join(' · ') || 'associado sem e-mail e sem telefone'}.`);
+  }
+  return { enviados, avisos };
+}
+
+/** Depois do 1º pagamento: cria a assinatura mensal no Asaas a partir do próximo vencimento do plano. */
+export async function ativarRecorrencia(db: SupabaseClient, companyId: string) {
+  const { data: fin } = await db.from('associado_financeiro').select('*').eq('company_id', companyId).maybeSingle();
+  if (!fin || fin.asaas_subscription_id) return null;
+  const { data: c } = await db.from('companies').select('*').eq('id', companyId).single();
+  const { data: plano } = await db.from('planos').select('*').eq('id', c.plano_id).maybeSingle();
+  if (!plano) throw new HttpError(400, 'Associado sem plano: não dá para ligar a cobrança recorrente.');
+  const cfg = await getConfig(db, 'asaas');
+  requireAsaas(cfg);
+  const customer = await asaasCliente(cfg, c, fin.asaas_customer_id);
+  const due = proximoVencimento(plano.dia_vencimento, 20);
+  const sub = await asaas(cfg, '/subscriptions', {
+    method: 'POST',
+    body: {
+      customer, billingType: cfg.billing_type && cfg.billing_type !== 'UNDEFINED' ? cfg.billing_type : 'BOLETO',
+      value: Number(plano.valor), nextDueDate: due, cycle: plano.ciclo,
+      description: `Mensalidade FPGD RN — ${plano.nome}`, externalReference: c.id,
+    },
+  });
+  await db.from('associado_financeiro').update({
+    asaas_customer_id: customer, asaas_subscription_id: sub.id, status_assinatura: sub.status || 'ACTIVE',
+    proximo_vencimento: sub.nextDueDate || due, valor: plano.valor, updated_at: new Date().toISOString(),
+  }).eq('company_id', companyId);
+  await logEvento(db, companyId, 'cobranca', `Cobrança recorrente ligada no Asaas: ${plano.nome}, ${brlFmt(Number(plano.valor))}, próximo vencimento ${dataFmt(due)}.`);
+  return sub;
 }
