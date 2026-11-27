@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Plus, Save, PlugZap, Trash2, Copy, Eye, EyeOff, Lock, Check, ShieldCheck } from 'lucide-react';
+import { Plus, Save, PlugZap, Trash2, Copy, Eye, EyeOff, Lock, Check, ShieldCheck, Webhook } from 'lucide-react';
 import { setTicketsEnabled, useTicketsEnabled } from '../crm/settings';
 import { matriculaLabel, nomeAssociado } from '../crm/data';
 import { supabase } from '../supabaseClient';
@@ -110,7 +110,7 @@ const CrmConfigPage: React.FC = () => {
                 { key: 'api_key_sandbox', label: 'Chave de API · Sandbox', secret: true, hint: 'Começa com $aact_hmlg_. Usada quando o ambiente é Sandbox.' },
                 { key: 'api_key_producao', label: 'Chave de API · Produção', secret: true, hint: 'Começa com $aact_prod_. Usada quando o ambiente é Produção.' },
                 { key: 'billing_type', label: 'Forma de pagamento padrão', type: 'select', options: [['UNDEFINED', 'Associado escolhe'], ['PIX', 'Pix'], ['BOLETO', 'Boleto'], ['CREDIT_CARD', 'Cartão de crédito']] },
-                { key: 'webhook_token', label: 'Token do webhook', secret: true, hint: 'O mesmo valor informado no painel do Asaas.' },
+                { key: 'webhook_token', label: 'Token do webhook', secret: true, hint: 'Gerado pelo botão “Configurar webhook automaticamente”, ou o mesmo valor informado no painel do Asaas.' },
               ]} />
           )}
           {!['planos', 'sistema'].includes(section) && !cfg && !cfgError && <div className="skeleton h-80" />}
@@ -390,6 +390,14 @@ const IntegrationSection: React.FC<{
     setTesting(false);
   };
 
+  const [hooking, setHooking] = useState(false);
+  const configurarWebhook = async () => {
+    setHooking(true); setTest(null);
+    try { const r = await callFn<{ detalhe: string }>('crm-config', { action: 'asaas_webhook' }); setTest({ ok: true, text: r.detalhe }); onSaved(); }
+    catch (e) { setTest({ ok: false, text: (e as Error).message }); }
+    setHooking(false);
+  };
+
   const webhookUrl = webhook && webhookParam ? `${webhook}&${webhookParam}=<token do webhook>` : webhook;
 
   return (
@@ -450,6 +458,12 @@ const IntegrationSection: React.FC<{
       )}
       {!readOnly && (
         <footer className="px-5 pb-5 flex flex-wrap justify-end gap-2">
+          {chave === 'asaas' && (
+            <button className="btn btn-secondary mr-auto" onClick={configurarWebhook} disabled={hooking}
+              title="Gera o token, salva aqui e cadastra a URL no Asaas do ambiente escolhido">
+              <Webhook size={16} /> {hooking ? 'Configurando…' : 'Configurar webhook automaticamente'}
+            </button>
+          )}
           <button className="btn btn-secondary" onClick={runTest} disabled={testing}><PlugZap size={16} /> {testing ? 'Testando…' : 'Testar conexão'}</button>
           <button className="btn btn-primary" onClick={save} disabled={saving}><Save size={16} /> {saving ? 'Salvando…' : 'Salvar'}</button>
         </footer>

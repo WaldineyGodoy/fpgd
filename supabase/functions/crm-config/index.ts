@@ -95,5 +95,36 @@ Deno.serve(handler(async (req) => {
     throw new HttpError(400, 'Nada para testar nesta seção.');
   }
 
+  // Cadastra (ou atualiza) o webhook da FPGD no Asaas do ambiente escolhido, com token gerado aqui.
+  if (action === 'asaas_webhook') {
+    const { db, user, root } = await requireStaff(req, true);
+    if (!root) throw new HttpError(403, 'Só o superadmin configura o webhook.');
+    const cfg = await getConfig(db, 'asaas');
+    requireAsaas(cfg);
+    const url = `${Deno.env.get('SUPABASE_URL')}/functions/v1/crm-webhooks?src=asaas`;
+    const token = cfg.webhook_token || `fpgd_${crypto.randomUUID().replace(/-/g, '')}${crypto.randomUUID().replace(/-/g, '')}`;
+    const conta = await asaas(cfg, '/myAccount/commercialInfo');
+    const payload = {
+      name: 'FPGD CRM', url, email: conta.email, enabled: true, interrupted: false, apiVersion: 3,
+      authToken: token, sendType: 'SEQUENTIALLY',
+      events: [
+        'PAYMENT_CREATED', 'PAYMENT_UPDATED', 'PAYMENT_CONFIRMED', 'PAYMENT_RECEIVED', 'PAYMENT_OVERDUE',
+        'PAYMENT_DELETED', 'PAYMENT_RESTORED', 'PAYMENT_REFUNDED', 'PAYMENT_RECEIVED_IN_CASH_UNDONE',
+      ],
+    };
+    const lista = await asaas(cfg, '/webhooks?limit=100');
+    const existente = (lista.data || []).find((w: any) => w.url === url);
+    const w = existente
+      ? await asaas(cfg, `/webhooks/${existente.id}`, { method: 'PUT', body: payload })
+      : await asaas(cfg, '/webhooks', { method: 'POST', body: payload });
+    if (token !== cfg.webhook_token) {
+      const next = { ...cfg, webhook_token: token };
+      const { error } = await db.from('crm_config').upsert({ chave: 'asaas', valor: next, updated_at: new Date().toISOString(), updated_by: user.id });
+      if (error) throw new HttpError(500, error.message);
+    }
+    const amb = cfg.ambiente === 'producao' ? 'produção' : 'sandbox';
+    return json({ ok: true, detalhe: `Webhook ${existente ? 'atualizado' : 'cadastrado'} no Asaas (${amb}), ${payload.events.length} eventos de cobrança${w.id ? `, id ${w.id}` : ''}.` });
+  }
+
   throw new HttpError(400, 'Ação inválida.');
 }));

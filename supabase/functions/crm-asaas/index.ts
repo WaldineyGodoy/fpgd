@@ -2,7 +2,8 @@ import {
   handler, json, requireStaff, HttpError, getConfig, requireAsaas, logEvento, asaas, onlyDigits, upsertCobranca,
 } from '../_shared/crm.ts';
 
-const today = () => new Date().toISOString().slice(0, 10);
+// Data de hoje no fuso do RN (o servidor roda em UTC; à noite já seria o dia seguinte).
+const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Fortaleza' });
 
 function nextDue(dia: number) {
   const d = new Date();

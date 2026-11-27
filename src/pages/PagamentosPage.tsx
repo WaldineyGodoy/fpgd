@@ -35,7 +35,7 @@ const FORMA: Record<string, string> = {
 };
 
 const thisMonth = () => new Date().toISOString().slice(0, 7);
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => new Date().toLocaleDateString('en-CA'); // data local, não UTC
 
 const PagamentosPage: React.FC = () => {
   const toast = useToast();

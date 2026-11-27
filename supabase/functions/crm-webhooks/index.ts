@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       if (PAGO.includes(event)) {
         await logEvento(db, fin.company_id, 'pagamento', `Mensalidade de ${valor} paga.`);
         if (['inscrito', 'inadimplente'].includes(c.status_associado)) {
-          await db.from('companies').update({ status_associado: 'ativo', data_adesao: c.data_adesao || new Date().toISOString().slice(0, 10) }).eq('id', fin.company_id);
+          await db.from('companies').update({ status_associado: 'ativo', data_adesao: c.data_adesao || new Date().toLocaleDateString('en-CA', { timeZone: 'America/Fortaleza' }) }).eq('id', fin.company_id);
           await logEvento(db, fin.company_id, 'status', 'Status alterado para ativo após pagamento.');
         }
       } else if (event === 'PAYMENT_OVERDUE') {
